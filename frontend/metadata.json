@@ -1,0 +1,6 @@
+{
+  "name": "Service Assist - Premium On-Demand Home Services",
+  "description": "Book trusted professionals for cleaning, repairs, beauty, maintenance and home services at your doorstep.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
