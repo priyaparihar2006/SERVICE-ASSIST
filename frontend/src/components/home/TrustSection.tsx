@@ -37,7 +37,7 @@ export const TrustSection: React.FC = () => {
               <Star className="w-3.5 h-3.5 fill-[var(--color-brand-bright)] text-[var(--color-brand-bright)]" />
               <span>The Service Assist Safety & Quality Promise</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight font-['Outfit']">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight font-['Outfit']">
               Professionals you can genuinely trust in your home.
             </h2>
             <p className="text-sm sm:text-base text-[var(--color-brand-light)]/80 mt-4 leading-relaxed">

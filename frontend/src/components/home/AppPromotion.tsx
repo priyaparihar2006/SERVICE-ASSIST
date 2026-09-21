@@ -15,7 +15,7 @@ export const AppPromotion: React.FC = () => {
                 <Smartphone className="w-3.5 h-3.5" />
                 <span>Service Assist Mobile App</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight font-['Outfit']">
+              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight font-['Outfit']">
                 Track your professional in real time with our mobile app.
               </h2>
               <p className="text-xs sm:text-sm text-gray-300 max-w-xl leading-relaxed">
