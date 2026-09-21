@@ -128,20 +128,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Pricing calculations
   const subtotal = items.reduce((sum, item) => sum + item.variant.price * item.quantity, 0);
 
-  let discount = 0;
-  if (appliedCoupon && subtotal >= appliedCoupon.minBookingAmount) {
-    if (appliedCoupon.discountType === 'FLAT') {
-      discount = appliedCoupon.value;
-    } else {
-      discount = Math.round((subtotal * appliedCoupon.value) / 100);
-      if (appliedCoupon.maxDiscount && discount > appliedCoupon.maxDiscount) {
-        discount = appliedCoupon.maxDiscount;
-      }
-    }
-  }
-
-  // Ensure discount doesn't exceed subtotal
-  discount = Math.min(discount, subtotal);
+  // The discount comes from the server (see applyCoupon); the browser never calculates it. Checkout
+  // re-validates the coupon and prices the booking again on the server.
+  const discount = Math.min(appliedCoupon?.discount ?? 0, subtotal);
 
   // Tax collection is not configured.
   const taxes = 0; // Configure jurisdiction-specific taxes before charging tax.
@@ -154,31 +143,74 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, 0);
   const totalSaved = Math.max(0, originalTotal - subtotal + discount);
 
+  // Asks the server to price this cart with the coupon. Only the code and the cart's item ids and
+  // quantities are sent: amounts and discounts are always calculated on the server.
+  const validateCoupon = async (code: string) => {
+    const res = await apiFetch('/api/coupons/validate', {
+      method: 'POST',
+      body: JSON.stringify({
+        code,
+        items: items.map((i) => ({ serviceId: i.service.id, variantId: i.variant.id, quantity: i.quantity })),
+      }),
+    });
+    return res.json();
+  };
+
   const applyCoupon = async (code: string): Promise<boolean> => {
     setCouponError(null);
     setCouponSuccess(null);
     const cleanCode = code.trim().toUpperCase();
+    if (!cleanCode) {
+      setCouponError('Enter a coupon code');
+      return false;
+    }
+    if (!items.length) {
+      setCouponError('Add a service to your cart before applying a coupon');
+      return false;
+    }
 
     try {
-      const res = await apiFetch('/api/coupons/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: cleanCode, amount: subtotal }),
-      });
-      const data = await res.json();
+      const data = await validateCoupon(cleanCode);
       if (data.valid && data.coupon) {
-        setAppliedCoupon(data.coupon);
+        setAppliedCoupon({ ...data.coupon, discount: data.discount });
         setCouponSuccess(data.message);
         return true;
-      } else {
-        setCouponError(data.message || 'Invalid coupon');
-        return false;
       }
-    } catch (e) {
-      setCouponError(e.message);
+      setCouponError(data.message || 'This coupon could not be applied');
+      return false;
+    } catch (e: any) {
+      // Show the server's actual reason (expired, minimum not met, wrong category, already used...).
+      setCouponError(e.message || 'This coupon could not be applied');
       return false;
     }
   };
+
+  // The cart changed: price the applied coupon again so the shown discount always matches the server.
+  const cartSignature = items.map((i) => `${i.variant.id}:${i.quantity}`).join('|');
+  useEffect(() => {
+    if (!appliedCoupon) return;
+    if (!items.length) {
+      setAppliedCoupon(null);
+      setCouponSuccess(null);
+      return;
+    }
+    let cancelled = false;
+    validateCoupon(appliedCoupon.code)
+      .then((data) => {
+        if (!cancelled && data.valid && data.coupon) setAppliedCoupon({ ...data.coupon, discount: data.discount });
+      })
+      .catch((e: any) => {
+        // The coupon no longer fits this cart (e.g. its category was removed): drop it and say why.
+        // Network/server failures keep it; checkout validates again.
+        if (cancelled || !e.status || e.status >= 500 || e.status === 429) return;
+        setAppliedCoupon(null);
+        setCouponSuccess(null);
+        setCouponError(e.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [cartSignature]);
 
   const removeCoupon = () => {
     setAppliedCoupon(null);

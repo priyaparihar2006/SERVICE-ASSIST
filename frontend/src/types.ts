@@ -195,7 +195,10 @@ export interface Coupon {
   description: string;
   maxDiscount?: number;
   expiry: string;
-  categoryLimit?: string;
+  // Category ids the coupon is limited to (empty or missing = all services).
+  categoryIds?: string[];
+  // The discount the server calculated for the current cart. Never computed in the browser.
+  discount?: number;
 }
 
 export interface NotificationItem {

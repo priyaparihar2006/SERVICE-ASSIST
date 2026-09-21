@@ -113,6 +113,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                           <h4 className="font-semibold text-gray-900 text-sm truncate">{item.service.name}</h4>
                           <button
                             onClick={() => removeItem(item.variant.id)}
+                            aria-label={`Remove ${item.service.name}`}
                             className="text-gray-400 hover:text-red-500 p-1 cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
