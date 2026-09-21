@@ -17,6 +17,8 @@ To use a different API, copy `.env.example` to `.env` and set `VITE_API_URL` to 
 
 The frontend now uses real loading/error/empty states, persisted addresses/profile, actual booking history and role-gated dashboards. Administration and professional settings extend the existing dashboards without replacing their original layouts. Categories come from the backend, including service counts; the old static category list is no longer used for filtering.
 
+The dev server uses `strictPort`: if port 5173 is already taken (for example a second `npm run dev`), Vite stops with an error instead of silently picking another port, because the API only trusts the origins listed in its `FRONTEND_ORIGINS`. Close the other server, or add the new origin there. See the backend guide's "Origin is not allowed" note.
+
 ## Checks
 
 ```powershell

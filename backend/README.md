@@ -50,7 +50,7 @@ Money uses PostgreSQL Decimal columns; booking totals are calculated from databa
 | `JWT_SECRET` | Random secret, at least 32 characters; never a frontend variable |
 | `PORT` | API port; default 5000 |
 | `NODE_ENV` | development, test or production |
-| `FRONTEND_ORIGINS` | Comma-separated exact allowed frontend origins; default http://localhost:5173 |
+| `FRONTEND_ORIGINS` | Comma-separated exact browser origins allowed to call the API (also gates the chat WebSocket). Validated at startup: no `*`, path or query; a trailing slash is normalised. Optional in development, where it defaults to `http://localhost:5173,http://127.0.0.1:5173` (a browser treats `localhost` and `127.0.0.1` as different origins); **required in production**, where the API refuses to start without it |
 | `COOKIE_SAME_SITE` | lax by default; none requires HTTPS and may still be blocked by third-party-cookie policies |
 | `TRUST_PROXY` | Exact number of trusted reverse-proxy hops; default 0 |
 | `SEED_DEMO`, `DEMO_PASSWORD` | Explicit non-production demo seed opt-in and password |
@@ -93,7 +93,8 @@ All paths below start with `/api`. Successful collection responses use named arr
 | GET `/professionals/bookings` | Own assignments |
 | PUT `/professionals/bookings/:id/status` | Accept, reject and progress own assignment |
 | GET `/professionals/earnings` | Actual collected payments for completed assignments, before any settlement deductions |
-| GET `/offers`, `/coupons`; POST `/coupons/validate` | Active vouchers / eligibility preview; checkout revalidates |
+| GET `/offers`, `/coupons` | Active vouchers |
+| POST `/coupons/validate` | `{code, items:[{serviceId, variantId?, quantity}]}` -> `{valid, coupon, subtotal, discount, taxes, total, message}`. Public (a signed-in user also gets the per-customer usage check). The **server** prices the cart from database prices and calculates the discount; amounts or discounts in the request are ignored. Rate limited to 30 attempts/minute per IP. Checkout re-validates and re-prices everything |
 | GET/POST `/reviews` | Public reviews / customer's completed booking review |
 | GET `/notifications`; PATCH `/notifications/:id/read` | Own notifications |
 | GET/POST `/support/tickets` | Own tickets; admins can list all |
@@ -223,6 +224,14 @@ Losing every copy of a master key version makes conversations wrapped under it u
 
 - Presence, socket connection caps and the REST rate limiters are in memory. Before running more than one API instance, add a Socket.IO Redis adapter with shared presence, and a shared rate-limit store (or enforce limits at the gateway).
 - Not implemented: image/file attachments (they need access-controlled object storage, type/size/malware checks and signed URLs), push/e-mail/SMS notifications (in-app notifications only, without message text), an admin UI for reports, message retention/erasure jobs.
+
+### Coupon rules
+
+A coupon can be limited to categories (`Offer.categoryIds`, empty = all) and to a number of uses per customer (`Offer.maxUsesPerCustomer`; cancelled bookings do not count). The discount is calculated on the **eligible** items only, checked against the coupon's minimum, and capped by `maxDiscount` and the eligible subtotal. Rejections say why (not valid, expired, minimum not met, wrong category, already used). Seeded: `WELCOME150` (flat 150, min 399, one use per customer), `CLEAN10` (10%, max 200, min 500, Home Cleaning, Bathroom Cleaning, Sofa Cleaning and Pest Control), `SALON200` (Beauty & Salon), `WEEKEND50`, `FESTIVE300`. Re-running `npm run db:seed` applies restrictions to existing coupon rows. Taxes are currently zero.
+
+### Troubleshooting: "Origin is not allowed"
+
+Every non-GET request under `/api` is checked against `FRONTEND_ORIGINS` (a CSRF defence for cookie sessions; this is not CORS). The browser's `Origin` must match an allowed entry exactly: scheme, host (`localhost` is not `127.0.0.1`) and port. Typical causes are a second dev server that moved to another port (Vite prints the URL it actually used), or opening `http://127.0.0.1:5173` when only `localhost` is allowed. In development the error message names the rejected origin and the allowed ones, and the API logs an `origin_rejected` line. Fix it by opening the app at an allowed URL or adding that exact origin to `FRONTEND_ORIGINS`; never use `*`.
 
 ## Testing
 
