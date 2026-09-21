@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { db } from '../config/db.js';
-import { ensure } from '../utils/errors.js';
+import { HttpError, ensure } from '../utils/errors.js';
 import { bookingInclude } from '../utils/serializers.js';
 import { announceClosed, closeConversationsForBooking } from './chat.service.js';
 
@@ -45,30 +45,89 @@ export function slotStart(date, slot) {
   );
   return start;
 }
-export async function discountFor(tx, code, subtotal) {
-  if (!code) return { discount: 0, coupon: null };
-  const coupon = await tx.offer.findUnique({ where: { code: code.toUpperCase() } });
+const rupees = (n) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(n);
+
+/**
+ * The only place a coupon discount is calculated, for both the cart preview and booking creation.
+ * `lines` come from database prices ({ categoryId, paise }); nothing the browser sends about amounts
+ * or discounts is trusted. `customerId` enables the per-customer usage limit.
+ */
+export async function discountFor(tx, code, lines, customerId) {
+  const subtotal = lines.reduce((sum, l) => sum + l.paise, 0) / 100;
+  if (!code) return { discount: 0, coupon: null, subtotal, eligibleSubtotal: subtotal };
+  const coupon = await tx.offer.findUnique({ where: { code: code.trim().toUpperCase() } });
+  ensure(coupon && coupon.isActive, 400, 'This coupon code is not valid');
+  ensure(coupon.expiry > new Date(), 400, 'This coupon has expired');
+  const restricted = coupon.categoryIds.length > 0;
+  const eligibleSubtotal =
+    lines
+      .filter((l) => !restricted || coupon.categoryIds.includes(l.categoryId))
+      .reduce((sum, l) => sum + l.paise, 0) / 100;
+  if (eligibleSubtotal <= 0) {
+    const names = (
+      await tx.category.findMany({
+        where: { id: { in: coupon.categoryIds } },
+        select: { name: true },
+      })
+    ).map((c) => c.name);
+    throw new HttpError(
+      400,
+      `${coupon.code} applies only to ${names.join(', ') || 'selected'} services, and your cart has none of them`,
+    );
+  }
+  const minimum = Number(coupon.minBookingAmount);
   ensure(
-    coupon &&
-      coupon.isActive &&
-      coupon.expiry > new Date() &&
-      subtotal >= Number(coupon.minBookingAmount),
+    eligibleSubtotal >= minimum,
     400,
-    'Coupon is expired or minimum booking amount is not met',
+    `${coupon.code} needs ${restricted ? 'eligible services worth' : 'a booking of'} at least \u20B9${rupees(minimum)} (yours is \u20B9${rupees(eligibleSubtotal)})`,
   );
+  if (customerId && coupon.maxUsesPerCustomer != null) {
+    const used = await tx.booking.count({
+      where: {
+        customerId,
+        couponCode: { equals: coupon.code, mode: 'insensitive' },
+        status: { not: 'CANCELLED' },
+      },
+    });
+    ensure(used < coupon.maxUsesPerCustomer, 400, `You have already used ${coupon.code}`);
+  }
   const raw =
     coupon.discountType === 'FLAT'
       ? Number(coupon.value)
-      : Math.round((subtotal * Number(coupon.value)) / 100);
+      : Math.round((eligibleSubtotal * Number(coupon.value)) / 100);
   return {
     coupon,
+    subtotal,
+    eligibleSubtotal,
     discount: Math.min(
-      subtotal,
+      eligibleSubtotal,
       raw,
-      coupon.maxDiscount == null ? subtotal : Number(coupon.maxDiscount),
+      coupon.maxDiscount == null ? eligibleSubtotal : Number(coupon.maxDiscount),
     ),
   };
 }
+
+/** Prices cart items from the database (never from the request) for the coupon preview. */
+export async function cartLines(tx, items) {
+  const lines = [];
+  for (const item of items) {
+    const service = await tx.service.findFirst({
+      where: { id: item.serviceId, isActive: true, category: { isActive: true } },
+      include: { variants: true },
+    });
+    ensure(service, 400, 'A service in your cart is no longer available');
+    const variant = item.variantId
+      ? service.variants.find((v) => v.id === item.variantId)
+      : service.variants[0];
+    ensure(variant, 400, 'Invalid service package');
+    lines.push({
+      categoryId: service.categoryId,
+      paise: Math.round(Number(variant.price) * 100) * item.quantity,
+    });
+  }
+  return lines;
+}
+
 export async function createBooking(user, data, requestKey) {
   return db.$transaction(async (tx) => {
     // Serialize duplicate submissions for this customer before reading their key.
@@ -92,6 +151,7 @@ export async function createBooking(user, data, requestKey) {
     let subtotal = 0,
       duration = 0;
     const items = [];
+    const lines = [];
     for (const item of requested) {
       const service = await tx.service.findFirst({
         where: {
@@ -112,6 +172,10 @@ export async function createBooking(user, data, requestKey) {
       ensure(variant, 400, 'Invalid service package');
       const quantity = item.quantity || 1;
       subtotal += Math.round(Number(variant.price) * 100) * quantity;
+      lines.push({
+        categoryId: service.categoryId,
+        paise: Math.round(Number(variant.price) * 100) * quantity,
+      });
       duration += variant.durationMin * quantity;
       items.push({
         serviceId: service.id,
@@ -130,7 +194,7 @@ export async function createBooking(user, data, requestKey) {
       400,
       'The service would finish after working hours; choose an earlier slot',
     );
-    const { discount } = await discountFor(tx, data.couponCode, subtotal);
+    const { discount, coupon } = await discountFor(tx, data.couponCode, lines, user.id);
     const totalAmount = subtotal - discount;
     const booking = await tx.booking.create({
       data: {
@@ -147,7 +211,7 @@ export async function createBooking(user, data, requestKey) {
         taxes: 0,
         totalAmount,
         notes: data.notes || data.specialInstructions || '',
-        couponCode: data.couponCode,
+        couponCode: coupon?.code,
         verificationOtp: String(randomInt(1000, 10000)),
         requestKey,
         items: { create: items },

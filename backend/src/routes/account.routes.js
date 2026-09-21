@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 import { db } from '../config/db.js';
-import { authenticate, authorize } from '../middleware/auth.js';
+import { authenticate, authorize, optionalAuthenticate } from '../middleware/auth.js';
 import { validate, id, text, pageQuery } from '../middleware/validate.js';
 import { endpoint, ensure } from '../utils/errors.js';
-import { discountFor } from '../services/booking.service.js';
+import { cartLines, discountFor } from '../services/booking.service.js';
 const router = Router();
 const address = z.object({
   type: z.enum(['Home', 'Work', 'Other']).default('Home'),
@@ -73,16 +74,66 @@ router.get(
     }),
   ),
 );
+// Slows down guessing of coupon codes.
+const couponLimiter = rateLimit({
+  windowMs: 60000,
+  limit: 30,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  handler: (req, res) =>
+    res
+      .status(429)
+      .json({ error: 'Too many coupon attempts. Please wait a minute and try again.' }),
+});
+const publicCoupon = (c) => ({
+  code: c.code,
+  description: c.description,
+  discountType: c.discountType,
+  value: Number(c.value),
+  minBookingAmount: Number(c.minBookingAmount),
+  maxDiscount: c.maxDiscount == null ? undefined : Number(c.maxDiscount),
+  expiry: c.expiry,
+  categoryIds: c.categoryIds,
+});
+// Preview only: the cart total and discount are computed here from database prices. The browser
+// sends the code and which items are in the cart, never an amount. Checkout re-validates everything.
 router.post(
   '/coupons/validate',
-  validate(z.object({ code: text, amount: z.number().min(0).max(10000000) })),
-  endpoint(async (req, res) =>
-    res.json({
-      valid: true,
-      ...(await discountFor(db, req.validated.code, req.validated.amount)),
-      message: 'Coupon applied. Final pricing is checked at checkout.',
+  couponLimiter,
+  optionalAuthenticate,
+  validate(
+    z.object({
+      code: text,
+      items: z
+        .array(
+          z.object({
+            serviceId: id,
+            variantId: id.optional(),
+            quantity: z.number().int().min(1).max(10).default(1),
+          }),
+        )
+        .min(1)
+        .max(10),
     }),
   ),
+  endpoint(async (req, res) => {
+    const lines = await cartLines(db, req.validated.items);
+    const { coupon, discount, subtotal } = await discountFor(
+      db,
+      req.validated.code,
+      lines,
+      req.user?.id,
+    );
+    res.json({
+      valid: true,
+      coupon: publicCoupon(coupon),
+      subtotal,
+      discount,
+      taxes: 0,
+      total: subtotal - discount,
+      message: `${coupon.code} applied: you save \u20B9${discount}. Final pricing is confirmed at checkout.`,
+    });
+  }),
 );
 router.get(
   '/notifications',

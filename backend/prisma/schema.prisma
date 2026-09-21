@@ -275,6 +275,10 @@ model Offer {
   maxDiscount Decimal? @db.Decimal(12, 2)
   expiry DateTime
   isActive Boolean @default(true)
+  // Category ids the coupon applies to; empty means every category.
+  categoryIds String[] @default([])
+  // How many non-cancelled bookings one customer may use it on (NULL = unlimited).
+  maxUsesPerCustomer Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

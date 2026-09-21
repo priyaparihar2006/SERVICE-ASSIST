@@ -969,6 +969,7 @@ export const COUPONS = [
     minBookingAmount: 399,
     description: 'Flat ₹150 OFF on your first Service Assist service booking',
     expiry: '2026-12-31',
+    maxUsesPerCustomer: 1,
   },
   {
     code: 'CLEAN10',
@@ -978,7 +979,7 @@ export const COUPONS = [
     maxDiscount: 200,
     description: '10% OFF on all Cleaning & Pest Control services',
     expiry: '2026-10-30',
-    categoryLimit: 'cat-cleaning',
+    categoryIds: ['cat-cleaning', 'cat-bathroom-cleaning', 'cat-sofa-cleaning', 'cat-pest-control'],
   },
   {
     code: 'SALON200',
@@ -987,7 +988,7 @@ export const COUPONS = [
     minBookingAmount: 799,
     description: 'Flat ₹200 OFF on premium salon at home packages',
     expiry: '2026-11-15',
-    categoryLimit: 'cat-beauty',
+    categoryIds: ['cat-beauty'],
   },
   {
     code: 'WEEKEND50',

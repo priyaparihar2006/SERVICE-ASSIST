@@ -415,10 +415,14 @@ test('PostgreSQL-backed marketplace integration', async (t) => {
     });
     await request(app).get('/api/coupons').expect(200);
     await request(app).get('/api/offers').expect(200);
-    await send(customer, 'post', '/api/coupons/validate', { code: 'TEST50', amount: 599 }).expect(
-      200,
-    );
-    await send(customer, 'post', '/api/coupons/validate', { code: 'invalid', amount: 599 }).expect(
+    const cart = [{ serviceId: service.id, variantId: service.variants[0].id, quantity: 1 }];
+    const preview = await send(customer, 'post', '/api/coupons/validate', {
+      code: 'TEST50',
+      items: cart,
+    }).expect(200);
+    assert.equal(preview.body.discount, 50);
+    assert.equal(preview.body.subtotal, service.variants[0].price);
+    await send(customer, 'post', '/api/coupons/validate', { code: 'invalid', items: cart }).expect(
       400,
     );
     const r = await book(customer, { ...payload(), couponCode: 'TEST50' }).expect(201);

@@ -133,13 +133,20 @@ try {
         });
       }
       for (const offer of COUPONS) {
-        const { categoryLimit, ...data } = offer;
-        if (!categoryLimit)
-          await tx.offer.upsert({
-            where: { code: offer.code },
-            create: { ...data, expiry: new Date(`${offer.expiry}T23:59:59Z`) },
-            update: {},
-          });
+        // Restrictions are part of the coupon definition, so a re-seed also applies them to existing rows.
+        const restrictions = {
+          categoryIds: offer.categoryIds ?? [],
+          maxUsesPerCustomer: offer.maxUsesPerCustomer ?? null,
+        };
+        await tx.offer.upsert({
+          where: { code: offer.code },
+          create: {
+            ...offer,
+            ...restrictions,
+            expiry: new Date(`${offer.expiry}T23:59:59Z`),
+          },
+          update: restrictions,
+        });
       }
     },
     { timeout: 60000 },

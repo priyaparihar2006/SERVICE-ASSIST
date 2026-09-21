@@ -39,6 +39,20 @@ export async function authenticate(req, res, next) {
     next(error);
   }
 }
+// For public endpoints that behave better for a signed-in user (e.g. the coupon preview). A missing
+// or invalid session is simply treated as anonymous; nothing is ever granted because of it.
+export async function optionalAuthenticate(req, res, next) {
+  if (req.cookies.session) {
+    try {
+      const { user, sessionId } = await authenticateToken(req.cookies.session);
+      req.user = user;
+      req.sessionId = sessionId;
+    } catch {
+      /* anonymous */
+    }
+  }
+  next();
+}
 export const authorize =
   (...roles) =>
   (req, res, next) => {
