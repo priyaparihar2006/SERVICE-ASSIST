@@ -317,6 +317,9 @@ test('PostgreSQL-backed marketplace integration', async (t) => {
   );
   await t.test('assignment checks availability and concurrent overlaps', async () => {
     secondBooking = (await book().expect(201)).body.booking;
+    await customer.get(`/api/admin/bookings/${booking.id}/eligible-professionals`).expect(403);
+    const candidates = (await admin.get(`/api/admin/bookings/${booking.id}/eligible-professionals`).expect(200)).body.professionals;
+    assert.ok(candidates.some((p) => p.id === professionalId));
     const results = await Promise.all(
       [booking, secondBooking].map((b) =>
         send(admin, 'put', `/api/bookings/${b.id}/status`, { status: 'ASSIGNED', professionalId }),
@@ -327,18 +330,31 @@ test('PostgreSQL-backed marketplace integration', async (t) => {
     const jobs = (await pro.get('/api/professionals/bookings')).body.bookings;
     assert.equal(jobs.length, 1);
     assert.equal(jobs[0].verificationOtp, undefined);
+    const requests = (await pro.get('/api/professionals/booking-requests').expect(200)).body.bookings;
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].id, booking.id);
+    const professionalNotes = (await pro.get('/api/notifications').expect(200)).body.notifications;
+    assert.ok(professionalNotes.some((n) => n.title === 'Professional assigned'));
   });
   await t.test('professional rejects and accepts assigned bookings', async () => {
-    await send(pro, 'put', `/api/professionals/bookings/${booking.id}/status`, {
-      status: 'PENDING',
-    }).expect(200);
+    await send(other, 'post', `/api/bookings/${booking.id}/accept`).expect(403);
+    await send(pro, 'put', '/api/professionals/profile', { isAvailableToday: false }).expect(200);
+    await send(pro, 'post', `/api/bookings/${booking.id}/accept`).expect(409);
+    await send(pro, 'put', '/api/professionals/profile', { isAvailableToday: true }).expect(200);
+    await send(pro, 'post', `/api/bookings/${booking.id}/reject`).expect(200);
+    assert.equal((await pro.get('/api/professionals/rejected-bookings').expect(200)).body.requests[0].bookingId, booking.id);
+    assert.equal((await db.bookingAssignment.findFirst({ where: { bookingId: booking.id, rejectedAt: { not: null } } })).activeKey, null);
     await send(admin, 'put', `/api/bookings/${booking.id}/status`, {
       status: 'ASSIGNED',
       professionalId,
     }).expect(200);
-    await send(pro, 'put', `/api/professionals/bookings/${booking.id}/status`, {
-      status: 'CONFIRMED',
-    }).expect(200);
+    const simultaneous = await Promise.all([
+      send(pro, 'post', `/api/bookings/${booking.id}/accept`),
+      send(pro, 'post', `/api/bookings/${booking.id}/accept`),
+    ]);
+    assert.deepEqual(simultaneous.map((r) => r.status).sort(), [200, 409]);
+    await send(pro, 'post', `/api/bookings/${booking.id}/accept`).expect(409);
+    assert.ok((await db.bookingAssignment.findFirst({ where: { activeKey: booking.id } })).acceptedAt);
     await send(pro, 'put', `/api/bookings/${booking.id}/status`, { status: 'ON_THE_WAY' }).expect(
       200,
     );

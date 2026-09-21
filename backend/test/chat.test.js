@@ -542,6 +542,7 @@ test('private chat: privacy, access control, encryption, realtime and audit', as
         'presence',
         'message:deleted',
         'conversation:updated',
+        'booking:updated',
       ];
       const leaks = [otherSocket, outsiderPro, spoofed].map((s) => spy(s, events));
 
@@ -558,6 +559,20 @@ test('private chat: privacy, access control, encryption, realtime and audit', as
       const cameBack = waitFor(proSocket, 'presence');
       const customerAgain = await connect(cookies.customer);
       assert.deepEqual(await cameBack, { conversationId, online: true });
+      const createdUpdate = waitFor(customerAgain, 'booking:updated');
+      const dispatch = await newBooking('04:00 PM - 05:00 PM');
+      assert.deepEqual(await createdUpdate, { bookingId: dispatch.id, status: 'PENDING' });
+      const assignedCustomer = waitFor(customerAgain, 'booking:updated');
+      const assignedProfessional = waitFor(proSocket, 'booking:updated');
+      const professionalNotice = waitFor(proSocket, 'notification:new');
+      await assign(dispatch.id, proIds.pro).expect(200);
+      assert.deepEqual(await assignedCustomer, { bookingId: dispatch.id, status: 'ASSIGNED' });
+      assert.deepEqual(await assignedProfessional, { bookingId: dispatch.id, status: 'ASSIGNED' });
+      assert.deepEqual(await professionalNotice, { bookingId: dispatch.id });
+      const acceptedCustomer = waitFor(customerAgain, 'booking:updated');
+      await send(agents.pro, 'post', `/api/bookings/${dispatch.id}/accept`).expect(200);
+      assert.deepEqual(await acceptedCustomer, { bookingId: dispatch.id, status: 'CONFIRMED' });
+      assert.equal(leaks.flat().filter((e) => e.event === 'booking:updated').length, 0);
       assert.equal(
         (await agents.customer.get(`/api/conversations/${conversationId}`)).body.conversation
           .counterpart.online,
@@ -802,7 +817,10 @@ test('private chat: privacy, access control, encryption, realtime and audit', as
     'reassignment closes the old thread: previous professional loses all access',
     async () => {
       const second = await newBooking('01:00 PM - 02:00 PM');
+      const candidateIds = (await agents.admin.get(`/api/admin/bookings/${second.id}/eligible-professionals`).expect(200)).body.professionals.map((p) => p.id);
+      assert.ok(candidateIds.includes(proIds.pro) && candidateIds.includes(proIds.pro2));
       await assign(second.id, proIds.pro).expect(200);
+      await send(agents.pro2, 'post', `/api/bookings/${second.id}/accept`).expect(404);
       const convo = (
         await send(agents.customer, 'post', '/api/conversations', { bookingId: second.id }).expect(
           201,
@@ -814,9 +832,8 @@ test('private chat: privacy, access control, encryption, realtime and audit', as
       }).expect(201);
       await agents.pro.get(`/api/conversations/${convo.id}/messages`).expect(200);
       // The professional declines; the admin assigns someone else.
-      await send(agents.pro, 'put', `/api/professionals/bookings/${second.id}/status`, {
-        status: 'PENDING',
-      }).expect(200);
+      await send(agents.pro, 'post', `/api/bookings/${second.id}/reject`).expect(200);
+      assert.equal((await agents.pro.get('/api/professionals/rejected-bookings').expect(200)).body.requests[0].bookingId, second.id);
       await agents.pro.get(`/api/conversations/${convo.id}`).expect(404);
       await agents.pro.get(`/api/conversations/${convo.id}/messages`).expect(404);
       await send(agents.pro, 'post', `/api/conversations/${convo.id}/messages`, {

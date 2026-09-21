@@ -16,7 +16,8 @@ interface AdminDashboardPageProps {
 
 export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
   const [metrics, setMetrics] = useState<any>({});
-  const [pros, setPros] = useState<any[]>([]);
+  const [eligible, setEligible] = useState<Record<string, { id: string; name: string; businessName: string; scheduledJobs: number }[]>>({});
+  const [candidateLoading, setCandidateLoading] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -26,8 +27,8 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
   const fetchAllBookings = async () => {
     try {
       setLoading(true); setError('');
-      const [rows, m, p] = await Promise.all([getAll('/bookings', 'bookings'), api('/admin/metrics'), api('/admin/professionals?limit=100')]);
-      setBookings(rows); setMetrics(m); setPros(p.professionals);
+      const [rows, m] = await Promise.all([getAll('/bookings', 'bookings'), api('/admin/metrics')]);
+      setBookings(rows); setMetrics(m);
     } catch (e) {
       setError(e.message);
     } finally { setLoading(false); }
@@ -35,7 +36,18 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
 
   useEffect(() => {
     fetchAllBookings();
+    const timer = window.setInterval(() => { if (document.visibilityState === 'visible') fetchAllBookings(); }, 30000);
+    return () => window.clearInterval(timer);
   }, []);
+
+  const loadEligible = async (bookingId: string) => {
+    setCandidateLoading((old) => ({ ...old, [bookingId]: true }));
+    try {
+      const data = await api(`/admin/bookings/${bookingId}/eligible-professionals`);
+      setEligible((old) => ({ ...old, [bookingId]: data.professionals }));
+    } catch (e) { setError(e.message); }
+    finally { setCandidateLoading((old) => ({ ...old, [bookingId]: false })); }
+  };
 
   const handleStatusChange = async (bookingId: string, status: Booking['status'], professionalId?: string) => {
     try {
@@ -45,6 +57,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
         body: JSON.stringify({ status, professionalId }),
       });
       if (res.ok) {
+        setEligible((old) => { const next = { ...old }; delete next[bookingId]; return next; });
         fetchAllBookings();
       }
     } catch (e) {
@@ -215,7 +228,9 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
                       </span>
                     </td>
                     <td className="p-4 pr-6">
-                      {b.status === 'PENDING' && <select aria-label={`Assign ${b.id}`} defaultValue="" onChange={e => handleStatusChange(b.id, 'ASSIGNED', e.target.value)} className="border rounded-xl p-2"><option value="" disabled>Assign professional</option>{pros.filter(p => p.verified).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>}
+                      {b.status === 'PENDING' && (eligible[b.id]
+                        ? <select aria-label={`Assign ${b.id}`} defaultValue="" onChange={e => handleStatusChange(b.id, 'ASSIGNED', e.target.value)} className="border rounded-xl p-2"><option value="" disabled>{eligible[b.id].length ? 'Assign eligible professional' : 'No eligible professional'}</option>{eligible[b.id].map(p => <option key={p.id} value={p.id}>{p.name}{p.businessName ? ` · ${p.businessName}` : ''} · {p.scheduledJobs} job(s) that day</option>)}</select>
+                        : <button disabled={candidateLoading[b.id]} onClick={() => loadEligible(b.id)} className="rounded-xl border border-brand px-2 py-1.5 text-brand disabled:opacity-50">{candidateLoading[b.id] ? 'Checking...' : 'Find eligible professionals'}</button>)}
                       {['PENDING', 'ASSIGNED', 'CONFIRMED', 'ON_THE_WAY'].includes(b.status) && <button onClick={() => handleStatusChange(b.id, 'CANCELLED')} className="text-red-600">Cancel</button>}
                       {b.status === 'COMPLETED' && b.paymentStatus === 'PENDING' && <button className="underline" onClick={async () => { const reference = prompt('Cash collection receipt/reference (only after cash is collected):'); if (!reference) return; try { await api(`/admin/bookings/${b.id}/payment`, { method: 'PUT', body: JSON.stringify({ transactionId: reference }) }); fetchAllBookings(); } catch (e) { alert(e.message); } }}>Record collected cash</button>}
 

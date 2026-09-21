@@ -205,6 +205,8 @@ Authentication: the HttpOnly `session` cookie is verified (JWT plus database ses
 | server -> client | `typing` | `{conversationId, isTyping}` |
 | server -> client | `presence` | `{conversationId, online}` for the counterpart in active conversations |
 | server -> client | `conversation:updated` | `{conversationId, reason: 'created'\|'closed'\|'read'\|'blocked'\|'unblocked'}` |
+| server -> client | `booking:updated` | `{bookingId, status}` to the booking customer and affected professional after commit |
+| server -> client | `notification:new` | `{bookingId}` to the same accounts after a booking status change |
 | client -> server | `typing` | `{conversationId, isTyping}`, ack `{ok}` or `{ok:false, error}` |
 | client -> server | `message:delivered` | `{conversationId, messageIds[]}`, ack as above |
 
@@ -240,6 +242,22 @@ Create a separate database whose name ends in `_test`, migrate it using `DATABAS
 With both applications running, `npm run test:browser` from this folder runs the frontend Playwright suite with a temporary database-backed admin account, removed afterward. The runner refuses remote databases and production mode. Browser tests register demo-domain customer/professional accounts and save a booking in the connected development database. Install frontend dependencies separately first. The API integration suite also starts and stops a separate API process on port 5099 to verify that sessions and bookings survive server restarts.
 
 ## Deployment
+
+### Booking dispatch and private chat workflow
+
+1. A customer saves a booking. It is `PENDING` in PostgreSQL; the customer sees “Waiting for professional assignment”. Admin accounts receive an in-app dispatch notification.
+2. On the admin dashboard, choose **Find eligible professionals** for that booking. The API checks verified status, today's availability flag, city, every requested service, the scheduled availability window, and conflicting bookings, then lists candidates by fewest active jobs that day. The admin selects one candidate. Assignment rechecks eligibility under database row locks and changes the status to `ASSIGNED`.
+3. The professional sees the request on the dashboard (or `GET /api/professionals/booking-requests`) with the service, customer display name, booking ID, slot and service address. The customer and professional receive private in-app notifications and `booking:updated` Socket.IO events.
+4. The assigned professional accepts via `POST /api/bookings/:id/accept` (`CONFIRMED`) or rejects via `POST /api/bookings/:id/reject` (`PENDING`). Both use the authenticated session and a locked booking row. Acceptance rechecks current verification, availability, service area, services and conflicts. Rejection clears the assignment, revokes the old professional's conversation membership, retains the customer's old chat history, and sends the request back to admin dispatch. The rejected request remains in the professional's own limited history list.
+5. Chat may be opened only by the booking customer and currently assigned professional while the booking is `ASSIGNED`, `CONFIRMED`, `ON_THE_WAY`, `ARRIVED`, or `IN_PROGRESS`. Completed and cancelled conversations remain readable to their current participants, but sending is disabled. A former professional loses all conversation access after rejection or reassignment. No chat is created before assignment.
+
+The admin-only `GET /api/admin/bookings/:id/eligible-professionals` endpoint returns display names and IDs of eligible candidates. `GET /api/professionals/rejected-bookings` returns only a professional's own rejected request reference, service and slot; it does not reveal the current assignment or customer address. `BookingAssignment` records each assignment, acceptance and rejection; `activeKey` permits only one active assignment record per booking. The existing booking and chat authorization remains authoritative.
+
+The UI refreshes booking data on `booking:updated` and after Socket.IO reconnect, with a 30-second visible-page poll if a push is missed. `notification:new` refreshes the open notification drawer. Events contain only the booking ID and status, never customer contact data or message text. Admins do not connect to chat sockets, so the admin dispatch dashboard polls every 30 seconds and offers a manual refresh.
+
+Before deploying, run `npm run db:migrate` once per release and `npm run db:generate` during build. Deploy the API and frontend behind HTTPS, forward `/api/socket.io` WebSocket upgrades, set exact `FRONTEND_ORIGINS`, and verify cookie `Secure`/`SameSite` behavior on the actual domains. The current Socket.IO hub and rate limits are process-local; use one API instance until a shared adapter and shared rate-limit store are configured. Browser notifications are in-app only; there is no push, SMS or e-mail dispatch. Chat uses server-side AES-256-GCM encryption at rest and **is not end-to-end encrypted**.
+
+### Production release checklist
 
 1. Provision a private PostgreSQL database with a strong password, TLS, backups and a restricted application user. Keep demo data out of production.
 2. Deploy `backend/` as a Node service with `npm ci`, `npm run db:generate`, then `npm run db:migrate` as a release step. Use `npm start` as the start command.

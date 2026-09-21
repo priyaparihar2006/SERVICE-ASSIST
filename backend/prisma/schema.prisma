@@ -139,6 +139,7 @@ model Professional {
   services Service[]
   availability Availability[]
   bookings Booking[]
+  assignments BookingAssignment[]
   reviews Review[]
 }
 model Availability {
@@ -202,11 +203,26 @@ model Booking {
   payment Payment?
   review Review?
   history BookingHistory[]
+  assignments BookingAssignment[]
   conversations Conversation[]
   @@unique([customerId, requestKey])
   @@index([customerId, createdAt])
   @@index([professionalId, startAt, endAt])
   @@index([status, createdAt])
+}
+model BookingAssignment {
+  id String @id @default(cuid())
+  bookingId String
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  professionalId String
+  professional Professional @relation(fields: [professionalId], references: [id], onDelete: Restrict)
+  activeKey String? @unique
+  assignedAt DateTime @default(now())
+  acceptedAt DateTime?
+  rejectedAt DateTime?
+  closedAt DateTime?
+  @@index([professionalId, assignedAt])
+  @@index([bookingId, assignedAt])
 }
 model BookingItem {
   id String @id @default(cuid())

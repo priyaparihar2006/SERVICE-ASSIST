@@ -15,6 +15,8 @@ import {
   FileText,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useChat } from '../context/ChatContext';
+import { chatApi } from '../services/chat';
 
 interface CustomerDashboardPageProps {
   services: Service[];
@@ -29,6 +31,8 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
 }) => {
   const { user, favorites, toggleFavorite, addAddress, setDefaultAddress } = useAuth();
   const { addItem } = useCart();
+  const { subscribe } = useChat();
+  const [unreadByBooking, setUnreadByBooking] = useState<Record<string, number>>({});
 
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'bookings' | 'addresses' | 'favorites'>('bookings');
@@ -49,6 +53,8 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
     try {
       setLoading(true);
       setError(''); setBookings(await getAll('/bookings', 'bookings'));
+      const conversations = await chatApi.list().catch(() => []);
+      setUnreadByBooking(Object.fromEntries(conversations.map((c) => [c.booking.id, c.unreadCount])));
     } catch (e) {
       setError(e.message);
     } finally {
@@ -59,6 +65,13 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
   useEffect(() => {
     fetchBookings();
   }, [user]);
+  useEffect(() => {
+    const offBooking = subscribe('booking:updated', fetchBookings);
+    const offConnected = subscribe('connected', fetchBookings);
+    const offMessage = subscribe('message:new', fetchBookings);
+    const timer = window.setInterval(() => { if (document.visibilityState === 'visible') fetchBookings(); }, 30000);
+    return () => { offBooking(); offConnected(); offMessage(); window.clearInterval(timer); };
+  }, [subscribe]);
 
   const handleCancelBooking = async (bookingId: string) => {
     if (!confirm('Are you sure you want to cancel this booking? Cancellation is 100% free.')) return;
@@ -102,6 +115,12 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
         return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">Matching Expert...</span>;
       case 'ASSIGNED':
         return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-soft text-brand-dark border border-line">Expert Assigned</span>;
+      case 'CONFIRMED':
+        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-light text-brand-dark border border-line">Expert Accepted</span>;
+      case 'ON_THE_WAY':
+        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-light text-brand-dark border border-line">Expert On the Way</span>;
+      case 'ARRIVED':
+        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-light text-brand-dark border border-line">Expert Arrived</span>;
       case 'IN_PROGRESS':
         return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] border border-[var(--color-brand-bright)]/40 animate-pulse">Service In Progress</span>;
       case 'COMPLETED':
@@ -301,7 +320,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                           Assigned Professional
                         </span>
                         <span className="font-bold text-xs text-gray-900 font-['Outfit']">
-                          {booking.professionalName || 'Matching nearest partner...'}
+                          {booking.professionalId ? booking.professionalName : 'Waiting for professional assignment'}
                         </span>
                       </div>
                     </div>
@@ -309,14 +328,16 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     {booking.status === 'COMPLETED' && <button className="underline text-sm" onClick={async () => { const rating = Number(prompt('Rate your service from 1 to 5')); if (!rating) return; const comment = prompt('Describe your experience'); if (!comment) return; try { await api('/reviews', { method: 'POST', body: JSON.stringify({ bookingId: booking.id, rating, comment }) }); alert('Review saved.'); } catch (e) { setError(e.message); } }}>Leave a review</button>}
                     <div className="flex items-center gap-2">
                       <button
-                        disabled={!booking.professionalId}
-                        title={booking.professionalId ? 'Message your professional privately' : 'Available once a professional is assigned'}
+                        disabled={!booking.professionalId || ['COMPLETED', 'CANCELLED'].includes(booking.status)}
+                        title={booking.professionalId ? 'Message your professional privately while the job is active' : 'Waiting for professional assignment'}
                         onClick={() => onNavigate(`/messages?booking=${booking.id}`)}
                         className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-semibold hover:bg-[var(--color-brand-soft)] flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <MessageSquare className="w-3.5 h-3.5 text-[var(--color-brand)]" />
                         <span>Chat with Professional</span>
+                        {!!unreadByBooking[booking.id] && <span className="rounded-full bg-brand px-1.5 text-white">{unreadByBooking[booking.id]}</span>}
                       </button>
+                      {!booking.professionalId && <span className="text-xs text-gray-500">Waiting for professional assignment</span>}
 
                       <button
                         onClick={() => {

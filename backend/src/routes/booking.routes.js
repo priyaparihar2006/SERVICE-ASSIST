@@ -5,7 +5,7 @@ import { authenticate, authorize } from '../middleware/auth.js';
 import { validate, id, pageQuery } from '../middleware/validate.js';
 import { endpoint, ensure } from '../utils/errors.js';
 import { bookingInclude, bookingView } from '../utils/serializers.js';
-import { createBooking, scope, updateStatus, transitions } from '../services/booking.service.js';
+import { createBooking, eligibleProfessionalsForBooking, scope, updateStatus, transitions } from '../services/booking.service.js';
 const router = Router();
 const item = z
   .object({
@@ -82,6 +82,54 @@ router.get(
   }),
 );
 router.get(
+  '/professionals/booking-requests',
+  authenticate,
+  authorize('PROFESSIONAL'),
+  endpoint(async (req, res) => {
+    const rows = await db.booking.findMany({
+      where: { professionalId: req.user.professional.id, status: 'ASSIGNED' },
+      include: bookingInclude,
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json({ bookings: rows.map((b) => bookingView(b, req.user.role)) });
+  }),
+);
+router.get(
+  '/professionals/rejected-bookings',
+  authenticate,
+  authorize('PROFESSIONAL'),
+  endpoint(async (req, res) => {
+    const rows = await db.bookingAssignment.findMany({
+      where: { professionalId: req.user.professional.id, rejectedAt: { not: null } },
+      select: {
+        bookingId: true, rejectedAt: true,
+        booking: { select: {
+          bookingDate: true, bookingTime: true,
+          service: { select: { name: true } },
+        } },
+      },
+      orderBy: { rejectedAt: 'desc' },
+      take: 100,
+    });
+    res.json({ requests: rows.map((r) => ({
+      bookingId: r.bookingId,
+      serviceName: r.booking.service.name,
+      scheduledDate: r.booking.bookingDate.toISOString().slice(0, 10),
+      scheduledTimeSlot: r.booking.bookingTime,
+      rejectedAt: r.rejectedAt,
+    })) });
+  }),
+);
+router.get(
+  '/admin/bookings/:id/eligible-professionals',
+  authenticate,
+  authorize('ADMIN'),
+  endpoint(async (req, res) => {
+    const rows = await eligibleProfessionalsForBooking(id.parse(req.params.id));
+    res.json({ professionals: rows.map((p) => ({ id: p.id, name: p.user.name, businessName: p.businessName, scheduledJobs: p._count.bookings })) });
+  }),
+);
+router.get(
   '/bookings/:id',
   authenticate,
   endpoint(async (req, res) => {
@@ -107,6 +155,12 @@ const statusHandler = endpoint(async (req, res) => {
   ensure(!b.otpError, 400, 'Incorrect customer verification code');
   res.json({ booking: bookingView(b, req.user.role) });
 });
+const respondToRequest = (status) => endpoint(async (req, res) => {
+  const b = await updateStatus(req.user, id.parse(req.params.id), { status });
+  res.json({ booking: bookingView(b, req.user.role) });
+});
+router.post('/bookings/:id/accept', authenticate, authorize('PROFESSIONAL'), respondToRequest('CONFIRMED'));
+router.post('/bookings/:id/reject', authenticate, authorize('PROFESSIONAL'), respondToRequest('PENDING'));
 router
   .route('/bookings/:id/status')
   .put(authenticate, validate(statusSchema), statusHandler)

@@ -2,6 +2,7 @@ import { apiFetch } from '../../services/api';
 import React, { useEffect, useState } from 'react';
 import { NotificationItem } from '../../types';
 import { Bell, Check, X, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
+import { useChat } from '../../context/ChatContext';
 
 interface NotificationDrawerProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface NotificationDrawerProps {
 }
 
 export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose, onNavigate }) => {
+  const { subscribe } = useChat();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +35,12 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
       fetchNotifications();
     }
   }, [isOpen]);
+  useEffect(() => {
+    if (!isOpen) return;
+    const off = subscribe('notification:new', fetchNotifications);
+    const timer = window.setInterval(fetchNotifications, 30000);
+    return () => { off(); window.clearInterval(timer); };
+  }, [isOpen, subscribe]);
 
   const markAllRead = async () => {
     try { await Promise.all(notifications.filter(n => !n.read).map(n => apiFetch(`/api/notifications/${n.id}/read`, { method: 'PATCH', body: '{}' }))); await fetchNotifications(); }

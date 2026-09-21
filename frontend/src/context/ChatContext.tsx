@@ -9,7 +9,7 @@ type Handler = (payload: any) => void;
 
 // Server events fanned out to whichever screen is open, plus a synthetic 'connected' event fired on
 // every (re)connect so screens can re-sync anything they missed while offline.
-const SERVER_EVENTS = ['message:new', 'message:status', 'message:deleted', 'typing', 'presence', 'conversation:updated'];
+const SERVER_EVENTS = ['message:new', 'message:status', 'message:deleted', 'typing', 'presence', 'conversation:updated', 'booking:updated', 'notification:new'];
 
 interface ChatContextType {
   connection: ChatConnection;

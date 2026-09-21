@@ -3,6 +3,7 @@ import { db } from '../config/db.js';
 import { HttpError, ensure } from '../utils/errors.js';
 import { bookingInclude } from '../utils/serializers.js';
 import { announceClosed, closeConversationsForBooking } from './chat.service.js';
+import { hub } from '../realtime/hub.js';
 
 export const transitions = {
   PENDING: ['ASSIGNED', 'CANCELLED'],
@@ -20,6 +21,87 @@ export const scope = (user) =>
     : user.role === 'PROFESSIONAL'
       ? { professionalId: user.professional?.id || 'none' }
       : { customerId: user.id };
+
+// Dispatch candidates use the same city, service, availability and overlap rules as assignment.
+// The transaction below checks them again under row locks before saving an assignment.
+export async function eligibleProfessionalsForBooking(bookingId) {
+  const booking = await db.booking.findUnique({
+    where: { id: bookingId },
+    select: {
+      id: true, status: true, bookingDate: true, startAt: true, endAt: true,
+      address: { select: { city: true } },
+      items: { select: { serviceId: true } },
+    },
+  });
+  ensure(booking, 404, 'Booking not found');
+  if (booking.status !== 'PENDING') return [];
+  const local = new Date(booking.startAt.getTime() + 330 * 60000);
+  const startMinute = local.getUTCHours() * 60 + local.getUTCMinutes();
+  const endMinute = startMinute + (booking.endAt - booking.startAt) / 60000;
+  const candidates = await db.professional.findMany({
+    where: {
+      verificationStatus: 'VERIFIED',
+      isAvailableToday: true,
+      serviceArea: { has: booking.address.city },
+      AND: booking.items.map(({ serviceId }) => ({ services: { some: { id: serviceId } } })),
+      availability: { some: {
+        dayOfWeek: local.getUTCDay(),
+        startMinute: { lte: startMinute },
+        endMinute: { gte: endMinute },
+      } },
+      bookings: { none: {
+        status: { notIn: ['CANCELLED', 'COMPLETED'] },
+        startAt: { lt: booking.endAt },
+        endAt: { gt: booking.startAt },
+      } },
+    },
+    select: {
+      id: true, businessName: true, user: { select: { name: true } },
+      _count: { select: { bookings: { where: {
+        bookingDate: booking.bookingDate,
+        status: { notIn: ['CANCELLED', 'COMPLETED'] },
+      } } } },
+    },
+  });
+  return candidates.sort((a, b) => a._count.bookings - b._count.bookings || a.id.localeCompare(b.id));
+}
+
+async function assertEligibleForBooking(tx, booking, professionalId) {
+  await tx.$queryRaw`SELECT id FROM "Professional" WHERE id = ${professionalId} FOR UPDATE`;
+  const pro = await tx.professional.findUnique({
+    where: { id: professionalId },
+    include: { services: true, availability: true },
+  });
+  const addr = await tx.address.findUnique({ where: { id: booking.addressId } });
+  ensure(
+    pro && addr && pro.verificationStatus === 'VERIFIED' && pro.isAvailableToday &&
+      pro.serviceArea.includes(addr.city) &&
+      booking.items.every((i) => pro.services.some((s) => s.id === i.serviceId)),
+    409,
+    'Professional is not available or qualified for these services',
+  );
+  const local = new Date(booking.startAt.getTime() + 330 * 60000);
+  const startMinute = local.getUTCHours() * 60 + local.getUTCMinutes();
+  const endMinute = startMinute + (booking.endAt - booking.startAt) / 60000;
+  ensure(
+    pro.availability.some((a) =>
+      a.dayOfWeek === local.getUTCDay() && a.startMinute <= startMinute && a.endMinute >= endMinute,
+    ),
+    409,
+    'Outside professional availability',
+  );
+  ensure(
+    !(await tx.booking.findFirst({
+      where: {
+        id: { not: booking.id }, professionalId: pro.id,
+        status: { notIn: ['CANCELLED', 'COMPLETED'] },
+        startAt: { lt: booking.endAt }, endAt: { gt: booking.startAt },
+      },
+    })),
+    409,
+    'Professional already has a booking at this time',
+  );
+}
 export function slotStart(date, slot) {
   const m = /^(0?[1-9]|1[0-2]):([0-5]\d) (AM|PM) - (0?[1-9]|1[0-2]):([0-5]\d) (AM|PM)$/.exec(slot);
   ensure(m, 400, 'Select a valid time slot');
@@ -129,7 +211,7 @@ export async function cartLines(tx, items) {
 }
 
 export async function createBooking(user, data, requestKey) {
-  return db.$transaction(async (tx) => {
+  const saved = await db.$transaction(async (tx) => {
     // Serialize duplicate submissions for this customer before reading their key.
     await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${user.id} FOR UPDATE`;
     const prior = await tx.booking.findUnique({
@@ -229,11 +311,22 @@ export async function createBooking(user, data, requestKey) {
         message: `Your booking ${booking.id} has been saved.`,
       },
     });
+    const admins = await tx.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+    if (admins.length) await tx.notification.createMany({
+      data: admins.map(({ id }) => ({
+        userId: id,
+        title: 'Booking needs assignment',
+        message: `Booking ${booking.id} is waiting for dispatch.`,
+      })),
+    });
     return booking;
   });
+  hub.emitToUser(user.id, 'booking:updated', { bookingId: saved.id, status: saved.status });
+  return saved;
 }
 export async function updateStatus(user, bookingId, data) {
   let closedChats = [];
+  let recipients = [];
   const result = await db.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM "Booking" WHERE id = ${bookingId} FOR UPDATE`;
     const b = await tx.booking.findFirst({
@@ -260,6 +353,10 @@ export async function updateStatus(user, bookingId, data) {
         403,
         'Action not permitted',
       );
+    if (data.status === 'CONFIRMED' || data.status === 'PENDING')
+      ensure(user.role === 'PROFESSIONAL', 403, 'Only the assigned professional may respond');
+    if (data.status === 'PENDING')
+      ensure(b.status === 'ASSIGNED', 409, 'Only a new request can be rejected');
     let professionalId = b.professionalId;
     if (data.status === 'ASSIGNED') {
       ensure(
@@ -267,47 +364,12 @@ export async function updateStatus(user, bookingId, data) {
         403,
         'Only an admin may assign a professional',
       );
-      await tx.$queryRaw`SELECT id FROM "Professional" WHERE id = ${data.professionalId} FOR UPDATE`;
-      const pro = await tx.professional.findUnique({
-        where: { id: data.professionalId },
-        include: { services: true, availability: true },
-      });
-      const addr = await tx.address.findUnique({ where: { id: b.addressId } });
-      ensure(
-        pro &&
-          pro.verificationStatus === 'VERIFIED' &&
-          pro.isAvailableToday &&
-          pro.serviceArea.includes(addr.city) &&
-          b.items.every((i) => pro.services.some((s) => s.id === i.serviceId)),
-        400,
-        'Professional is not available or qualified for these services',
-      );
-      const local = new Date(b.startAt.getTime() + 330 * 60000);
-      const startMinute = local.getUTCHours() * 60 + local.getUTCMinutes();
-      const endMinute = startMinute + (b.endAt - b.startAt) / 60000;
-      ensure(
-        pro.availability.some(
-          (a) =>
-            a.dayOfWeek === local.getUTCDay() &&
-            a.startMinute <= startMinute &&
-            a.endMinute >= endMinute,
-        ),
-        409,
-        'Outside professional availability',
-      );
-      ensure(
-        !(await tx.booking.findFirst({
-          where: {
-            professionalId: pro.id,
-            status: { notIn: ['CANCELLED', 'COMPLETED'] },
-            startAt: { lt: b.endAt },
-            endAt: { gt: b.startAt },
-          },
-        })),
-        409,
-        'Professional already has a booking at this time',
-      );
-      professionalId = pro.id;
+      await assertEligibleForBooking(tx, b, data.professionalId);
+      professionalId = data.professionalId;
+    }
+    if (data.status === 'CONFIRMED') {
+      ensure(b.startAt > new Date(), 409, 'The booking slot has passed; contact support');
+      await assertEligibleForBooking(tx, b, b.professionalId);
     }
     if (data.status === 'PENDING') professionalId = null;
     if (data.status === 'IN_PROGRESS') {
@@ -320,6 +382,26 @@ export async function updateStatus(user, bookingId, data) {
     // A different (or no) professional means the previous professional's chat access ends now.
     if (professionalId !== b.professionalId)
       closedChats = await closeConversationsForBooking(tx, b.id);
+    if (data.status === 'ASSIGNED') {
+      await tx.bookingAssignment.create({
+        data: { bookingId: b.id, professionalId, activeKey: b.id },
+      });
+    } else if (data.status === 'CONFIRMED') {
+      await tx.bookingAssignment.updateMany({
+        where: { activeKey: b.id, professionalId: b.professionalId },
+        data: { acceptedAt: new Date() },
+      });
+    } else if (data.status === 'PENDING') {
+      await tx.bookingAssignment.updateMany({
+        where: { activeKey: b.id, professionalId: b.professionalId },
+        data: { activeKey: null, rejectedAt: new Date() },
+      });
+    } else if (['CANCELLED', 'COMPLETED'].includes(data.status)) {
+      await tx.bookingAssignment.updateMany({
+        where: { activeKey: b.id },
+        data: { activeKey: null, closedAt: new Date() },
+      });
+    }
     const updated = await tx.booking.update({
       where: { id: b.id },
       data: {
@@ -329,15 +411,35 @@ export async function updateStatus(user, bookingId, data) {
       },
       include: bookingInclude,
     });
-    await tx.notification.create({
-      data: {
-        userId: b.customerId,
-        title: 'Booking updated',
-        message: `Booking ${b.id}: ${data.status}`,
-      },
+    const ids = new Set([b.customerId]);
+    if (updated.professional?.userId) ids.add(updated.professional.userId);
+    if (b.professionalId && b.professionalId !== professionalId) {
+      const prior = await tx.professional.findUnique({
+        where: { id: b.professionalId }, select: { userId: true },
+      });
+      if (prior) ids.add(prior.userId);
+    }
+    if (data.status === 'PENDING') {
+      const admins = await tx.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+      admins.forEach(({ id }) => ids.add(id));
+    }
+    recipients = [...ids];
+    const title = data.status === 'ASSIGNED' ? 'Professional assigned'
+      : data.status === 'CONFIRMED' ? 'Booking accepted'
+      : data.status === 'PENDING' ? 'Assignment declined'
+      : 'Booking updated';
+    await tx.notification.createMany({
+      data: recipients.map((userId) => ({
+        userId, title, message: `Booking ${b.id}: ${data.status}`,
+      })),
     });
     return updated;
   });
   announceClosed(closedChats);
+  if (!result.otpError)
+    recipients.forEach((id) => {
+      hub.emitToUser(id, 'booking:updated', { bookingId: result.id, status: result.status });
+      hub.emitToUser(id, 'notification:new', { bookingId: result.id });
+    });
   return result;
 }

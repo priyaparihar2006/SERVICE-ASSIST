@@ -5,6 +5,8 @@ import { ProfessionalSettings } from '../components/account/ProfessionalSettings
 import { apiFetch } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import { Booking } from '../types';
+import { useChat } from '../context/ChatContext';
+import { chatApi } from '../services/chat';
 import {
   Star,
   CheckCircle2,
@@ -17,19 +19,25 @@ import {
 
 export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) => void }> = ({ onNavigate }) => {
   const { user } = useAuth();
+  const { subscribe } = useChat();
+  const [unreadByBooking, setUnreadByBooking] = useState<Record<string, number>>({});
   const [profile, setProfile] = useState<any>(null);
   const [earnings, setEarnings] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [rejected, setRejected] = useState<{ bookingId: string; serviceName: string; scheduledDate: string; scheduledTimeSlot: string; rejectedAt: string }[]>([]);
+  const [jobFilter, setJobFilter] = useState('ALL');
   const [otpInputs, setOtpInputs] = useState<Record<string, string>>({});
   const [otpError, setOtpError] = useState<Record<string, string>>({});
 
   const fetchJobs = async () => {
     try {
       setLoading(true); setError('');
-      const [jobs, p, e] = await Promise.all([getAll('/professionals/bookings', 'bookings'), api('/professionals/profile'), api('/professionals/earnings')]);
+      const [jobs, p, e, conversations, declined] = await Promise.all([getAll('/professionals/bookings', 'bookings'), api('/professionals/profile'), api('/professionals/earnings'), chatApi.list().catch(() => []), api('/professionals/rejected-bookings')]);
       setBookings(jobs); setProfile(p.professional); setEarnings(e.earnings);
+      setRejected(declined.requests);
+      setUnreadByBooking(Object.fromEntries(conversations.map((c) => [c.booking.id, c.unreadCount])));
     } catch (e) {
       setError(e.message);
     } finally { setLoading(false); }
@@ -38,6 +46,20 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
   useEffect(() => {
     fetchJobs();
   }, []);
+  useEffect(() => {
+    const offBooking = subscribe('booking:updated', fetchJobs);
+    const offConnected = subscribe('connected', fetchJobs);
+    const offMessage = subscribe('message:new', fetchJobs);
+    const timer = window.setInterval(() => { if (document.visibilityState === 'visible') fetchJobs(); }, 30000);
+    return () => { offBooking(); offConnected(); offMessage(); window.clearInterval(timer); };
+  }, [subscribe]);
+
+  const respond = async (bookingId: string, action: 'accept' | 'reject') => {
+    try {
+      await api(`/bookings/${bookingId}/${action}`, { method: 'POST', body: '{}' });
+      await fetchJobs();
+    } catch (e) { setError(e.message); }
+  };
 
   const handleUpdateStatus = async (bookingId: string, newStatus: Booking['status'], otp?: string) => {
     try {
@@ -95,7 +117,7 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
 
         <ProfileSettings /><ProfessionalSettings onSaved={fetchJobs} />
         {loading && <p role="status">Loading jobs...</p>}{error && <p role="alert">{error}</p>}
-        {!loading && !error && !bookings.length && <p>No assigned bookings yet.</p>}
+        {!loading && !error && !bookings.length && !rejected.length && <p>No assigned bookings yet.</p>}
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
@@ -148,7 +170,7 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg sm:text-xl font-black text-[var(--color-ink)] font-['Outfit']">
-                Assigned Jobs & Real-Time Requests
+                Booking Requests & Assigned Jobs
               </h2>
               <p className="text-xs text-gray-500">
                 Review bookings assigned to your zone, verify customer OTP, and complete servicing.
@@ -163,7 +185,26 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
           </div>
 
           <div className="space-y-4">
-            {bookings.map((b) => (
+            <div className="flex flex-wrap gap-2" aria-label="Booking status filter">
+              {[
+                ['ALL', 'All'], ['ASSIGNED', 'New requests'], ['CONFIRMED', 'Accepted'],
+                ['ON_THE_WAY', 'On the way'], ['ARRIVED', 'Arrived'], ['IN_PROGRESS', 'In progress'],
+                ['COMPLETED', 'Completed'], ['CANCELLED', 'Cancelled'], ['REJECTED', 'Rejected'],
+              ].map(([value, label]) => (
+                <button key={value} onClick={() => setJobFilter(value)}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold ${jobFilter === value ? 'bg-brand text-white' : 'bg-brand-light text-brand-dark'}`}>
+                  {label} ({value === 'REJECTED' ? rejected.length : value === 'ALL' ? bookings.length : bookings.filter(b => b.status === value).length})
+                </button>
+              ))}
+            </div>
+            {jobFilter === 'REJECTED' && rejected.map((r) => (
+              <div key={`${r.bookingId}-${r.rejectedAt}`} className="rounded-2xl border border-line bg-white p-4 text-sm">
+                <strong>Rejected request · {r.bookingId}</strong>
+                <p>{r.serviceName} · {r.scheduledDate} at {r.scheduledTimeSlot}</p>
+                <p className="text-gray-500">This request is back in the admin dispatch queue. Chat access has ended.</p>
+              </div>
+            ))}
+            {jobFilter !== 'REJECTED' && bookings.filter(b => jobFilter === 'ALL' || b.status === jobFilter).map((b) => (
               <div
                 key={b.id}
                 className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xs hover:border-[var(--color-brand-bright)] transition-all space-y-4"
@@ -242,7 +283,7 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
                   </div>
                 </div>
 
-                {b.status === 'ASSIGNED' && <div className="flex gap-3"><button onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')} className="bg-brand text-white rounded-xl p-2">Accept booking</button><button onClick={() => handleUpdateStatus(b.id, 'PENDING')} className="border rounded-xl p-2">Reject assignment</button></div>}
+                {b.status === 'ASSIGNED' && <div className="flex gap-3"><button onClick={() => respond(b.id, 'accept')} className="bg-brand hover:bg-brand-hover text-white rounded-xl p-2">Accept booking request</button><button onClick={() => respond(b.id, 'reject')} className="border rounded-xl p-2">Reject request</button></div>}
                 {b.status === 'CONFIRMED' && <button onClick={() => handleUpdateStatus(b.id, 'ON_THE_WAY')}>On my way</button>}
                 {b.status === 'ON_THE_WAY' && <button onClick={() => handleUpdateStatus(b.id, 'ARRIVED')}>I have arrived</button>}
                 {/* Partner Actions & OTP Verification */}
@@ -299,11 +340,13 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
 
                   <button
                     type="button"
+                    disabled={['COMPLETED', 'CANCELLED'].includes(b.status)}
                     onClick={() => onNavigate?.(`/messages?booking=${b.id}`)}
-                    className="ml-auto px-3.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                    className="ml-auto px-3.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <MessageSquare className="w-3.5 h-3.5 text-[var(--color-brand)]" />
                     <span>Chat with Customer</span>
+                    {!!unreadByBooking[b.id] && <span className="rounded-full bg-brand px-1.5 text-white">{unreadByBooking[b.id]}</span>}
                   </button>
                 </div>
               </div>

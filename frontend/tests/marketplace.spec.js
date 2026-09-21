@@ -84,6 +84,8 @@ test('catalog, authentication, booking, persistence and customer access control'
   await expect(
     page.getByText(booking.id, { exact: false }).first(),
   ).toBeVisible();
+  await expect(page.getByText('Waiting for professional assignment').first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Chat with Professional' })).toBeDisabled();
   expect(booking.paymentStatus).toBe('PENDING');
   expect(errors).toEqual([]);
 });
