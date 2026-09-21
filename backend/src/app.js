@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { ZodError } from 'zod';
 import { env, origins } from './config/env.js';
 import { db } from './config/db.js';
-import { endpoint, ensure } from './utils/errors.js';
+import { HttpError, endpoint, ensure } from './utils/errors.js';
 import auth from './routes/auth.routes.js';
 import catalog from './routes/catalog.routes.js';
 import bookings from './routes/booking.routes.js';
@@ -31,11 +31,17 @@ app.use(
 app.use('/api', (req, res, next) => {
   try {
     if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-      ensure(
-        !req.get('Origin') || origins.includes(req.get('Origin')),
-        403,
-        'Origin is not allowed',
-      );
+      const origin = req.get('Origin');
+      if (origin && !origins.includes(origin)) {
+        // Development only: say which origin was refused, so a mismatch (another Vite port,
+        // 127.0.0.1 instead of localhost) is obvious. Production stays generic.
+        if (env.NODE_ENV !== 'development') throw new HttpError(403, 'Origin is not allowed');
+        console.warn(JSON.stringify({ event: 'origin_rejected', origin, path: req.path, allowed: origins }));
+        throw new HttpError(
+          403,
+          `Origin is not allowed: the API only trusts ${origins.join(', ')} but this page is ${origin}. Open the app at a trusted URL or add this exact origin to FRONTEND_ORIGINS in backend/.env.`,
+        );
+      }
       ensure(
         req.get('Origin') || !req.cookies.session,
         403,

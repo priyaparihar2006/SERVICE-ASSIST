@@ -10,7 +10,8 @@ export const env = z
       .string()
       .min(32)
       .refine((v) => !v.startsWith('REPLACE_'), 'Generate a random JWT_SECRET'),
-    FRONTEND_ORIGINS: z.string().default('http://localhost:5173'),
+    // Exact browser origins allowed to call the API. Optional in development, required in production.
+    FRONTEND_ORIGINS: z.string().optional(),
     COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
     TRUST_PROXY: z.coerce.number().int().min(0).max(3).default(0),
     // Comma-separated "version:base64(32 random bytes)" master keys used to wrap chat data keys.
@@ -24,7 +25,11 @@ export const env = z
   })
   .parse(process.env);
 export const chatKeys = parseChatKeys(env.CHAT_ENCRYPTION_KEYS, env.CHAT_ACTIVE_KEY_VERSION);
-export const origins = env.FRONTEND_ORIGINS.split(',').map((v) => v.trim());
+// The Vite dev server is reachable as both localhost and 127.0.0.1, which are different origins to a
+// browser, so development trusts both names for the one dev port. Production has no default.
+const DEV_ORIGINS = 'http://localhost:5173,http://127.0.0.1:5173';
+
+export const origins = parseOrigins(env.FRONTEND_ORIGINS, env.NODE_ENV);
 export const cookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
@@ -45,4 +50,40 @@ function parseChatKeys(spec, activeVersion) {
   if (!keys.has(activeVersion))
     throw new Error('CHAT_ACTIVE_KEY_VERSION does not match a configured chat key');
   return { keys, activeVersion };
+}
+
+function parseOrigins(value, nodeEnv) {
+  let list = value?.trim();
+  if (!list) {
+    if (nodeEnv === 'production')
+      throw new Error('Set FRONTEND_ORIGINS to the exact origin(s) of the frontend in production');
+    list = DEV_ORIGINS;
+  }
+  const parsed = new Set();
+  for (const raw of list.split(',')) {
+    const entry = raw.trim();
+    if (!entry) continue;
+    let url;
+    try {
+      url = new URL(entry);
+    } catch {
+      url = null;
+    }
+    if (
+      !url ||
+      !['http:', 'https:'].includes(url.protocol) ||
+      entry.includes('*') ||
+      url.username ||
+      url.password ||
+      url.pathname !== '/' ||
+      url.search ||
+      url.hash
+    )
+      throw new Error(
+        `FRONTEND_ORIGINS entry "${entry}" must be an exact origin such as http://localhost:5173 (no wildcard, path or query)`,
+      );
+    parsed.add(url.origin); // normalises a trailing slash, letter case and default ports
+  }
+  if (!parsed.size) throw new Error('FRONTEND_ORIGINS must list at least one origin');
+  return [...parsed];
 }
