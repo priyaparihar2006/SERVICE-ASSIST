@@ -26,7 +26,7 @@ try {
   const cli = fileURLToPath(
     new URL('../../frontend/node_modules/@playwright/test/cli.js', import.meta.url),
   );
-  const child = spawn(process.execPath, [cli, 'test'], {
+  const child = spawn(process.execPath, [cli, 'test', ...process.argv.slice(2)], {
     cwd: frontend,
     windowsHide: true,
     stdio: 'inherit',
