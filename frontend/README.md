@@ -35,6 +35,9 @@ For the full suite including admin login, run `npm run test:browser` from `backe
 2. Publish only `dist/` to your static host. Do not publish the backend environment or source secrets.
 3. Rewrite frontend routes such as `/services/ac-jet-service` and `/dashboard` to `index.html` so refresh works.
 4. Proxy `/api` to the independently deployed Express API, or configure its exact FRONTEND_ORIGINS for the frontend origin.
-5. Use HTTPS. Prefer a same-site API for reliable HttpOnly cookie authentication. Test registration, logout, deep-link refresh and booking persistence on the deployed origin.
+5. Chat uses a WebSocket at `<API base>/socket.io` (default `/api/socket.io`). Forward WebSocket upgrades for that path, serve over HTTPS so it upgrades to WSS, and, if you set a Content-Security-Policy, allow the API origin in `connect-src` (both `https:` and `wss:`). The socket authenticates with the same HttpOnly cookie; nothing chat-related is stored in the browser.
+6. Use HTTPS. Prefer a same-site API for reliable HttpOnly cookie authentication. Test registration, logout, deep-link refresh and booking persistence on the deployed origin.
+
+Chat screens: `src/pages/MessagesPage.tsx`, `src/components/chat/`, `src/hooks/useConversation.ts`, `src/context/ChatContext.tsx`, `src/services/chat*.ts`. In development Vite proxies `/api` including WebSocket upgrades; set `API_PROXY_TARGET` to point the proxy at an API that is not on port 5000.
 
 Online payment buttons are disabled until a provider is configured; checkout uses cash after service. Booking confirmation only appears after a successful database-backed API response. Failed network requests never create a local fake booking or authenticated account.

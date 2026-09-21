@@ -76,6 +76,7 @@ Open **http://localhost:5173**. Vite forwards `/api` to the backend at port 5000
 - Persisted customer profiles and addresses, server-priced bookings, history, cancellation, reviews and receipts.
 - Professional profiles, service associations, weekly availability, assigned work, accept/reject, server-side OTP verification and earnings from collected payments.
 - Admin metrics, category/service management, professional verification, assignment and cash-payment recording.
+- Private in-app chat between a booking's customer and assigned professional (real time, read receipts, typing/online status, block/report). Phone numbers and e-mail addresses are never exposed between the two parties. Encrypted in transit and at rest; **not** end-to-end encrypted. See the [chat report](CHAT_IMPLEMENTATION_REPORT.md).
 - Database offers, notifications and support tickets. Optional backend-only HomeAI provider configuration.
 
 The old demo role switcher, password-free login, in-memory database, fabricated booking metrics and fake support-success fallback were replaced. Sofa Cleaning was empty because service records belonged to the broad cleaning category while the UI selected `cat-sofa-cleaning`; the canonical database seed and UI now agree.
@@ -88,5 +89,6 @@ The old demo role switcher, password-free login, in-memory database, fabricated 
 - Deployment, environment reference and every API endpoint: [backend guide](backend/README.md).
 - Frontend build and hosting: [frontend guide](frontend/README.md).
 - Changes, schema, test evidence and remaining setup: [implementation report](IMPLEMENTATION_REPORT.md).
+- Private chat architecture, encryption limits, security audit and setup: [chat report](CHAT_IMPLEMENTATION_REPORT.md) and the [Private chat](backend/README.md#private-chat) section.
 
 Cash payment is implemented. Online payments, refunds, tax invoicing and payouts require payment-provider and business configuration. No online payment is simulated. HomeAI needs configured credentials/model. Review the remaining launch requirements in the implementation report before treating this as a production deployment.

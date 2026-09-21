@@ -56,6 +56,7 @@ Money uses PostgreSQL Decimal columns; booking totals are calculated from databa
 | `SEED_DEMO`, `DEMO_PASSWORD` | Explicit non-production demo seed opt-in and password |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | One-time administrator creation inputs |
 | `TEST_DATABASE_URL` | Dedicated test database URL whose database name ends in `_test` |
+| `CHAT_ENCRYPTION_KEYS`, `CHAT_ACTIVE_KEY_VERSION`, `CHAT_BLOCK_CONTACT_INFO` | Private-chat encryption keys and contact-info policy; see [Private chat](#private-chat) |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | Optional server-only HomeAI configuration; unconfigured requests return 503 |
 
 Authentication uses a one-day JWT in an HttpOnly cookie and a database session. Logout and password changes invalidate sessions. Production cookies use Secure. Cookie-authenticated mutations require an allowed Origin and JSON content type. The browser API client sends credentials. Do not add wildcard CORS origins.
@@ -121,9 +122,111 @@ Example booking body:
 
 Reuse the same UUID idempotency key for retries of one checkout. A new checkout needs a new key. Requests allow up to 10 items and 8 hours total duration; use a future slot within 90 days. The slot identifies the start window; stored package duration determines the reserved end time. Multi-service carts require an assigned professional qualified for every item; split the cart if separate professionals are needed.
 
+## Private chat
+
+Customers and their assigned professionals can message each other about a booking without either side ever seeing the other's phone number or e-mail address. Code lives in `src/services/chat*.js`, `src/routes/chat.routes.js` and `src/realtime/`.
+
+### Who can talk to whom
+
+- A conversation belongs to **one booking and one assigned professional**. `POST /conversations {bookingId}` succeeds only for that booking's customer or its currently assigned professional, and only while a professional is assigned and the job is `ASSIGNED`, `CONFIRMED`, `ON_THE_WAY`, `ARRIVED` or `IN_PROGRESS`.
+- When the job is `COMPLETED` or `CANCELLED` the thread stays readable but becomes read-only (`sendBlockedReason: BOOKING_CLOSED`).
+- If the professional is rejected/unassigned (`PENDING`) the thread is closed in the same database transaction: the previous professional loses **all** access immediately (`leftAt`), a newly assigned professional gets a **fresh** thread with no history, and the customer keeps the old one read-only.
+- Every read and write goes through one membership check. A non-member receives the same `404` as a non-existent id, so conversation ids cannot be probed. Ids are UUIDs, but authorisation never relies on their secrecy. The sender of a message is always the authenticated user; body fields such as `senderId` are ignored.
+- Administrators **cannot** use the participant endpoints (403).
+
+### Phone-number privacy
+
+- No chat query selects `phone` or `email`. Conversation/message payloads contain display name, avatar, role, service category, booking reference and status only, with no user ids.
+- `bookingView` (used by every booking endpoint) previously returned `customerPhone`, `userPhone`, `userEmail` and `professionalPhone` to both parties. It now returns them **only to administrators**. `/auth/me` and profile updates return the caller's own phone only. Catalog/professional endpoints never included phone numbers. Admin dashboards keep contact details for support and safety work.
+- Message text that looks like a phone number (ten or more digits, allowing separators) or an e-mail address is rejected with `422 CONTACT_INFO_NOT_ALLOWED` (`CHAT_BLOCK_CONTACT_INFO=true`, the default). This is a best-effort policy aid: spelled-out digits or images can evade it.
+- Nothing is written to browser storage; the socket and all chat state are torn down on logout.
+- The server logs event names and ids only, never message text or contact data. A test asserts that message text and phone numbers never reach the process log.
+
+### Encryption: what it is and is not
+
+**This chat is NOT end-to-end encrypted.** It uses TLS in transit plus authenticated encryption at rest, and the server can decrypt messages.
+
+Why not end-to-end: a browser app has no independent channel to authenticate users' public keys (the same server that hosts the JavaScript would also distribute the keys, so a compromised server could substitute keys), multi-device sync and lost-key recovery need a designed protocol, and the required admin safety review and "report conversation" flows cannot work if nobody but the two participants can ever read a thread. Adopting a reviewed protocol (e.g. Signal/MLS) later is possible but is a separate project.
+
+What is implemented (Node `crypto`, no custom primitives):
+
+```text
+master key (CHAT_ENCRYPTION_KEYS, versioned, held in env / secret manager)
+  -> wraps a random 256-bit data key per conversation (Conversation.wrappedKey)
+       -> AES-256-GCM per message, fresh random 96-bit IV
+```
+
+- Message text is never stored in plaintext. Only `iv || tag || ciphertext` is stored (`Message.encryptedContent`, `encryptionVersion`).
+- GCM additional authenticated data binds each ciphertext to its `conversationId`, `messageId` and `senderId`; the wrapped key is bound to its conversation and key version. Bit-flips, and ciphertext copied to another message/conversation/sender, fail authentication (tested).
+- Deleting a message erases its ciphertext (`encryptedContent = NULL`; a database `CHECK` keeps this consistent).
+- Rotation: add a new version to `CHAT_ENCRYPTION_KEYS`, set `CHAT_ACTIVE_KEY_VERSION`, run `npm run chat:rotate-keys`, then retire the old version once it reports no conversations on it. Only 60-byte wrapped keys are rewritten, never message ciphertext (tested with a process that knows only the new key).
+
+Provided: confidentiality of message text against database/backup/replica readers who lack the master key, integrity and binding of stored messages, encryption in transit when deployed behind HTTPS/WSS.
+
+**Not** provided: protection from anyone who can read both the database and the master key, or run the API process (operators, a compromised server); forward secrecy (a conversation key is static for that conversation); protection of metadata (who talked to whom, when, message sizes); protection after a device is compromised; retention control (backups may keep deleted ciphertext, and no automatic retention window is enforced).
+
+### Administrator access policy
+
+- Admins cannot browse conversations. Message text is available **only while a participant's report on that conversation is open** (`POST /admin/chat/reports/:id/messages`), returns at most the newest 500 messages, and requires a written justification (15+ characters).
+- Every access is written to `ChatAccessLog` (admin, report, conversation, justification, message count, time) **before** any content is returned. A database trigger makes that table append-only; the log is readable at `GET /admin/chat/access-log`.
+- Resolving/dismissing the report ends access. While a report is open, its conversation's messages cannot be deleted, so evidence is preserved. Admin-facing UI for reports is not built yet; the API is complete.
+
+### REST endpoints (all under `/api`; customers and professionals unless noted)
+
+| Method and path | Purpose |
+|---|---|
+| GET `/conversations?page&limit` | My conversations with unread counts and last-message previews |
+| GET `/conversations/unread` | Total unread messages |
+| POST `/conversations` `{bookingId}` | Open or create the chat for a booking (`201` new, `200` existing) |
+| GET `/conversations/:id` | One conversation; includes `canSend` and `sendBlockedReason` |
+| GET `/conversations/:id/messages?before&limit` | History, oldest-to-newest, cursor paged; marks fetched messages delivered |
+| POST `/conversations/:id/messages` `{content, clientMessageId}` | Send text (1-2000 chars). `clientMessageId` (UUID) makes retries idempotent |
+| PUT `/conversations/:id/read` | Mark everything read, notify the sender |
+| DELETE `/messages/:id` | Delete own message for everyone (blocked while a report is open) |
+| PUT / DELETE `/conversations/:id/block` | Block / unblock the other party (the blocked person is not told) |
+| POST `/conversations/:id/report` `{reason, details?}` | Report; reasons `HARASSMENT`, `SPAM`, `OFF_PLATFORM_CONTACT`, `SAFETY`, `OTHER` |
+| GET `/admin/chat/reports?status` | Admin: reports (no message text, no contact data) |
+| POST `/admin/chat/reports/:id/messages` `{justification}` | Admin: read a reported thread (audited) |
+| PUT `/admin/chat/reports/:id` `{status, resolutionNote}` | Admin: resolve or dismiss |
+| GET `/admin/chat/access-log` | Admin: audit trail |
+
+Responses use `Cache-Control: no-store`. Limits per authenticated account: 30 sends/minute, 240 chat requests/minute, 5 reports/hour; admin routes 60/minute; the global 300/minute per-IP limit still applies. Errors keep the `{ error }` shape; a refused send adds `code`.
+
+### WebSocket (Socket.IO) - path `/api/socket.io`, WebSocket transport only
+
+Authentication: the HttpOnly `session` cookie is verified (JWT plus database session) during the handshake, exactly like REST. No token or user id is accepted from JavaScript. The handshake must carry an allowed `Origin` (blocks cross-site WebSocket hijacking), is rate-limited per IP, and each user may hold at most 5 connections. Logout and password change disconnect the user's sockets immediately, and a 60-second sweep drops sockets whose session expired or was revoked. Admins cannot connect.
+
+| Direction | Event | Payload |
+|---|---|---|
+| server -> client | `message:new` | `{conversationId, message}` to both participants (multi-tab safe) |
+| server -> client | `message:status` | `{conversationId, messageIds, status: 'delivered'\|'read', at}` to the sender |
+| server -> client | `message:deleted` | `{conversationId, messageId}` |
+| server -> client | `typing` | `{conversationId, isTyping}` |
+| server -> client | `presence` | `{conversationId, online}` for the counterpart in active conversations |
+| server -> client | `conversation:updated` | `{conversationId, reason: 'created'\|'closed'\|'read'\|'blocked'\|'unblocked'}` |
+| client -> server | `typing` | `{conversationId, isTyping}`, ack `{ok}` or `{ok:false, error}` |
+| client -> server | `message:delivered` | `{conversationId, messageIds[]}`, ack as above |
+
+Every client event is schema-validated and re-authorised against the database, and each connection is limited to 40 events per 10 seconds (dropped beyond 120). Messages are **sent over REST**, so they share CSRF/Origin checks, validation, idempotency and rate limits; sockets carry pushes and lightweight signals. The client polls while the socket is down.
+
+### Chat environment variables
+
+| Variable | Meaning |
+|---|---|
+| `CHAT_ENCRYPTION_KEYS` | Required. Comma-separated `version:base64(32 random bytes)`; generate with `node -e "console.log('1:'+require('crypto').randomBytes(32).toString('base64'))"`. Load from a secret manager in production; never commit |
+| `CHAT_ACTIVE_KEY_VERSION` | Required. Version used for new conversations and by key rotation; must appear in the list |
+| `CHAT_BLOCK_CONTACT_INFO` | `true` (default) rejects phone numbers/e-mail addresses in messages |
+
+Losing every copy of a master key version makes conversations wrapped under it unreadable. Back keys up separately from the database.
+
+### Chat scaling and known gaps
+
+- Presence, socket connection caps and the REST rate limiters are in memory. Before running more than one API instance, add a Socket.IO Redis adapter with shared presence, and a shared rate-limit store (or enforce limits at the gateway).
+- Not implemented: image/file attachments (they need access-controlled object storage, type/size/malware checks and signed URLs), push/e-mail/SMS notifications (in-app notifications only, without message text), an admin UI for reports, message retention/erasure jobs.
+
 ## Testing
 
-Create a separate database whose name ends in `_test`, migrate it using `DATABASE_URL` temporarily pointed at that database, then restore the normal development URL. Set `TEST_DATABASE_URL` to the test URL and run `npm test`. The suite **truncates the dedicated test database**, seeds fixtures, and exercises actual Express/Prisma/PostgreSQL behavior. It refuses to run against a database without the `_test` suffix. Tests do not mock database persistence or authentication.
+Create a separate database whose name ends in `_test`, migrate it using `DATABASE_URL` temporarily pointed at that database, then restore the normal development URL. Set `TEST_DATABASE_URL` to the test URL and run `npm test` (test files run one at a time because they share that database; `test/chat.test.js` covers chat privacy, access control, encryption, key rotation, WebSocket authentication, delivery/read receipts, admin audit and hostile input over real HTTP and WebSocket connections). The suite **truncates the dedicated test database**, seeds fixtures, and exercises actual Express/Prisma/PostgreSQL behavior. It refuses to run against a database without the `_test` suffix. Tests do not mock database persistence or authentication.
 
 With both applications running, `npm run test:browser` from this folder runs the frontend Playwright suite with a temporary database-backed admin account, removed afterward. The runner refuses remote databases and production mode. Browser tests register demo-domain customer/professional accounts and save a booking in the connected development database. Install frontend dependencies separately first. The API integration suite also starts and stops a separate API process on port 5099 to verify that sessions and bookings survive server restarts.
 
@@ -135,6 +238,7 @@ With both applications running, `npm run test:browser` from this folder runs the
 4. Prefer frontend and API on the same site through an HTTPS reverse proxy with `/api` forwarded to the API. Otherwise set the frontend's VITE_API_URL at build time; use correct cookie and CORS settings. Browser third-party-cookie restrictions can prevent unrelated-site cookie authentication.
 5. Create the first administrator using the one-time CLI. Populate real categories/services and verify real professionals through admin APIs/UI. Do not run the demo seed in production.
 6. Build and deploy the frontend separately. Configure its host to rewrite non-asset routes to `index.html`. Do not route `/api` to the SPA.
-7. Verify health, registration/login/logout, a service in each active category, one real test booking, ownership restrictions, assignment and cash reconciliation. Monitor errors, database capacity and backups. Use a shared rate-limit store or enforce limits at the gateway before scaling to multiple API instances.
+7. Chat: store `CHAT_ENCRYPTION_KEYS` in the host's secret manager and back it up separately from the database. Terminate TLS in front of the API so chat runs over HTTPS/WSS, and make the reverse proxy forward WebSocket upgrades for `/api/socket.io` (for nginx: `proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection "upgrade"; proxy_read_timeout 75s;`). Keep `FRONTEND_ORIGINS` exact: it also gates the WebSocket handshake. Make sure request-body logging (proxy, APM, WAF) is off for `/api/conversations`, or message text will be logged even though the API never logs it.
+8. Verify health, registration/login/logout, a service in each active category, one real test booking, ownership restrictions, assignment and cash reconciliation. Monitor errors, database capacity and backups. Use a shared rate-limit store or enforce limits at the gateway before scaling to multiple API instances.
 
 Cash payment is implemented. Online card/UPI payment, refunds, tax invoicing and professional payouts need a selected payment provider and business configuration before launch. No request from a browser can mark an online payment as paid. Taxes are currently zero rather than assuming the original demo's blanket 5% GST. HomeAI needs real provider credentials and a supported configured model. Password reset/email verification, email/SMS delivery and production observability are not included in this scope.
