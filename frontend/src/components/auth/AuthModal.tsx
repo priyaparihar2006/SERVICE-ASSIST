@@ -5,8 +5,10 @@ import { X, ShieldCheck, UserCheck, Wrench, Crown, Sparkles, Mail, Lock, Phone, 
 import { BrandLogo } from '../common/BrandLogo';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, closeAuthModal, login, register, switchDemoRole, role, user } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, login, register } = useAuth();
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -17,22 +19,18 @@ export const AuthModal: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); setError('');
     try {
       if (isRegisterMode) {
-        await register(name, email, phone, selectedRole);
+        await register(name, email, phone, password, selectedRole);
       } else {
-        await login(email, selectedRole);
+        await login(email, password);
       }
-    } finally {
+    } catch (e) { setError(e.message); } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickDemoSwitch = (demoRole: UserRole) => {
-    switchDemoRole(demoRole);
-    closeAuthModal();
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
@@ -52,56 +50,12 @@ export const AuthModal: React.FC = () => {
         </div>
 
         <div className="p-6 space-y-5">
-          {/* Quick Demo Selector for fast evaluation */}
-          <div className="p-3.5 bg-[#FFF8F2] border border-orange-200/80 rounded-2xl">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[#15252B] mb-2">
-              <Sparkles className="w-4 h-4 text-[#FF7A00]" />
-              <span>Instant 1-Click Evaluation Personas:</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickDemoSwitch('CUSTOMER')}
-                className={`py-2 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 border transition-all cursor-pointer ${
-                  role === 'CUSTOMER'
-                    ? 'bg-[#FFF1E5] border-[#FF7A00] text-[#E85D04] shadow-xs'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <UserCheck className="w-4 h-4 text-[#FF7A00]" />
-                <span>Customer</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoSwitch('PROFESSIONAL')}
-                className={`py-2 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 border transition-all cursor-pointer ${
-                  role === 'PROFESSIONAL'
-                    ? 'bg-indigo-50 border-indigo-400 text-indigo-900 shadow-xs'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Wrench className="w-4 h-4 text-indigo-600" />
-                <span>Pro Partner</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemoSwitch('ADMIN')}
-                className={`py-2 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 border transition-all cursor-pointer ${
-                  role === 'ADMIN'
-                    ? 'bg-amber-50 border-amber-400 text-amber-900 shadow-xs'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Crown className="w-4 h-4 text-amber-600" />
-                <span>Admin</span>
-              </button>
-            </div>
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
+            {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+            <label className="block text-xs font-semibold text-gray-700">Password
+              <input type="password" required minLength={isRegisterMode ? 12 : 1} maxLength={72} autoComplete={isRegisterMode ? 'new-password' : 'current-password'} value={password} onChange={e => setPassword(e.target.value)} className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
+            </label>
             {isRegisterMode && (
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">Full Name</label>
@@ -148,9 +102,9 @@ export const AuthModal: React.FC = () => {
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Select Account Type</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Account type for new registrations</label>
               <div className="grid grid-cols-3 gap-2">
-                {(['CUSTOMER', 'PROFESSIONAL', 'ADMIN'] as UserRole[]).map((r) => (
+                {(['CUSTOMER', 'PROFESSIONAL'] as UserRole[]).map((r) => (
                   <button
                     key={r}
                     type="button"

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { apiFetch } from '../../services/api';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useLocation } from '../../context/LocationContext';
@@ -46,11 +47,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
     clearCart,
   } = useCart();
 
-  const { user, addAddress } = useAuth();
+  const { user, addAddress, openAuthModal } = useAuth();
   const { selectedCity } = useLocation();
 
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
-  const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'CARD' | 'COD'>('UPI');
+  const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'CARD' | 'COD'>('COD');
+  const [requestKey, setRequestKey] = useState(() => crypto.randomUUID());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
 
@@ -61,6 +63,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
   const [newArea, setNewArea] = useState('');
   const [newPincode, setNewPincode] = useState('282001');
   const [newType, setNewType] = useState<'Home' | 'Work' | 'Other'>('Home');
+
+  useEffect(() => { if (isCheckoutModalOpen && !confirmedBooking) setCurrentStep(1); }, [isCheckoutModalOpen]);
+  useEffect(() => { setRequestKey(crypto.randomUUID()); }, [items, bookingDate, bookingTimeSlot, selectedAddress?.id, specialInstructions, appliedCoupon?.code, user?.id]);
 
   if (!isCheckoutModalOpen) return null;
 
@@ -78,6 +83,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
 
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
     const created = await addAddress({
       type: newType,
       house: newHouse,
@@ -90,9 +96,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
     });
     setSelectedAddress(created);
     setIsAddingNewAddress(false);
+    } catch (e) { alert(e.message); }
   };
 
   const handlePlaceOrder = async () => {
+    if (!user) { openAuthModal(); return; }
     if (!selectedAddress) {
       alert('Please select or add a delivery address');
       setCurrentStep(2);
@@ -102,10 +110,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
     setIsSubmitting(true);
     try {
       const payload = {
-        userId: user?.id || 'usr-customer-1',
-        userName: user?.name || 'Priya Sharma',
-        userPhone: user?.phone || '+91 98765 12345',
-        userEmail: user?.email || 'priya.sharma@example.com',
+        userId: user.id,
+        userName: user.name,
+        userPhone: user.phone,
+        userEmail: user.email,
         items,
         address: selectedAddress,
         scheduledDate: bookingDate,
@@ -119,21 +127,21 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
         couponCode: appliedCoupon?.code,
       };
 
-      const res = await fetch('/api/bookings', {
+      const res = await apiFetch('/api/bookings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': requestKey },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
       if (data.booking) {
-        setConfirmedBooking(data.booking);
+        setConfirmedBooking(data.booking); setRequestKey(crypto.randomUUID());
         clearCart();
         onSuccess(data.booking);
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to place booking. Please try again.');
+      alert(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -157,7 +165,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
             We've Received Your Booking
           </h3>
           <p className="text-xs text-gray-500 mb-6">
-            A verified professional has been assigned to your Service Assist request.
+            Your booking is saved. We will notify you when a professional is assigned.
           </p>
 
           {/* Details Card */}
@@ -467,10 +475,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
                   Select Payment Method
                 </label>
+                <p className="text-xs text-gray-500 mb-3">Pay cash after the service. Online payments are not available yet.</p>
                 <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod('UPI')}
+                    disabled title="Online payments are not configured"
                     className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                       paymentMethod === 'UPI'
                         ? 'border-[#FF7A00] bg-[#FFF1E5] text-[#15252B] font-bold shadow-xs'
@@ -484,7 +493,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
 
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod('CARD')}
+                    disabled title="Online payments are not configured"
                     className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                       paymentMethod === 'CARD'
                         ? 'border-[#FF7A00] bg-[#FFF1E5] text-[#15252B] font-bold shadow-xs'
@@ -534,7 +543,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
                   </div>
                 )}
                 <div className="flex justify-between text-xs text-gray-600">
-                  <span>Taxes (5% GST)</span>
+                  <span>Additional taxes</span>
                   <span>₹{taxes}</span>
                 </div>
                 <div className="pt-2 border-t border-gray-200 flex justify-between font-bold text-sm text-gray-900">

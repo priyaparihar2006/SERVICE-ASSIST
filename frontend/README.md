@@ -1,149 +1,40 @@
-# 🏡 Service Assist
+﻿# Service Assist frontend
 
-### Premium On-Demand Home Services Marketplace
+The existing React 19, TypeScript/TSX, Vite, Tailwind and Motion UI is preserved. Routing uses the existing history-based App component. Backend responsibilities have moved entirely to `../backend`.
 
-> Your home, taken care of.
+## Development
 
-Service Assist is a modern, full-stack home-services marketplace designed to connect customers with trusted professionals for a wide range of home, beauty, repair, and maintenance services.
+```powershell
+npm ci
+npm run dev
+```
 
-The platform focuses on a premium user experience, intuitive service discovery, seamless booking, and scalable service management.
+Open http://localhost:5173. The Vite development proxy forwards `/api` to http://127.0.0.1:5000. Run the backend separately. No frontend environment file is needed with the proxy.
 
----
+To use a different API, copy `.env.example` to `.env` and set `VITE_API_URL` to its complete API base, for example `https://api.example.com/api`. Never put DATABASE_URL, JWT_SECRET or AI keys in a VITE variable. Restart Vite after changing environment variables.
 
-## 🌟 Overview
+`src/services/api.js` is the only network boundary. It attaches session cookies, normalizes API URLs and raises server validation/network errors. `getAll` walks paginated collections where the existing dashboard/catalog expects a full collection. Authentication is restored from `/auth/me`; no token or authenticated user is trusted from localStorage. Favorites remain per-user local preferences, and cart data stays local until checkout.
 
-Service Assist simplifies the process of finding and booking reliable professionals for everyday services.
+The frontend now uses real loading/error/empty states, persisted addresses/profile, actual booking history and role-gated dashboards. Administration and professional settings extend the existing dashboards without replacing their original layouts. Categories come from the backend, including service counts; the old static category list is no longer used for filtering.
 
-From home cleaning and AC repair to salon services, plumbing, electrical work, and home improvement, users can explore service categories, discover professionals, and manage their bookings through a unified platform.
+## Checks
 
-The application combines a visually engaging interface with practical marketplace functionality to deliver a convenient digital home-services experience.
+```powershell
+npm run lint
+npm run build
+npm run test:browser
+```
 
----
+Browser checks require both servers and the seeded development database to be running. Playwright uses Microsoft Edge already installed on this workstation. For another machine, choose an installed channel in `playwright.config.js`, or install Playwright Chromium and remove the channel setting. `E2E_URL` can select a different local test deployment. Use a disposable development database: the browser booking test registers a new test customer and saves a booking. Failure traces/screenshots are ignored by Git.
 
-## ✨ Key Features
+For the full suite including admin login, run `npm run test:browser` from `backend/`. Its fixture runner supplies temporary admin credentials to the test process and removes that account afterward. Running directly from this folder skips the administrator test unless its test credentials are supplied. No test credentials are included in the browser application bundle.
 
-### 👤 Customer Experience
+## Production hosting
 
-- Modern and responsive homepage
-- Premium service discovery interface
-- Browse services by category
-- Search for required services
-- Service details and pricing
-- Online booking workflow
-- Booking history and upcoming bookings
-- Customer profile management
-- Notifications and support
-- AI-powered service assistance
+1. Set VITE_API_URL before `npm run build`, or host the API at the same site's `/api` path.
+2. Publish only `dist/` to your static host. Do not publish the backend environment or source secrets.
+3. Rewrite frontend routes such as `/services/ac-jet-service` and `/dashboard` to `index.html` so refresh works.
+4. Proxy `/api` to the independently deployed Express API, or configure its exact FRONTEND_ORIGINS for the frontend origin.
+5. Use HTTPS. Prefer a same-site API for reliable HttpOnly cookie authentication. Test registration, logout, deep-link refresh and booking persistence on the deployed origin.
 
-### 🛠️ Service Marketplace
-
-- AC and appliance services
-- Home cleaning
-- Beauty and salon
-- Electrician services
-- Plumbing
-- Carpentry
-- Painting and wall services
-- Pest control
-- Packers and movers
-- Bathroom cleaning
-- Sofa cleaning
-- Water purifier services
-- Home improvement
-- Electronics repair
-
-### 🤖 HomeAI Assistant
-
-Service Assist includes an AI assistant designed to help users:
-
-- Discover relevant services
-- Understand common service requirements
-- Navigate the booking experience
-- Get instant assistance
-
-> AI capabilities depend on the configured integration and supported application workflows.
-
-### 👨‍🔧 Professional Management
-
-The platform is designed to support service professionals through:
-
-- Professional profiles
-- Service management
-- Booking management
-- Availability management
-- Customer information
-- Earnings and performance tracking
-
-### 🔐 Authentication & Security
-
-- Customer authentication
-- Professional authentication
-- Role-based access (where implemented)
-- Protected routes
-- Secure environment variable management
-- Backend API integration
-
-### 🎨 Premium UI/UX
-
-- Modern green-themed visual identity
-- Responsive layouts
-- Image-based service categories
-- Premium professional photography
-- Rounded cards and subtle shadows
-- Interactive hover effects
-- Smooth animations
-- Automatic hero image carousel
-- Mobile-friendly interface
-
----
-
-## 🖥️ Screenshots
-
-### Homepage
-
-_Add your homepage screenshot here._
-
-### Service Categories
-
-_Add your service category screenshot here._
-
-### Booking Experience
-
-_Add your booking page screenshot here._
-
-### Dashboard
-
-_Add your dashboard screenshot here._
-
----
-
-## 🏗️ Project Architecture
-
-The project follows a modular architecture designed to separate user interface components, application logic, and backend services.
-
-```text
-Service-Assist/
-│
-├── public/
-│   └── Static assets
-│
-├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── layouts/
-│   ├── context/
-│   ├── services/
-│   ├── hooks/
-│   ├── assets/
-│   └── App
-│
-├── server/
-│   ├── API routes
-│   ├── Authentication
-│   ├── Database integration
-│   └── Server configuration
-│
-├── .env.example
-├── package.json
-├── README.md
-└── Configuration files
+Online payment buttons are disabled until a provider is configured; checkout uses cash after service. Booking confirmation only appears after a successful database-backed API response. Failed network requests never create a local fake booking or authenticated account.

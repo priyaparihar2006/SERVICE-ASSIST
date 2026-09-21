@@ -40,6 +40,7 @@ export interface ServiceFAQ {
 }
 
 export interface Service {
+  locations: string[];
   id: string;
   slug: string;
   name: string;
@@ -57,6 +58,7 @@ export interface Service {
   whatIncluded: string[];
   whatExcluded: string[];
   whyChoose: string[];
+  steps: string[];
   faqs: ServiceFAQ[];
   popular?: boolean;
   trending?: boolean;

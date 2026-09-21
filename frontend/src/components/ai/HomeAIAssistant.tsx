@@ -1,3 +1,4 @@
+import { apiFetch } from '../../services/api';
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, Send, X, Sparkles, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
@@ -53,7 +54,7 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
     setLoading(true);
 
     try {
-      const res = await fetch('/api/ai/chat', {
+      const res = await apiFetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: textToSend }),
@@ -75,7 +76,7 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
         {
           id: `bot-${Date.now()}`,
           sender: 'bot',
-          text: "I can assist with AC jet cleaning, plumbing repairs, salon packages, and electrical safety inspections. Which service would you like to book?",
+          text: err.message || "HomeAI is unavailable. Please browse our services.",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           action: { title: 'View All Services', link: '/services' },
         },

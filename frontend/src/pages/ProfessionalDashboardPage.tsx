@@ -1,3 +1,8 @@
+import { api, getAll } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import { ProfileSettings } from '../components/account/ProfileSettings';
+import { ProfessionalSettings } from '../components/account/ProfessionalSettings';
+import { apiFetch } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import { Booking } from '../types';
 import {
@@ -11,53 +16,45 @@ import {
 } from 'lucide-react';
 
 export const ProfessionalDashboardPage: React.FC = () => {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+  const [earnings, setEarnings] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [otpInputs, setOtpInputs] = useState<Record<string, string>>({});
   const [otpError, setOtpError] = useState<Record<string, string>>({});
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch('/api/bookings');
-      const data = await res.json();
-      if (data.bookings) {
-        setBookings(data.bookings);
-      }
+      setLoading(true); setError('');
+      const [jobs, p, e] = await Promise.all([getAll('/professionals/bookings', 'bookings'), api('/professionals/profile'), api('/professionals/earnings')]);
+      setBookings(jobs); setProfile(p.professional); setEarnings(e.earnings);
     } catch (e) {
-      console.error(e);
-    }
+      setError(e.message);
+    } finally { setLoading(false); }
   };
 
   useEffect(() => {
     fetchJobs();
   }, []);
 
-  const handleUpdateStatus = async (bookingId: string, newStatus: Booking['status']) => {
+  const handleUpdateStatus = async (bookingId: string, newStatus: Booking['status'], otp?: string) => {
     try {
-      const res = await fetch(`/api/bookings/${bookingId}/status`, {
+      const res = await apiFetch(`/api/bookings/${bookingId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: newStatus, otp }),
       });
       if (res.ok) {
         fetchJobs();
       }
     } catch (e) {
-      console.error(e);
+      alert(e.message);
     }
   };
 
-  const handleVerifyOtpAndStart = (booking: Booking) => {
-    const entered = otpInputs[booking.id];
-    if (entered === booking.verificationOtp) {
-      handleUpdateStatus(booking.id, 'IN_PROGRESS');
-      setOtpError((prev) => ({ ...prev, [booking.id]: '' }));
-    } else {
-      setOtpError((prev) => ({
-        ...prev,
-        [booking.id]: 'Incorrect customer OTP. Ask customer for the 4-digit code.',
-      }));
-    }
-  };
+  const handleVerifyOtpAndStart = (booking: Booking) => handleUpdateStatus(booking.id, 'IN_PROGRESS', otpInputs[booking.id]);
 
   return (
     <div className="min-h-screen bg-[#FFF8F2]/30 py-8 sm:py-12">
@@ -66,21 +63,21 @@ export const ProfessionalDashboardPage: React.FC = () => {
         <div className="bg-gradient-to-br from-[#15252B] to-[#0A1215] text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-orange-500/20">
           <div className="flex items-center gap-4">
             <img
-              src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80"
+              src={user?.avatar || '/favicon.svg'}
               alt="Partner Profile"
               className="w-16 h-16 rounded-2xl object-cover border-2 border-[#FF7A00]"
               referrerPolicy="no-referrer"
             />
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black font-['Outfit']">Rahul Sharma</h1>
+                <h1 className="text-xl sm:text-2xl font-black font-['Outfit']">{user?.name}</h1>
                 <span className="text-[10px] font-bold bg-[#FF7A00] text-white px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
                   <ShieldCheck className="w-3 h-3" />
-                  <span>Verified Partner</span>
+                  <span>{profile?.verificationStatus || 'Pending verification'}</span>
                 </span>
               </div>
               <p className="text-xs text-gray-300 mt-1">
-                HVAC Specialist & Master Electrician • Service Assist Partner ID: #PRO-8821
+                {profile?.businessName} · {profile?.id}
               </p>
             </div>
           </div>
@@ -90,12 +87,15 @@ export const ProfessionalDashboardPage: React.FC = () => {
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Status</span>
               <span className="text-xs font-bold text-emerald-400 flex items-center justify-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Online & Accepting
+                {profile?.isAvailableToday ? 'Accepting assignments' : 'Unavailable'}
               </span>
             </div>
           </div>
         </div>
 
+        <ProfileSettings /><ProfessionalSettings onSaved={fetchJobs} />
+        {loading && <p role="status">Loading jobs...</p>}{error && <p role="alert">{error}</p>}
+        {!loading && !error && !bookings.length && <p>No assigned bookings yet.</p>}
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
@@ -105,8 +105,8 @@ export const ProfessionalDashboardPage: React.FC = () => {
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-black text-gray-900 font-['Outfit']">₹48,250</div>
-            <p className="text-[11px] text-emerald-600 font-semibold mt-1">+18% vs last month</p>
+            <div className="text-2xl font-black text-gray-900 font-['Outfit']">₹{earnings.toLocaleString()}</div>
+            <p className="text-[11px] text-emerald-600 font-semibold mt-1">Collected payments on completed jobs</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
@@ -116,8 +116,8 @@ export const ProfessionalDashboardPage: React.FC = () => {
                 <Star className="w-4 h-4 fill-amber-400" />
               </div>
             </div>
-            <div className="text-2xl font-black text-gray-900 font-['Outfit']">4.94 / 5</div>
-            <p className="text-[11px] text-gray-500 font-medium mt-1">Based on 1,240 ratings</p>
+            <div className="text-2xl font-black text-gray-900 font-['Outfit']">{profile?.rating || 0} / 5</div>
+            <p className="text-[11px] text-gray-500 font-medium mt-1">{profile?.reviewsCount || 0} verified reviews</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
@@ -127,19 +127,19 @@ export const ProfessionalDashboardPage: React.FC = () => {
                 <CheckCircle2 className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-black text-gray-900 font-['Outfit']">1,240</div>
-            <p className="text-[11px] text-gray-500 font-medium mt-1">Zero safety violations</p>
+            <div className="text-2xl font-black text-gray-900 font-['Outfit']">{profile?.completedJobs || 0}</div>
+            <p className="text-[11px] text-gray-500 font-medium mt-1">Completed bookings</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
             <div className="flex items-center justify-between text-gray-400 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider">Acceptance Rate</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Assigned Jobs</span>
               <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                 <Award className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl font-black text-gray-900 font-['Outfit']">98.4%</div>
-            <p className="text-[11px] text-indigo-600 font-semibold mt-1">Top tier partner club</p>
+            <div className="text-2xl font-black text-gray-900 font-['Outfit']">{bookings.filter(b => !['COMPLETED', 'CANCELLED'].includes(b.status)).length}</div>
+            <p className="text-[11px] text-indigo-600 font-semibold mt-1">Current active assignments</p>
           </div>
         </div>
 
@@ -187,7 +187,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
                   <div className="text-right">
                     <span className="text-[10px] text-gray-400 font-bold block uppercase">Payout</span>
                     <span className="text-base font-black text-emerald-600">
-                      ₹{Math.round(b.total * 0.85)} <span className="text-xs font-normal text-gray-400">(85%)</span>
+                      ₹{b.total} <span className="text-xs font-normal text-gray-400">(booking value)</span>
                     </span>
                   </div>
                 </div>
@@ -242,9 +242,12 @@ export const ProfessionalDashboardPage: React.FC = () => {
                   </div>
                 </div>
 
+                {b.status === 'ASSIGNED' && <div className="flex gap-3"><button onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')} className="bg-orange-500 text-white rounded-xl p-2">Accept booking</button><button onClick={() => handleUpdateStatus(b.id, 'PENDING')} className="border rounded-xl p-2">Reject assignment</button></div>}
+                {b.status === 'CONFIRMED' && <button onClick={() => handleUpdateStatus(b.id, 'ON_THE_WAY')}>On my way</button>}
+                {b.status === 'ON_THE_WAY' && <button onClick={() => handleUpdateStatus(b.id, 'ARRIVED')}>I have arrived</button>}
                 {/* Partner Actions & OTP Verification */}
                 <div className="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
-                  {b.status === 'ASSIGNED' && (
+                  {b.status === 'ARRIVED' && (
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="flex items-center gap-2">
                         <input
@@ -268,9 +271,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
                       {otpError[b.id] && (
                         <span className="text-[11px] text-red-600 font-semibold">{otpError[b.id]}</span>
                       )}
-                      <span className="text-[10px] text-gray-400 italic">
-                        (Demo Hint: Customer's OTP is {b.verificationOtp})
-                      </span>
+
                     </div>
                   )}
 
@@ -292,7 +293,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
                   {b.status === 'COMPLETED' && (
                     <div className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>Service successfully completed & paid</span>
+                      <span>Service completed · Payment: {b.paymentStatus}</span>
                     </div>
                   )}
 

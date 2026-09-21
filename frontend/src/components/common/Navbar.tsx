@@ -28,7 +28,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenNotifications }) => {
-  const { user, isAuthenticated, role, logout, openAuthModal, switchDemoRole } = useAuth();
+  const { user, isAuthenticated, role, logout, openAuthModal } = useAuth();
   const { selectedCity, openLocationModal } = useLocation();
   const { items, openCartDrawer } = useCart();
 
@@ -64,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
       label: 'For Professionals',
       path: '/professional/dashboard',
       action: () => {
-        switchDemoRole('PROFESSIONAL');
+
         onNavigate('/professional/dashboard');
       },
     },
@@ -196,57 +196,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
                     <div className="px-3 py-2.5 border-b border-[#DDF7EC]/60">
                       <p className="text-xs font-bold text-[#103C35] truncate">{user?.name}</p>
                       <p className="text-[11px] text-[#6B817C] truncate">{user?.email}</p>
-                    </div>
-
-                    {/* Quick Role Switcher */}
-                    <div className="py-2 px-1 border-b border-[#DDF7EC]/60">
-                      <div className="text-[10px] font-bold text-[#6B817C] uppercase tracking-wider px-2 mb-1.5">
-                        Test Role Switcher
-                      </div>
-                      <div className="grid grid-cols-3 gap-1">
-                        <button
-                          onClick={() => {
-                            switchDemoRole('CUSTOMER');
-                            onNavigate('/dashboard');
-                            setIsProfileDropdownOpen(false);
-                          }}
-                          className={`px-1.5 py-1 text-[11px] font-semibold rounded-lg text-center cursor-pointer ${
-                            role === 'CUSTOMER'
-                              ? 'bg-[#DDF7EC] text-[#087F5B] font-bold border border-[#0B9F6E]/40'
-                              : 'text-[#6B817C] hover:bg-[#F2FCF7]'
-                          }`}
-                        >
-                          Customer
-                        </button>
-                        <button
-                          onClick={() => {
-                            switchDemoRole('PROFESSIONAL');
-                            onNavigate('/professional/dashboard');
-                            setIsProfileDropdownOpen(false);
-                          }}
-                          className={`px-1.5 py-1 text-[11px] font-semibold rounded-lg text-center cursor-pointer ${
-                            role === 'PROFESSIONAL'
-                              ? 'bg-[#0B9F6E] text-white font-bold'
-                              : 'text-[#6B817C] hover:bg-[#F2FCF7]'
-                          }`}
-                        >
-                          Pro
-                        </button>
-                        <button
-                          onClick={() => {
-                            switchDemoRole('ADMIN');
-                            onNavigate('/admin');
-                            setIsProfileDropdownOpen(false);
-                          }}
-                          className={`px-1.5 py-1 text-[11px] font-semibold rounded-lg text-center cursor-pointer ${
-                            role === 'ADMIN'
-                              ? 'bg-[#103C35] text-white font-bold'
-                              : 'text-[#6B817C] hover:bg-[#F2FCF7]'
-                          }`}
-                        >
-                          Admin
-                        </button>
-                      </div>
                     </div>
 
                     {/* Navigation Items */}

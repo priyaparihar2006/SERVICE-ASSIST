@@ -1,4 +1,3 @@
-import { Category, Service, Professional, Coupon, Review, Address, User } from '../src/types';
 
 export const CITIES = [
   { id: 'agra', name: 'Agra', state: 'Uttar Pradesh', active: true },
@@ -11,7 +10,7 @@ export const CITIES = [
   { id: 'mathura', name: 'Mathura', state: 'Uttar Pradesh', active: true },
 ];
 
-export const CATEGORIES: Category[] = [
+export const CATEGORIES = [
   {
     id: 'cat-ac-appliances',
     slug: 'ac-and-appliances',
@@ -186,7 +185,7 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
-export const PROFESSIONALS: Professional[] = [
+export const PROFESSIONALS = [
   {
     id: 'pro-rahul',
     name: 'Rahul Sharma',
@@ -299,7 +298,7 @@ export const PROFESSIONALS: Professional[] = [
   },
 ];
 
-export const SERVICES: Service[] = [
+export const SERVICES = [
   {
     id: 'srv-ac-foamjet',
     slug: 'ac-jet-service',
@@ -962,7 +961,7 @@ export const SERVICES: Service[] = [
   },
 ];
 
-export const COUPONS: Coupon[] = [
+export const COUPONS = [
   {
     code: 'WELCOME150',
     discountType: 'FLAT',
@@ -1005,142 +1004,5 @@ export const COUPONS: Coupon[] = [
     minBookingAmount: 1299,
     description: 'Flat ₹300 OFF on full home service combos over ₹1299',
     expiry: '2026-12-31',
-  },
-];
-
-export const REVIEWS: Review[] = [
-  {
-    id: 'rev-1',
-    bookingId: 'bk-sample-1',
-    serviceId: 'srv-ac-foamjet',
-    serviceName: 'Foam Jet Power AC Servicing',
-    professionalId: 'pro-rahul',
-    professionalName: 'Rahul Sharma',
-    customerName: 'Ananya Deshmukh',
-    customerCity: 'Agra',
-    customerAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-    rating: 5,
-    comment: 'Rahul arrived exactly on time with a full professional kit. The water jacket ensured zero drops on my wallpaper. My bedroom AC cools in 5 minutes now! Brilliant service.',
-    tags: ['On Time', 'Professional', 'Cleanliness', 'Value'],
-    date: '2026-09-10',
-    verifiedBooking: true,
-  },
-  {
-    id: 'rev-2',
-    bookingId: 'bk-sample-2',
-    serviceId: 'srv-bathroom-deep',
-    serviceName: 'Intense Bathroom Deep Cleansing',
-    professionalId: 'pro-amit',
-    professionalName: 'Amit Rawat',
-    customerName: 'Rohan Gupta',
-    customerCity: 'Delhi NCR',
-    customerAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-    rating: 5,
-    comment: 'The hard water stains on my glass shower partition were completely gone. The tiles look brand new like moving day. Well worth the price.',
-    tags: ['Quality', 'Cleanliness', 'Value'],
-    date: '2026-09-12',
-    verifiedBooking: true,
-  },
-  {
-    id: 'rev-3',
-    bookingId: 'bk-sample-3',
-    serviceId: 'srv-salon-women',
-    serviceName: 'Glow & Relax Salon Package for Women',
-    professionalId: 'pro-priya',
-    professionalName: 'Priya Verma',
-    customerName: 'Meera Kapur',
-    customerCity: 'Noida',
-    customerAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80',
-    rating: 5,
-    comment: 'Priya is exceptionally gentle and skilled. The O3+ facial was so relaxing and gave an instant radiant glow. She used disposable sheets and left the room spotless.',
-    tags: ['Professional', 'Quality', 'Hygiene'],
-    date: '2026-09-14',
-    verifiedBooking: true,
-  },
-  {
-    id: 'rev-4',
-    bookingId: 'bk-sample-4',
-    serviceId: 'srv-electrician-visit',
-    serviceName: 'Electrician On-Demand & Diagnostics',
-    professionalId: 'pro-vikram',
-    professionalName: 'Vikram Singh',
-    customerName: 'Sanjay Malhotra',
-    customerCity: 'Gurgaon',
-    customerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    rating: 5,
-    comment: 'Fixed our tripping MCB in 20 minutes that two local electricians could not diagnose. Explained the neutral wire leakage clearly. Very transparent and polite.',
-    tags: ['On Time', 'Professional', 'Knowledgeable'],
-    date: '2026-09-15',
-    verifiedBooking: true,
-  },
-];
-
-export const DEMO_USERS: User[] = [
-  {
-    id: 'usr-customer-1',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@example.com',
-    phone: '+91 98765 12345',
-    role: 'CUSTOMER',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    createdAt: '2026-01-15',
-    addresses: [
-      {
-        id: 'addr-1',
-        type: 'Home',
-        house: 'Flat 402, Lotus Grandeur',
-        street: 'Fatehabad Road',
-        area: 'Tajganj',
-        city: 'Agra',
-        state: 'Uttar Pradesh',
-        pincode: '282001',
-        landmark: 'Opposite Amarvilas',
-        isDefault: true,
-      },
-      {
-        id: 'addr-2',
-        type: 'Work',
-        house: 'Suite 3B, Cyber Park',
-        street: 'Golf Course Road',
-        area: 'Sector 54',
-        city: 'Gurgaon',
-        state: 'Haryana',
-        pincode: '122002',
-        landmark: 'Near Horizon Center',
-        isDefault: false,
-      },
-    ],
-  },
-  {
-    id: 'usr-pro-1',
-    name: 'Rahul Sharma',
-    email: 'rahul.technician@serviceassist.in',
-    phone: '+91 98765 43210',
-    role: 'PROFESSIONAL',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80',
-    createdAt: '2025-11-20',
-    addresses: [
-      {
-        id: 'addr-pro-1',
-        type: 'Work',
-        house: 'Shop 12, Sanjay Place Commercial Complex',
-        street: 'MG Road',
-        area: 'Civil Lines',
-        city: 'Agra',
-        state: 'Uttar Pradesh',
-        pincode: '282002',
-        isDefault: true,
-      },
-    ],
-  },
-  {
-    id: 'usr-admin-1',
-    name: 'Aarav Singhania',
-    email: 'admin@serviceassist.in',
-    phone: '+91 99999 00000',
-    role: 'ADMIN',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-    createdAt: '2025-08-01',
-    addresses: [],
   },
 ];

@@ -53,13 +53,13 @@ export const CustomerReviews: React.FC<CustomerReviewsProps> = ({ reviews }) => 
               <div className="pt-4 border-t border-gray-200/60 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img
-                    src={review.userAvatar}
-                    alt={review.userName}
+                    src={review.customerAvatar}
+                    alt={review.customerName}
                     className="w-10 h-10 rounded-full object-cover border border-orange-200"
                     referrerPolicy="no-referrer"
                   />
                   <div>
-                    <h4 className="font-bold text-xs text-gray-900 font-['Outfit']">{review.userName}</h4>
+                    <h4 className="font-bold text-xs text-gray-900 font-['Outfit']">{review.customerName}</h4>
                     <p className="text-[10px] text-gray-400">{review.serviceName}</p>
                   </div>
                 </div>

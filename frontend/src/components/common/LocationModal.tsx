@@ -17,11 +17,14 @@ export const LocationModal: React.FC = () => {
 
   const handleDetectLocation = () => {
     setIsDetecting(true);
-    setTimeout(() => {
-      // Gracefully resolve to first major city
-      setCity(CITIES_LIST[0]);
+    if (!navigator.geolocation) { setIsDetecting(false); alert('Location detection is unavailable. Please select your city.'); return; }
+    const coordinates: Record<string, [number, number]> = { agra: [27.18, 78.01], delhi: [28.61, 77.21], noida: [28.54, 77.39], gurgaon: [28.46, 77.03], lucknow: [26.85, 80.95], jaipur: [26.91, 75.79], kanpur: [26.45, 80.33], mathura: [27.49, 77.67] };
+    navigator.geolocation.getCurrentPosition(position => {
+      const { latitude, longitude } = position.coords;
+      const nearest = CITIES_LIST.map(city => { const [lat, lon] = coordinates[city.id]; return { city, distance: Math.hypot((latitude - lat) * 111, (longitude - lon) * 111 * Math.cos(latitude * Math.PI / 180)) }; }).sort((a, b) => a.distance - b.distance)[0];
+      if (nearest.distance <= 50) setCity(nearest.city); else alert('Your location is outside our listed service areas. Please select a city.');
       setIsDetecting(false);
-    }, 800);
+    }, () => { setIsDetecting(false); alert('Unable to detect location. Please select your city.'); }, { timeout: 10000, maximumAge: 300000 });
   };
 
   return (

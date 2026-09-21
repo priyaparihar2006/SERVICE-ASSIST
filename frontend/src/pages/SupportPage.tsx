@@ -1,3 +1,4 @@
+import { apiFetch } from '../services/api';
 import React, { useState } from 'react';
 import { PhoneCall, Mail, MessageSquare, ShieldCheck, CheckCircle2, HelpCircle, Send } from 'lucide-react';
 
@@ -13,7 +14,7 @@ export const SupportPage: React.FC = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch('/api/support/ticket', {
+      const res = await apiFetch('/api/support/ticket', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, subject, message }),
@@ -27,7 +28,7 @@ export const SupportPage: React.FC = () => {
         setMessage('');
       }
     } catch (e) {
-      setSubmittedTicket(`SRV-${Date.now().toString().slice(-6)}`);
+      alert(e.message);
     } finally {
       setSubmitting(false);
     }

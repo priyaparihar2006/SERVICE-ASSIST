@@ -3,7 +3,8 @@ import { Service, Category } from '../types';
 import { Star, Clock, CheckCircle2, Search, SlidersHorizontal, Heart, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { SERVICE_CATEGORIES } from '../data/serviceCategories';
+import { useLocation } from '../context/LocationContext';
+
 import { CategoryCard } from '../components/home/CategoryCard';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
 
@@ -26,6 +27,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
 }) => {
   const { isFavorite, toggleFavorite } = useAuth();
   const { addItem } = useCart();
+  const { selectedCity } = useLocation();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
   const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
@@ -35,24 +37,14 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   const filteredServices = useMemo(() => {
     return services
       .filter((s) => {
-        const matchesCategory =
-          selectedCategory === 'all' ||
-          s.categoryId === selectedCategory ||
-          (selectedCategory === 'cat-cleaning' &&
-            (s.categoryId === 'cat-cleaning' ||
-              s.categoryId === 'cat-bathroom-cleaning' ||
-              s.categoryId === 'cat-sofa-cleaning' ||
-              s.categoryId === 'cat-pest-control')) ||
-          (selectedCategory === 'cat-home-cleaning' && s.categoryId === 'cat-cleaning') ||
-          (selectedCategory === 'cat-ac-appliances' &&
-            (s.categoryId === 'cat-ac-appliances' || s.categoryId === 'cat-appliance-repair'));
+        const matchesCategory = selectedCategory === 'all' || s.categoryId === (selectedCategory === 'cat-home-cleaning' ? 'cat-cleaning' : selectedCategory) || categories.find(c => c.slug === selectedCategory)?.id === s.categoryId;
 
         const matchesSearch =
           !searchQuery.trim() ||
           s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           s.shortDesc.toLowerCase().includes(searchQuery.toLowerCase()) ||
           s.categoryName.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
+        return matchesCategory && matchesSearch && s.locations.includes(selectedCity.name);
       })
       .sort((a, b) => {
         if (sortBy === 'rating') return b.rating - a.rating;
@@ -60,7 +52,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
         if (sortBy === 'price-desc') return b.startingPrice - a.startingPrice;
         return (b.reviewsCount || 0) - (a.reviewsCount || 0);
       });
-  }, [services, selectedCategory, searchQuery, sortBy]);
+  }, [services, categories, selectedCategory, searchQuery, sortBy, selectedCity.name]);
 
   const handleCategoryCardClick = (catId: string) => {
     setSelectedCategory(catId);
@@ -122,7 +114,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
-              {SERVICE_CATEGORIES.map((cat) => (
+              {categories.map(c => ({ ...c, subtitle: c.description, alt: c.name })).map((cat) => (
                 <CategoryCard
                   key={cat.id}
                   category={cat}

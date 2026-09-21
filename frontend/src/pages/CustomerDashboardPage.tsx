@@ -1,3 +1,6 @@
+import { ProfileSettings } from '../components/account/ProfileSettings';
+import { getAll, api } from '../services/api';
+import { apiFetch } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Booking, Service } from '../types';
@@ -27,9 +30,10 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
   const { user, favorites, toggleFavorite, addAddress, setDefaultAddress } = useAuth();
   const { addItem } = useCart();
 
+  const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'bookings' | 'addresses' | 'favorites'>('bookings');
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   // New address modal state
   const [isAddingAddr, setIsAddingAddr] = useState(false);
@@ -44,13 +48,9 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/bookings?userId=${user?.id || 'usr-customer-1'}`);
-      const data = await res.json();
-      if (data.bookings) {
-        setBookings(data.bookings);
-      }
+      setError(''); setBookings(await getAll('/bookings', 'bookings'));
     } catch (e) {
-      console.error(e);
+      setError(e.message);
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
   const handleCancelBooking = async (bookingId: string) => {
     if (!confirm('Are you sure you want to cancel this booking? Cancellation is 100% free.')) return;
     try {
-      const res = await fetch(`/api/bookings/${bookingId}/status`, {
+      const res = await apiFetch(`/api/bookings/${bookingId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'CANCELLED' }),
@@ -72,13 +72,13 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
         fetchBookings();
       }
     } catch (e) {
-      console.error(e);
+      setError(e.message);
     }
   };
 
   const handleCreateAddress = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addAddress({
+    try { await addAddress({
       type: addrType,
       house,
       street,
@@ -91,7 +91,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
     setIsAddingAddr(false);
     setHouse('');
     setStreet('');
-    setArea('');
+    setArea(''); } catch (e) { setError(e.message); }
   };
 
   const favoriteServicesList = services.filter((s) => favorites.includes(s.id));
@@ -116,6 +116,8 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
   return (
     <div className="min-h-screen bg-[#FFF8F2]/30 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ProfileSettings />
+        {loading && <p role="status">Loading bookings...</p>}{error && <p role="alert">{error}</p>}
         {/* User Profile Header */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-orange-100/70 shadow-xs mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -304,9 +306,10 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                       </div>
                     </div>
 
+                    {booking.status === 'COMPLETED' && <button className="underline text-sm" onClick={async () => { const rating = Number(prompt('Rate your service from 1 to 5')); if (!rating) return; const comment = prompt('Describe your experience'); if (!comment) return; try { await api('/reviews', { method: 'POST', body: JSON.stringify({ bookingId: booking.id, rating, comment }) }); alert('Review saved.'); } catch (e) { setError(e.message); } }}>Leave a review</button>}
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => alert(`Connecting you to ${booking.professionalName} (+91 98765 43210)`)}
+                        disabled={!booking.professionalPhone} onClick={() => { window.location.href = `tel:${booking.professionalPhone}`; }}
                         className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-semibold hover:bg-[#FFF8F2] flex items-center gap-1.5 cursor-pointer"
                       >
                         <Phone className="w-3.5 h-3.5 text-[#FF7A00]" />
@@ -314,14 +317,17 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                       </button>
 
                       <button
-                        onClick={() => alert(`Invoice #INV-${booking.id} generated! Standard GST 5% included.`)}
+                        onClick={() => {
+                          const text = `Service Assist booking receipt\nBooking: ${booking.id}\nCustomer: ${booking.userName}\nTotal: INR ${booking.total}\nPayment: ${booking.paymentStatus}\nThis is a booking receipt, not a tax invoice.`;
+                          const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); const a = document.createElement('a'); a.href = url; a.download = `${booking.id}-receipt.txt`; a.click(); URL.revokeObjectURL(url);
+                        }}
                         className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-semibold hover:bg-gray-50 flex items-center gap-1.5 cursor-pointer"
                       >
                         <FileText className="w-3.5 h-3.5 text-gray-500" />
-                        <span>Invoice</span>
+                        <span>Receipt</span>
                       </button>
 
-                      {booking.status !== 'COMPLETED' && booking.status !== 'CANCELLED' && (
+                      {['PENDING', 'ASSIGNED', 'CONFIRMED'].includes(booking.status) && (
                         <button
                           onClick={() => handleCancelBooking(booking.id)}
                           className="px-3 py-1.5 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"

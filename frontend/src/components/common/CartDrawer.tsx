@@ -246,7 +246,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span>Taxes & Government GST (5%)</span>
+                    <span>Additional taxes</span>
                     <span>₹{taxes}</span>
                   </div>
                   <div className="flex justify-between font-bold text-sm text-gray-900 pt-1.5 border-t border-gray-100">

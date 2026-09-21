@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { SERVICE_CATEGORIES } from '../../data/serviceCategories';
+
 import { CategoryCard } from './CategoryCard';
 
 interface PopularCategoriesProps {
@@ -10,6 +10,7 @@ interface PopularCategoriesProps {
 }
 
 export const PopularCategories: React.FC<PopularCategoriesProps> = ({
+  categories = [],
   onSelectCategory,
   onExploreAll,
 }) => {
@@ -39,14 +40,14 @@ export const PopularCategories: React.FC<PopularCategoriesProps> = ({
             onClick={onExploreAll}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#087F5B] hover:text-[#0B9F6E] transition-colors group cursor-pointer self-start sm:self-auto bg-white px-4 py-2.5 rounded-xl border border-[#DDF7EC] shadow-2xs hover:border-[#0B9F6E]"
           >
-            <span>Explore All 40+ Services</span>
+            <span>Explore All Services</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
 
         {/* 14 Service Category Image Cards Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-5">
-          {SERVICE_CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <CategoryCard
               key={cat.id}
               category={cat}

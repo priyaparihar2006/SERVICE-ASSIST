@@ -1,3 +1,4 @@
+import { apiFetch } from '../services/api';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Service, ServiceVariant, CartItem, Address, Coupon } from '../types';
 import { useAuth } from './AuthContext';
@@ -37,11 +38,14 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, openAuthModal } = useAuth();
 
   const [items, setItems] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('service_assist_cart');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed.filter(item => item?.service?.id && item?.variant?.id && Number.isInteger(item.quantity) && item.quantity > 0) : [];
+    } catch { return []; }
   });
 
   // Default booking date to tomorrow
@@ -58,8 +62,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   useEffect(() => {
-    if (!selectedAddress && user?.addresses?.length) {
-      setSelectedAddress(user.addresses.find((a) => a.isDefault) || user.addresses[0]);
+    if (!user) { setSelectedAddress(null); return; }
+    if (!selectedAddress || !user.addresses.some(a => a.id === selectedAddress.id)) {
+      setSelectedAddress(user.addresses.find((a) => a.isDefault) || user.addresses[0] || null);
     }
   }, [user]);
 
@@ -138,8 +143,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Ensure discount doesn't exceed subtotal
   discount = Math.min(discount, subtotal);
 
-  // 5% standard GST
-  const taxes = subtotal > 0 ? Math.round((subtotal - discount) * 0.05) : 0;
+  // Tax collection is not configured.
+  const taxes = 0; // Configure jurisdiction-specific taxes before charging tax.
   const total = Math.max(0, subtotal - discount + taxes);
 
   // Original price savings calculation
@@ -155,7 +160,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cleanCode = code.trim().toUpperCase();
 
     try {
-      const res = await fetch('/api/coupons/validate', {
+      const res = await apiFetch('/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: cleanCode, amount: subtotal }),
@@ -170,20 +175,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
     } catch (e) {
-      // Fallback local check
-      if (cleanCode === 'WELCOME150' && subtotal >= 399) {
-        setAppliedCoupon({
-          code: 'WELCOME150',
-          discountType: 'FLAT',
-          value: 150,
-          minBookingAmount: 399,
-          description: 'Flat ₹150 OFF on first booking',
-          expiry: '2026-12-31',
-        });
-        setCouponSuccess('Applied! Saved ₹150 with WELCOME150');
-        return true;
-      }
-      setCouponError('Invalid coupon or minimum amount not met');
+      setCouponError(e.message);
       return false;
     }
   };
@@ -224,7 +216,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         openCartDrawer: () => setIsCartDrawerOpen(true),
         closeCartDrawer: () => setIsCartDrawerOpen(false),
         isCheckoutModalOpen,
-        openCheckoutModal: () => setIsCheckoutModalOpen(true),
+        openCheckoutModal: () => user ? setIsCheckoutModalOpen(true) : openAuthModal(),
         closeCheckoutModal: () => setIsCheckoutModalOpen(false),
       }}
     >

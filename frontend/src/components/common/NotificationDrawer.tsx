@@ -1,3 +1,4 @@
+import { apiFetch } from '../../services/api';
 import React, { useEffect, useState } from 'react';
 import { NotificationItem } from '../../types';
 import { Bell, Check, X, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
@@ -15,13 +16,13 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/notifications');
+      const res = await apiFetch('/api/notifications');
       const data = await res.json();
       if (data.notifications) {
         setNotifications(data.notifications);
       }
     } catch (e) {
-      console.error(e);
+      alert(e.message);
     } finally {
       setLoading(false);
     }
@@ -33,8 +34,9 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
     }
   }, [isOpen]);
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const markAllRead = async () => {
+    try { await Promise.all(notifications.filter(n => !n.read).map(n => apiFetch(`/api/notifications/${n.id}/read`, { method: 'PATCH', body: '{}' }))); await fetchNotifications(); }
+    catch (e) { alert(e.message); }
   };
 
   if (!isOpen) return null;

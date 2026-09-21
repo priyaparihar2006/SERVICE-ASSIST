@@ -1,3 +1,6 @@
+import { api, getAll } from '../services/api';
+import { AdminManagement } from '../components/account/AdminManagement';
+import { apiFetch } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import { Booking, Service, Professional } from '../types';
 import {
@@ -12,38 +15,40 @@ interface AdminDashboardPageProps {
 }
 
 export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
+  const [metrics, setMetrics] = useState<any>({});
+  const [pros, setPros] = useState<any[]>([]);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchAllBookings = async () => {
     try {
-      const res = await fetch('/api/bookings');
-      const data = await res.json();
-      if (data.bookings) {
-        setBookings(data.bookings);
-      }
+      setLoading(true); setError('');
+      const [rows, m, p] = await Promise.all([getAll('/bookings', 'bookings'), api('/admin/metrics'), api('/admin/professionals?limit=100')]);
+      setBookings(rows); setMetrics(m); setPros(p.professionals);
     } catch (e) {
-      console.error(e);
-    }
+      setError(e.message);
+    } finally { setLoading(false); }
   };
 
   useEffect(() => {
     fetchAllBookings();
   }, []);
 
-  const handleStatusChange = async (bookingId: string, status: Booking['status']) => {
+  const handleStatusChange = async (bookingId: string, status: Booking['status'], professionalId?: string) => {
     try {
-      const res = await fetch(`/api/bookings/${bookingId}/status`, {
+      const res = await apiFetch(`/api/bookings/${bookingId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, professionalId }),
       });
       if (res.ok) {
         fetchAllBookings();
       }
     } catch (e) {
-      console.error(e);
+      alert(e.message);
     }
   };
 
@@ -57,7 +62,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
     return matchStatus && matchSearch;
   });
 
-  const totalGMV = bookings.reduce((sum, b) => sum + b.total, 0) + 4820000;
+  const totalGMV = bookings.filter(b => b.status !== 'CANCELLED').reduce((sum, b) => sum + b.total, 0);
 
   return (
     <div className="min-h-screen bg-[#FFF8F2]/30 py-8 sm:py-12">
@@ -90,6 +95,9 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
           </button>
         </div>
 
+        {loading && <p role="status">Loading dashboard...</p>}{error && <p role="alert">{error}</p>}
+        <p className="my-3">Users: {metrics.totalUsers || 0} · Active services: {metrics.totalServices || 0}</p>
+        <AdminManagement onChanged={fetchAllBookings} />
         {/* Top KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
@@ -97,31 +105,31 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
               Gross Merchandise Value
             </span>
             <div className="text-2xl font-black text-gray-900 font-['Outfit']">₹{(totalGMV / 100000).toFixed(2)} Lakh</div>
-            <p className="text-[11px] text-emerald-600 font-semibold mt-1">Platform Revenue +24% YoY</p>
+            <p className="text-[11px] text-emerald-600 font-semibold mt-1">Collected payments: ₹{metrics.revenue || 0}</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">
               Total Platform Bookings
             </span>
-            <div className="text-2xl font-black text-gray-900 font-['Outfit']">{bookings.length + 1420}</div>
-            <p className="text-[11px] text-[#FF7A00] font-semibold mt-1">99.4% On-time arrival</p>
+            <div className="text-2xl font-black text-gray-900 font-['Outfit']">{metrics.totalBookings || 0}</div>
+            <p className="text-[11px] text-[#FF7A00] font-semibold mt-1">Saved bookings</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">
-              Active Verified Pros
+              Registered Professionals
             </span>
-            <div className="text-2xl font-black text-gray-900 font-['Outfit']">50,480</div>
-            <p className="text-[11px] text-indigo-600 font-semibold mt-1">Across 8 major cities</p>
+            <div className="text-2xl font-black text-gray-900 font-['Outfit']">{metrics.totalProfessionals || 0}</div>
+            <p className="text-[11px] text-indigo-600 font-semibold mt-1">Registered professionals</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">
               CSAT Quality Score
             </span>
-            <div className="text-2xl font-black text-[#FF9A3D] font-['Outfit']">4.91 / 5.0</div>
-            <p className="text-[11px] text-gray-500 font-semibold mt-1">98.2% Satisfaction rate</p>
+            <div className="text-2xl font-black text-[#FF9A3D] font-['Outfit']">{metrics.rating || 0} / 5.0</div>
+            <p className="text-[11px] text-gray-500 font-semibold mt-1">Verified booking reviews</p>
           </div>
         </div>
 
@@ -207,17 +215,10 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
                       </span>
                     </td>
                     <td className="p-4 pr-6">
-                      <select
-                        value={b.status}
-                        onChange={(e) => handleStatusChange(b.id, e.target.value as any)}
-                        className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold text-gray-700 cursor-pointer"
-                      >
-                        <option value="PENDING">Pending</option>
-                        <option value="ASSIGNED">Assigned</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="COMPLETED">Completed</option>
-                        <option value="CANCELLED">Cancelled</option>
-                      </select>
+                      {b.status === 'PENDING' && <select aria-label={`Assign ${b.id}`} defaultValue="" onChange={e => handleStatusChange(b.id, 'ASSIGNED', e.target.value)} className="border rounded-xl p-2"><option value="" disabled>Assign professional</option>{pros.filter(p => p.verified).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>}
+                      {['PENDING', 'ASSIGNED', 'CONFIRMED', 'ON_THE_WAY'].includes(b.status) && <button onClick={() => handleStatusChange(b.id, 'CANCELLED')} className="text-red-600">Cancel</button>}
+                      {b.status === 'COMPLETED' && b.paymentStatus === 'PENDING' && <button className="underline" onClick={async () => { const reference = prompt('Cash collection receipt/reference (only after cash is collected):'); if (!reference) return; try { await api(`/admin/bookings/${b.id}/payment`, { method: 'PUT', body: JSON.stringify({ transactionId: reference }) }); fetchAllBookings(); } catch (e) { alert(e.message); } }}>Record collected cash</button>}
+
                     </td>
                   </tr>
                 ))}

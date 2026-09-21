@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { COUPONS } from '../../../server/seedData';
+import { useOffers } from '../../hooks/useOffers';
 import { Tag, Sparkles, CheckCircle2, Copy, ArrowRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
 export const OffersSection: React.FC = () => {
+  const { offers: COUPONS, error, loading } = useOffers();
   const { applyCoupon, openCartDrawer, appliedCoupon } = useCart();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -23,6 +24,9 @@ export const OffersSection: React.FC = () => {
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {error && <p role="alert">{error}</p>}
+        {loading && <p role="status">Loading offers...</p>}
+        {!loading && !error && !COUPONS.length && <p>No active offers.</p>}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DDF7EC] text-[#087F5B] text-xs font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5 text-[#0B9F6E]" />

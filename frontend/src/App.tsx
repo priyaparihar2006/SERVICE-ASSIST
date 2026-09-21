@@ -1,5 +1,6 @@
+import { apiFetch } from './services/api';
 import React, { useState, useEffect } from 'react';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { LocationProvider } from './context/LocationContext';
 import { CartProvider } from './context/CartContext';
 import { Navbar } from './components/common/Navbar';
@@ -24,57 +25,33 @@ import { SupportPage } from './pages/SupportPage';
 
 // Types and default seed data
 import { Category, Service, Professional, Review, Booking } from './types';
-import { CATEGORIES, SERVICES, PROFESSIONALS, REVIEWS } from '../server/seedData';
+import { api, getAll } from './services/api';
 
 export function AppContent() {
   const [currentPath, setCurrentPath] = useState<string>(() => {
-    return window.location.pathname || '/';
+    return window.location.pathname + window.location.search || '/';
   });
 
-  const [categories, setCategories] = useState<Category[]>(CATEGORIES);
-  const [services, setServices] = useState<Service[]>(SERVICES);
-  const [professionals, setProfessionals] = useState<Professional[]>(PROFESSIONALS);
-  const [reviews, setReviews] = useState<Review[]>(REVIEWS);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  // Fetch initial data from backend with fallback
+  const { user, loading: authLoading, openAuthModal } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  // Load the persisted catalog
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [catRes, srvRes, proRes, revRes] = await Promise.all([
-          fetch('/api/categories').catch(() => null),
-          fetch('/api/services').catch(() => null),
-          fetch('/api/professionals').catch(() => null),
-          fetch('/api/reviews').catch(() => null),
-        ]);
-
-        if (catRes && catRes.ok) {
-          const catData = await catRes.json();
-          if (catData.categories?.length) setCategories(catData.categories);
-        }
-        if (srvRes && srvRes.ok) {
-          const srvData = await srvRes.json();
-          if (srvData.services?.length) setServices(srvData.services);
-        }
-        if (proRes && proRes.ok) {
-          const proData = await proRes.json();
-          if (proData.professionals?.length) setProfessionals(proData.professionals);
-        }
-        if (revRes && revRes.ok) {
-          const revData = await revRes.json();
-          if (revData.reviews?.length) setReviews(revData.reviews);
-        }
-      } catch (err) {
-        console.error('Error loading data from server, using seed defaults:', err);
-      }
-    };
-    loadData();
+    Promise.all([api('/categories'), getAll('/services', 'services'), getAll('/professionals', 'professionals'), api('/reviews')])
+      .then(([c, s, p, r]) => { setCategories(c.categories); setServices(s); setProfessionals(p); setReviews(r.reviews); })
+      .catch(e => setError(e.message)).finally(() => setLoading(false));
   }, []);
 
   // Listen to browser popstate (back/forward)
   useEffect(() => {
     const handlePopState = () => {
-      setCurrentPath(window.location.pathname);
+      setCurrentPath(window.location.pathname + window.location.search);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -93,6 +70,12 @@ export function AppContent() {
 
   // Route parsing
   const renderRoute = () => {
+    if (loading || authLoading) return <p role="status" className="p-10 text-center">Loading Service Assist...</p>;
+    if (error) return <div role="alert" className="p-10 text-center">{error}<button className="ml-4 underline" onClick={() => window.location.reload()}>Retry</button></div>;
+    const requiredRole = currentPath.startsWith('/admin') ? 'ADMIN' : currentPath.startsWith('/professional') ? 'PROFESSIONAL' : currentPath.startsWith('/dashboard') ? 'CUSTOMER' : null;
+    if (requiredRole && !user) return <div className="p-10 text-center"><p>Please sign in to continue.</p><button onClick={openAuthModal} className="mt-4 text-orange-600">Sign in or register</button></div>;
+    if (requiredRole && user?.role !== requiredRole) return <p role="alert" className="p-10 text-center">This page requires a {requiredRole.toLowerCase()} account.</p>;
+
     // Service Detail Route: /services/:slug
     if (currentPath.startsWith('/services/') && currentPath !== '/services') {
       const slug = currentPath.replace('/services/', '').split('?')[0];
@@ -106,6 +89,7 @@ export function AppContent() {
           />
         );
       }
+      return <p className="p-10 text-center">Service not found.</p>;
     }
 
     // All Services or Search
@@ -115,7 +99,7 @@ export function AppContent() {
       const searchParam = urlParams.get('search') || urlParams.get('q') || undefined;
 
       return (
-        <ServicesPage
+        <ServicesPage key={currentPath}
           services={services}
           categories={categories}
           initialCategory={categoryParam}

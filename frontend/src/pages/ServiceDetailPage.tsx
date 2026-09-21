@@ -238,7 +238,8 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
               </p>
 
               <div className="space-y-4 pt-2">
-                {service.steps.map((st, i) => (
+                {!service.steps?.length && <p className="text-xs text-gray-500">Your professional will explain the procedure before work begins.</p>}
+                {(service.steps || []).map((st, i) => (
                   <div key={i} className="flex items-start gap-4">
                     <div className="w-8 h-8 rounded-xl bg-[#FFF1E5] text-[#FF7A00] font-black text-xs flex items-center justify-center shrink-0 border border-orange-200 font-['Outfit']">
                       0{i + 1}
@@ -279,7 +280,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-emerald-600 font-semibold pt-1 border-t border-gray-200/60">
-                  <span>Standard 5% GST Included</span>
+                  <span>Final price confirmed at checkout</span>
                   <span>Free doorstep visit</span>
                 </div>
               </div>

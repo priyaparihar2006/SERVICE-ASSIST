@@ -49,9 +49,9 @@ export const MeetProfessionals: React.FC<MeetProfessionalsProps> = ({
                     <ShieldCheck className="w-3 h-3 text-[#FF7A00]" />
                     <span>Verified Pro</span>
                   </div>
-                  {pro.badge && (
+                  {pro.experienceYears >= 5 && (
                     <div className="absolute bottom-3 right-3 px-2.5 py-0.5 rounded-full bg-[#FF7A00] text-white text-[10px] font-extrabold shadow-sm">
-                      {pro.badge}
+                      Experienced
                     </div>
                   )}
                 </div>
@@ -64,7 +64,7 @@ export const MeetProfessionals: React.FC<MeetProfessionalsProps> = ({
                   </div>
                 </div>
 
-                <p className="text-xs font-semibold text-[#E85D04] mb-2">{pro.specialization}</p>
+                <p className="text-xs font-semibold text-[#E85D04] mb-2">{pro.profession}</p>
                 <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-4">
                   {pro.bio}
                 </p>
@@ -72,7 +72,7 @@ export const MeetProfessionals: React.FC<MeetProfessionalsProps> = ({
 
               <div className="pt-3 border-t border-gray-100 space-y-3">
                 <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium">
-                  <span>{pro.jobsCompleted}+ jobs done</span>
+                  <span>{pro.completedJobs} jobs done</span>
                   <span>{pro.experienceYears} years exp.</span>
                 </div>
 
