@@ -27,7 +27,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   const textSizes = {
     sm: 'text-base',
-    md: 'text-lg sm:text-xl',
+    md: 'text-base min-[390px]:text-lg sm:text-xl',
     lg: 'text-2xl',
   };
 
@@ -37,7 +37,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
       {/* Emblem: Modern green house + service tool emblem */}
       <div
-        className={`${iconSizes[size]} bg-gradient-to-br from-[#0B9F6E] via-[#087F5B] to-[#103C35] flex items-center justify-center text-white shadow-md shadow-[#0B9F6E]/20 shrink-0 relative group border border-[#19C995]/30`}
+        className={`${iconSizes[size]} bg-gradient-to-br from-[var(--color-brand)] via-[var(--color-brand-hover)] to-[var(--color-brand-dark)] flex items-center justify-center text-white shadow-md shadow-[var(--color-brand)]/20 shrink-0 relative group border border-[var(--color-brand-bright)]/30`}
       >
         <svg
           width={svgSizes[size]}
@@ -58,23 +58,23 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
           {/* Door / Interior arch */}
           <path
             d="M9.5 21V13.5C9.5 12.6716 10.1716 12 11 12H13C13.8284 12 14.5 12.6716 14.5 13.5V21"
-            stroke="#DDF7EC"
+            stroke="var(--color-brand-light)"
             strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           {/* Service Sparkle / Star tool element in the apex */}
-          <circle cx="12" cy="8" r="1.5" fill="#19C995" />
+          <circle cx="12" cy="8" r="1.5" fill="var(--color-brand-bright)" />
         </svg>
 
         {/* Precision tool accent badge on bottom-right corner */}
-        <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center shadow-xs border border-[#0B9F6E]/40">
+        <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center shadow-xs border border-[var(--color-brand)]/40">
           <svg
             width="9"
             height="9"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#087F5B"
+            stroke="var(--color-brand-hover)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -89,13 +89,13 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         <span
           className={`font-black tracking-tight ${textSizes[size]} font-['Outfit'] flex items-center`}
         >
-          <span className={isLight ? 'text-white' : 'text-[#103C35]'}>SERVICE</span>
-          <span className="text-[#0B9F6E] ml-1.5 font-extrabold tracking-normal">ASSIST</span>
+          <span className={isLight ? 'text-white' : 'text-[var(--color-brand-dark)]'}>SERVICE</span>
+          <span className="text-[var(--color-brand)] ml-1.5 font-extrabold tracking-normal">ASSIST</span>
         </span>
         {showTagline && (
           <span
             className={`text-[9px] font-semibold tracking-wider uppercase mt-0.5 ${
-              isLight ? 'text-[#DDF7EC]/80' : 'text-[#6B817C]'
+              isLight ? 'text-[var(--color-brand-light)]/80' : 'text-[var(--color-muted)]'
             }`}
           >
             Premium On-Demand Home Services

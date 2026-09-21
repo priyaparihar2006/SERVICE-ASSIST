@@ -9,13 +9,13 @@ import {
   Star,
   CheckCircle2,
   Clock,
-  Phone,
+  MessageSquare,
   ShieldCheck,
   Award,
   TrendingUp,
 } from 'lucide-react';
 
-export const ProfessionalDashboardPage: React.FC = () => {
+export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) => void }> = ({ onNavigate }) => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [earnings, setEarnings] = useState(0);
@@ -57,21 +57,21 @@ export const ProfessionalDashboardPage: React.FC = () => {
   const handleVerifyOtpAndStart = (booking: Booking) => handleUpdateStatus(booking.id, 'IN_PROGRESS', otpInputs[booking.id]);
 
   return (
-    <div className="min-h-screen bg-[#FFF8F2]/30 py-8 sm:py-12">
+    <div className="min-h-screen bg-[var(--color-brand-soft)]/30 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Partner Header Banner */}
-        <div className="bg-gradient-to-br from-[#15252B] to-[#0A1215] text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-orange-500/20">
+        <div className="bg-gradient-to-br from-[var(--color-ink)] to-[var(--color-ink)] text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-brand/20">
           <div className="flex items-center gap-4">
             <img
               src={user?.avatar || '/favicon.svg'}
               alt="Partner Profile"
-              className="w-16 h-16 rounded-2xl object-cover border-2 border-[#FF7A00]"
+              className="w-16 h-16 rounded-2xl object-cover border-2 border-[var(--color-brand)]"
               referrerPolicy="no-referrer"
             />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black font-['Outfit']">{user?.name}</h1>
-                <span className="text-[10px] font-bold bg-[#FF7A00] text-white px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                <span className="text-[10px] font-bold bg-[var(--color-brand)] text-white px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
                   <ShieldCheck className="w-3 h-3" />
                   <span>{profile?.verificationStatus || 'Pending verification'}</span>
                 </span>
@@ -85,8 +85,8 @@ export const ProfessionalDashboardPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <div className="px-3.5 py-2 bg-white/10 rounded-2xl border border-white/10 text-center">
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Status</span>
-              <span className="text-xs font-bold text-emerald-400 flex items-center justify-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-bold text-brand-bright flex items-center justify-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-brand-bright animate-pulse" />
                 {profile?.isAvailableToday ? 'Accepting assignments' : 'Unavailable'}
               </span>
             </div>
@@ -101,12 +101,12 @@ export const ProfessionalDashboardPage: React.FC = () => {
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
             <div className="flex items-center justify-between text-gray-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Total Earnings</span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-brand-soft text-brand flex items-center justify-center">
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
             <div className="text-2xl font-black text-gray-900 font-['Outfit']">₹{earnings.toLocaleString()}</div>
-            <p className="text-[11px] text-emerald-600 font-semibold mt-1">Collected payments on completed jobs</p>
+            <p className="text-[11px] text-brand font-semibold mt-1">Collected payments on completed jobs</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
@@ -123,7 +123,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
             <div className="flex items-center justify-between text-gray-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Jobs Completed</span>
-              <div className="w-8 h-8 rounded-xl bg-[#FFF1E5] text-[#FF7A00] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-[var(--color-brand-light)] text-[var(--color-brand)] flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
             </div>
@@ -134,12 +134,12 @@ export const ProfessionalDashboardPage: React.FC = () => {
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
             <div className="flex items-center justify-between text-gray-400 mb-2">
               <span className="text-xs font-bold uppercase tracking-wider">Assigned Jobs</span>
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-brand-soft text-brand flex items-center justify-center">
                 <Award className="w-4 h-4" />
               </div>
             </div>
             <div className="text-2xl font-black text-gray-900 font-['Outfit']">{bookings.filter(b => !['COMPLETED', 'CANCELLED'].includes(b.status)).length}</div>
-            <p className="text-[11px] text-indigo-600 font-semibold mt-1">Current active assignments</p>
+            <p className="text-[11px] text-brand font-semibold mt-1">Current active assignments</p>
           </div>
         </div>
 
@@ -147,7 +147,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg sm:text-xl font-black text-[#15252B] font-['Outfit']">
+              <h2 className="text-lg sm:text-xl font-black text-[var(--color-ink)] font-['Outfit']">
                 Assigned Jobs & Real-Time Requests
               </h2>
               <p className="text-xs text-gray-500">
@@ -166,7 +166,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
             {bookings.map((b) => (
               <div
                 key={b.id}
-                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xs hover:border-[#FF9A3D] transition-all space-y-4"
+                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xs hover:border-[var(--color-brand-bright)] transition-all space-y-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
                   <div className="flex items-center gap-2.5">
@@ -174,10 +174,10 @@ export const ProfessionalDashboardPage: React.FC = () => {
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                         b.status === 'COMPLETED'
-                          ? 'bg-emerald-100 text-emerald-800'
+                          ? 'bg-brand-light text-brand-dark'
                           : b.status === 'IN_PROGRESS'
-                          ? 'bg-[#FFF1E5] text-[#E85D04] border border-[#FF9A3D]/40 animate-pulse'
-                          : 'bg-blue-100 text-blue-800'
+                          ? 'bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] border border-[var(--color-brand-bright)]/40 animate-pulse'
+                          : 'bg-brand-light text-brand-dark'
                       }`}
                     >
                       {b.status}
@@ -186,7 +186,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
 
                   <div className="text-right">
                     <span className="text-[10px] text-gray-400 font-bold block uppercase">Payout</span>
-                    <span className="text-base font-black text-emerald-600">
+                    <span className="text-base font-black text-brand">
                       ₹{b.total} <span className="text-xs font-normal text-gray-400">(booking value)</span>
                     </span>
                   </div>
@@ -199,7 +199,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
                       Customer
                     </span>
                     <span className="font-bold text-gray-900 block font-['Outfit']">{b.userName}</span>
-                    <span className="text-gray-500">{b.userPhone}</span>
+                    <span className="text-gray-500">Contact through in-app chat</span>
                   </div>
 
                   <div className="p-3 bg-gray-50 rounded-2xl">
@@ -207,7 +207,7 @@ export const ProfessionalDashboardPage: React.FC = () => {
                       Scheduled Time
                     </span>
                     <span className="font-bold text-gray-900 block">{b.scheduledDate}</span>
-                    <span className="text-[#E85D04] font-medium">{b.scheduledTimeSlot}</span>
+                    <span className="text-[var(--color-brand-hover)] font-medium">{b.scheduledTimeSlot}</span>
                   </div>
 
                   <div className="p-3 bg-gray-50 rounded-2xl">
@@ -229,20 +229,20 @@ export const ProfessionalDashboardPage: React.FC = () => {
                       b.items.map((item, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 rounded-lg bg-[#FFF1E5] text-[#E85D04] font-semibold text-[11px]"
+                          className="px-2.5 py-1 rounded-lg bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] font-semibold text-[11px]"
                         >
                           {item.service?.name} ({item.variant?.name}) × {item.quantity}
                         </span>
                       ))
                     ) : (
-                      <span className="px-2.5 py-1 rounded-lg bg-[#FFF1E5] text-[#E85D04] font-semibold text-[11px]">
+                      <span className="px-2.5 py-1 rounded-lg bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] font-semibold text-[11px]">
                         {b.serviceName} ({b.variantName})
                       </span>
                     )}
                   </div>
                 </div>
 
-                {b.status === 'ASSIGNED' && <div className="flex gap-3"><button onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')} className="bg-orange-500 text-white rounded-xl p-2">Accept booking</button><button onClick={() => handleUpdateStatus(b.id, 'PENDING')} className="border rounded-xl p-2">Reject assignment</button></div>}
+                {b.status === 'ASSIGNED' && <div className="flex gap-3"><button onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')} className="bg-brand text-white rounded-xl p-2">Accept booking</button><button onClick={() => handleUpdateStatus(b.id, 'PENDING')} className="border rounded-xl p-2">Reject assignment</button></div>}
                 {b.status === 'CONFIRMED' && <button onClick={() => handleUpdateStatus(b.id, 'ON_THE_WAY')}>On my way</button>}
                 {b.status === 'ON_THE_WAY' && <button onClick={() => handleUpdateStatus(b.id, 'ARRIVED')}>I have arrived</button>}
                 {/* Partner Actions & OTP Verification */}
@@ -258,11 +258,11 @@ export const ProfessionalDashboardPage: React.FC = () => {
                           onChange={(e) =>
                             setOtpInputs((prev) => ({ ...prev, [b.id]: e.target.value }))
                           }
-                          className="w-36 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono font-bold text-center focus:outline-none focus:ring-1 focus:ring-[#FF7A00]"
+                          className="w-36 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono font-bold text-center focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
                         />
                         <button
                           onClick={() => handleVerifyOtpAndStart(b)}
-                          className="px-4 py-2 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer shadow-orange-500/20"
+                          className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer shadow-brand/20"
                         >
                           Verify & Start Job
                         </button>
@@ -277,13 +277,13 @@ export const ProfessionalDashboardPage: React.FC = () => {
 
                   {b.status === 'IN_PROGRESS' && (
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-[#E85D04] flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-[#FF7A00] animate-spin" />
+                      <span className="text-xs font-bold text-[var(--color-brand-hover)] flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-[var(--color-brand)] animate-spin" />
                         <span>Job in progress...</span>
                       </span>
                       <button
                         onClick={() => handleUpdateStatus(b.id, 'COMPLETED')}
-                        className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+                        className="px-5 py-2 bg-brand hover:bg-brand-hover text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
                       >
                         Mark Job as Completed ✓
                       </button>
@@ -291,19 +291,20 @@ export const ProfessionalDashboardPage: React.FC = () => {
                   )}
 
                   {b.status === 'COMPLETED' && (
-                    <div className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <div className="flex items-center gap-1 text-xs font-bold text-brand-hover bg-brand-soft px-3 py-1 rounded-xl">
+                      <CheckCircle2 className="w-4 h-4 text-brand" />
                       <span>Service completed · Payment: {b.paymentStatus}</span>
                     </div>
                   )}
 
-                  <a
-                    href={`tel:${b.userPhone}`}
-                    className="ml-auto px-3.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5"
+                  <button
+                    type="button"
+                    onClick={() => onNavigate?.(`/messages?booking=${b.id}`)}
+                    className="ml-auto px-3.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Phone className="w-3.5 h-3.5 text-[#FF7A00]" />
-                    <span>Call Customer</span>
-                  </a>
+                    <MessageSquare className="w-3.5 h-3.5 text-[var(--color-brand)]" />
+                    <span>Chat with Customer</span>
+                  </button>
                 </div>
               </div>
             ))}

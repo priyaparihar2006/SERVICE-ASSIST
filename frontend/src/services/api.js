@@ -13,11 +13,14 @@ export async function apiFetch(path, options = {}) {
   }
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(
+    const error = new Error(
       data.details?.map((i) => i.message).join('. ') ||
         data.error ||
         'Request failed',
     );
+    error.status = response.status;
+    error.code = data.code;
+    throw error;
   }
   return response;
 }

@@ -233,3 +233,58 @@ export interface CartItem {
   variant: ServiceVariant;
   quantity: number;
 }
+
+export type ChatSendBlockedReason =
+  | 'CONVERSATION_CLOSED'
+  | 'BOOKING_CLOSED'
+  | 'BLOCKED_BY_YOU'
+  | 'UNAVAILABLE';
+
+// Chat payloads deliberately carry display data only: no user ids, phone numbers or e-mail addresses.
+export interface ChatConversation {
+  id: string;
+  status: 'ACTIVE' | 'CLOSED';
+  createdAt: string;
+  lastMessageAt: string | null;
+  booking: {
+    id: string;
+    reference: string;
+    status: BookingStatus;
+    serviceName: string;
+    categoryName: string;
+    scheduledDate: string;
+    scheduledTimeSlot: string;
+  };
+  counterpart: {
+    displayName: string;
+    avatar: string | null;
+    role: 'CUSTOMER' | 'PROFESSIONAL';
+    online: boolean;
+  };
+  myRole: 'CUSTOMER' | 'PROFESSIONAL';
+  canSend: boolean;
+  sendBlockedReason: ChatSendBlockedReason | null;
+  blockedByMe: boolean;
+  unreadCount: number;
+  lastMessage: { preview: string | null; deleted: boolean; isMine: boolean; createdAt: string } | null;
+}
+
+export type ChatMessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  isMine: boolean;
+  type: 'TEXT';
+  content: string | null;
+  deleted: boolean;
+  createdAt: string;
+  clientMessageId?: string;
+  status?: ChatMessageStatus;
+  deliveredAt?: string | null;
+  readAt?: string | null;
+  // Client-only: why a send failed, and whether resending the same text can succeed.
+  failure?: { message: string; retryable: boolean };
+}
+
+export type ChatReportReason = 'HARASSMENT' | 'SPAM' | 'OFF_PLATFORM_CONTACT' | 'SAFETY' | 'OTHER';

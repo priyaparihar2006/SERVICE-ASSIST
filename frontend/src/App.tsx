@@ -2,6 +2,7 @@ import { apiFetch } from './services/api';
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LocationProvider } from './context/LocationContext';
+import { ChatProvider } from './context/ChatContext';
 import { CartProvider } from './context/CartContext';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
@@ -22,6 +23,7 @@ import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { OffersPage } from './pages/OffersPage';
 import { HowItWorksPage } from './pages/HowItWorksPage';
 import { SupportPage } from './pages/SupportPage';
+import { MessagesPage } from './pages/MessagesPage';
 
 // Types and default seed data
 import { Category, Service, Professional, Review, Booking } from './types';
@@ -68,13 +70,22 @@ export function AppContent() {
     navigate('/dashboard');
   };
 
+  const isChatRoute = currentPath === '/messages' || currentPath.startsWith('/messages?');
+
   // Route parsing
   const renderRoute = () => {
     if (loading || authLoading) return <p role="status" className="p-10 text-center">Loading Service Assist...</p>;
     if (error) return <div role="alert" className="p-10 text-center">{error}<button className="ml-4 underline" onClick={() => window.location.reload()}>Retry</button></div>;
     const requiredRole = currentPath.startsWith('/admin') ? 'ADMIN' : currentPath.startsWith('/professional') ? 'PROFESSIONAL' : currentPath.startsWith('/dashboard') ? 'CUSTOMER' : null;
-    if (requiredRole && !user) return <div className="p-10 text-center"><p>Please sign in to continue.</p><button onClick={openAuthModal} className="mt-4 text-orange-600">Sign in or register</button></div>;
+    if (requiredRole && !user) return <div className="p-10 text-center"><p>Please sign in to continue.</p><button onClick={openAuthModal} className="mt-4 text-brand-hover">Sign in or register</button></div>;
     if (requiredRole && user?.role !== requiredRole) return <p role="alert" className="p-10 text-center">This page requires a {requiredRole.toLowerCase()} account.</p>;
+
+    // Private chat (customers and professionals only)
+    if (currentPath === '/messages' || currentPath.startsWith('/messages?')) {
+      if (!user) return <div className="p-10 text-center"><p>Please sign in to view your messages.</p><button onClick={openAuthModal} className="mt-4 text-brand-hover">Sign in or register</button></div>;
+      if (user.role === 'ADMIN') return <p role="alert" className="p-10 text-center">Chat is available to customers and professionals.</p>;
+      return <MessagesPage currentPath={currentPath} onNavigate={navigate} />;
+    }
 
     // Service Detail Route: /services/:slug
     if (currentPath.startsWith('/services/') && currentPath !== '/services') {
@@ -123,7 +134,7 @@ export function AppContent() {
 
     // Professional Partner Dashboard
     if (currentPath.startsWith('/professional')) {
-      return <ProfessionalDashboardPage />;
+      return <ProfessionalDashboardPage onNavigate={navigate} />;
     }
 
     // Admin Dashboard
@@ -161,7 +172,7 @@ export function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans selection:bg-[#FF7A00] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white text-gray-900 font-sans selection:bg-[var(--color-brand)] selection:text-white">
       {/* Global Header */}
       <Navbar
         currentPath={currentPath}
@@ -170,10 +181,10 @@ export function AppContent() {
       />
 
       {/* Main Page Body */}
-      <main className="flex-1 pb-16 md:pb-0">{renderRoute()}</main>
+      <main className={`flex-1 ${isChatRoute ? '' : 'pb-16 md:pb-0'}`}>{renderRoute()}</main>
 
-      {/* Global Footer */}
-      <Footer onNavigate={navigate} />
+      {/* Global Footer (the chat screen is a full-height app view, so it has none) */}
+      {!isChatRoute && <Footer onNavigate={navigate} />}
 
       {/* Overlays & Drawers */}
       <LocationModal />
@@ -186,8 +197,8 @@ export function AppContent() {
       <CheckoutModal onSuccess={handleBookingSuccess} />
       <AuthModal />
 
-      {/* AI Assistant Floating Widget */}
-      <HomeAIAssistant onNavigate={navigate} />
+      {/* AI Assistant Floating Widget (hidden on the chat screen, where it would cover the composer) */}
+      {!isChatRoute && <HomeAIAssistant onNavigate={navigate} />}
     </div>
   );
 }
@@ -195,11 +206,13 @@ export function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <LocationProvider>
-        <CartProvider>
-          <AppContent />
-        </CartProvider>
-      </LocationProvider>
+      <ChatProvider>
+        <LocationProvider>
+          <CartProvider>
+            <AppContent />
+          </CartProvider>
+        </LocationProvider>
+      </ChatProvider>
     </AuthProvider>
   );
 }

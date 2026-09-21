@@ -10,7 +10,7 @@ import {
   Heart,
   Clock,
   UserCheck,
-  Phone,
+  MessageSquare,
   Plus,
   FileText,
 } from 'lucide-react';
@@ -101,11 +101,11 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
       case 'PENDING':
         return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">Matching Expert...</span>;
       case 'ASSIGNED':
-        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">Expert Assigned</span>;
+        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-soft text-brand-dark border border-line">Expert Assigned</span>;
       case 'IN_PROGRESS':
-        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#FFF1E5] text-[#E85D04] border border-[#FF9A3D]/40 animate-pulse">Service In Progress</span>;
+        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] border border-[var(--color-brand-bright)]/40 animate-pulse">Service In Progress</span>;
       case 'COMPLETED':
-        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Completed ✓</span>;
+        return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-soft text-brand-hover border border-line">Completed ✓</span>;
       case 'CANCELLED':
         return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">Cancelled</span>;
       default:
@@ -114,23 +114,23 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F2]/30 py-8 sm:py-12">
+    <div className="min-h-screen bg-[var(--color-brand-soft)]/30 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ProfileSettings />
         {loading && <p role="status">Loading bookings...</p>}{error && <p role="alert">{error}</p>}
         {/* User Profile Header */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-orange-100/70 shadow-xs mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-light/70 shadow-xs mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <img
               src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
               alt={user?.name}
-              className="w-16 h-16 rounded-2xl object-cover border-2 border-[#FF7A00]"
+              className="w-16 h-16 rounded-2xl object-cover border-2 border-[var(--color-brand)]"
               referrerPolicy="no-referrer"
             />
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black text-[#15252B] font-['Outfit']">{user?.name}</h1>
-                <span className="text-[10px] font-bold uppercase bg-[#FFF1E5] text-[#E85D04] px-2.5 py-0.5 rounded-full">
+                <h1 className="text-xl sm:text-2xl font-black text-[var(--color-ink)] font-['Outfit']">{user?.name}</h1>
+                <span className="text-[10px] font-bold uppercase bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] px-2.5 py-0.5 rounded-full">
                   Customer
                 </span>
               </div>
@@ -141,7 +141,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onNavigate('/services')}
-              className="px-4 py-2.5 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl shadow-md shadow-orange-500/20 transition-all cursor-pointer"
+              className="px-4 py-2.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-md shadow-brand/20 transition-all cursor-pointer"
             >
               Book New Service
             </button>
@@ -154,7 +154,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
             onClick={() => setActiveTab('bookings')}
             className={`flex items-center gap-2 px-5 py-3 text-xs font-bold transition-all border-b-2 cursor-pointer font-['Outfit'] ${
               activeTab === 'bookings'
-                ? 'border-[#FF7A00] text-[#E85D04]'
+                ? 'border-[var(--color-brand)] text-[var(--color-brand-hover)]'
                 : 'border-transparent text-gray-500 hover:text-gray-900'
             }`}
           >
@@ -166,7 +166,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
             onClick={() => setActiveTab('addresses')}
             className={`flex items-center gap-2 px-5 py-3 text-xs font-bold transition-all border-b-2 cursor-pointer font-['Outfit'] ${
               activeTab === 'addresses'
-                ? 'border-[#FF7A00] text-[#E85D04]'
+                ? 'border-[var(--color-brand)] text-[var(--color-brand-hover)]'
                 : 'border-transparent text-gray-500 hover:text-gray-900'
             }`}
           >
@@ -178,7 +178,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
             onClick={() => setActiveTab('favorites')}
             className={`flex items-center gap-2 px-5 py-3 text-xs font-bold transition-all border-b-2 cursor-pointer font-['Outfit'] ${
               activeTab === 'favorites'
-                ? 'border-[#FF7A00] text-[#E85D04]'
+                ? 'border-[var(--color-brand)] text-[var(--color-brand-hover)]'
                 : 'border-transparent text-gray-500 hover:text-gray-900'
             }`}
           >
@@ -199,7 +199,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                 </p>
                 <button
                   onClick={() => onNavigate('/services')}
-                  className="px-5 py-2.5 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+                  className="px-5 py-2.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
                 >
                   Explore Services
                 </button>
@@ -208,7 +208,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
               bookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xs hover:border-[#FF9A3D] transition-all space-y-4"
+                  className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xs hover:border-[var(--color-brand-bright)] transition-all space-y-4"
                 >
                   {/* Top Bar */}
                   <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-100">
@@ -224,9 +224,9 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
 
                     <div className="flex items-center gap-3">
                       {booking.verificationOtp && booking.status !== 'COMPLETED' && booking.status !== 'CANCELLED' && (
-                        <div className="px-3 py-1.5 bg-[#FFF1E5] border border-[#FF9A3D]/40 rounded-xl text-xs flex items-center gap-1.5">
-                          <span className="text-[11px] font-semibold text-[#E85D04]">Start OTP:</span>
-                          <span className="font-mono font-black text-[#15252B] tracking-wider">
+                        <div className="px-3 py-1.5 bg-[var(--color-brand-light)] border border-[var(--color-brand-bright)]/40 rounded-xl text-xs flex items-center gap-1.5">
+                          <span className="text-[11px] font-semibold text-[var(--color-brand-hover)]">Start OTP:</span>
+                          <span className="font-mono font-black text-[var(--color-ink)] tracking-wider">
                             {booking.verificationOtp}
                           </span>
                         </div>
@@ -239,7 +239,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                   {/* Scheduled Slot & Address */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-600 bg-gray-50/70 p-4 rounded-2xl">
                     <div className="flex items-start gap-2.5">
-                      <Clock className="w-4 h-4 text-[#FF7A00] shrink-0 mt-0.5" />
+                      <Clock className="w-4 h-4 text-[var(--color-brand)] shrink-0 mt-0.5" />
                       <div>
                         <span className="font-bold text-gray-900 block">Scheduled Arrival Slot</span>
                         <span>{booking.scheduledDate} at {booking.scheduledTimeSlot}</span>
@@ -247,7 +247,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     </div>
 
                     <div className="flex items-start gap-2.5">
-                      <MapPin className="w-4 h-4 text-[#FF7A00] shrink-0 mt-0.5" />
+                      <MapPin className="w-4 h-4 text-[var(--color-brand)] shrink-0 mt-0.5" />
                       <div>
                         <span className="font-bold text-gray-900 block">Service Address</span>
                         <span className="truncate block">
@@ -267,7 +267,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                         booking.items.map((item, i) => (
                           <div key={i} className="flex items-center justify-between text-xs py-1">
                             <div className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#FF7A00]" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-brand)]" />
                               <span className="font-bold text-gray-900">{item.service?.name}</span>
                               <span className="text-gray-500">({item.variant?.name})</span>
                               <span className="font-semibold text-gray-400">× {item.quantity}</span>
@@ -280,7 +280,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                       ) : (
                         <div className="flex items-center justify-between text-xs py-1">
                           <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#FF7A00]" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-brand)]" />
                             <span className="font-bold text-gray-900">{booking.serviceName}</span>
                             <span className="text-gray-500">({booking.variantName})</span>
                           </div>
@@ -293,7 +293,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                   {/* Assigned Professional Card & Actions */}
                   <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#FFF1E5] flex items-center justify-center text-[#FF7A00]">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)]">
                         <UserCheck className="w-5 h-5" />
                       </div>
                       <div>
@@ -309,11 +309,13 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     {booking.status === 'COMPLETED' && <button className="underline text-sm" onClick={async () => { const rating = Number(prompt('Rate your service from 1 to 5')); if (!rating) return; const comment = prompt('Describe your experience'); if (!comment) return; try { await api('/reviews', { method: 'POST', body: JSON.stringify({ bookingId: booking.id, rating, comment }) }); alert('Review saved.'); } catch (e) { setError(e.message); } }}>Leave a review</button>}
                     <div className="flex items-center gap-2">
                       <button
-                        disabled={!booking.professionalPhone} onClick={() => { window.location.href = `tel:${booking.professionalPhone}`; }}
-                        className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-semibold hover:bg-[#FFF8F2] flex items-center gap-1.5 cursor-pointer"
+                        disabled={!booking.professionalId}
+                        title={booking.professionalId ? 'Message your professional privately' : 'Available once a professional is assigned'}
+                        onClick={() => onNavigate(`/messages?booking=${booking.id}`)}
+                        className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-semibold hover:bg-[var(--color-brand-soft)] flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Phone className="w-3.5 h-3.5 text-[#FF7A00]" />
-                        <span>Call Partner</span>
+                        <MessageSquare className="w-3.5 h-3.5 text-[var(--color-brand)]" />
+                        <span>Chat with Professional</span>
                       </button>
 
                       <button
@@ -353,7 +355,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
               </div>
               <button
                 onClick={() => setIsAddingAddr(!isAddingAddr)}
-                className="px-4 py-2 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>{isAddingAddr ? 'Cancel' : 'Add New Address'}</span>
@@ -371,7 +373,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     placeholder="House / Flat / Villa / Floor"
                     value={house}
                     onChange={(e) => setHouse(e.target.value)}
-                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#FF7A00]"
+                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
                   />
                   <input
                     type="text"
@@ -379,7 +381,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     placeholder="Street / Road / Society"
                     value={street}
                     onChange={(e) => setStreet(e.target.value)}
-                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#FF7A00]"
+                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
                   />
                   <input
                     type="text"
@@ -387,7 +389,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     placeholder="Area / Landmark"
                     value={area}
                     onChange={(e) => setArea(e.target.value)}
-                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#FF7A00]"
+                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
                   />
                   <input
                     type="text"
@@ -395,7 +397,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     placeholder="City"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#FF7A00]"
+                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
                   />
                   <input
                     type="text"
@@ -403,7 +405,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     placeholder="Pincode"
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value)}
-                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#FF7A00]"
+                    className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
                   />
                   <div className="flex items-center gap-2">
                     {(['Home', 'Work', 'Other'] as const).map((t) => (
@@ -413,7 +415,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                         onClick={() => setAddrType(t)}
                         className={`px-3 py-2 text-xs font-semibold rounded-xl border cursor-pointer ${
                           addrType === t
-                            ? 'bg-[#FFF1E5] border-[#FF7A00] text-[#E85D04] font-bold'
+                            ? 'bg-[var(--color-brand-light)] border-[var(--color-brand)] text-[var(--color-brand-hover)] font-bold'
                             : 'border-gray-200 text-gray-600'
                         }`}
                       >
@@ -424,7 +426,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                 </div>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+                  className="px-6 py-2.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
                 >
                   Save Address
                 </button>
@@ -442,7 +444,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-extrabold text-sm text-gray-900 font-['Outfit']">{addr.type}</span>
                       {addr.isDefault && (
-                        <span className="text-[10px] font-bold bg-[#FFF1E5] text-[#E85D04] px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] font-bold bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] px-2 py-0.5 rounded-full">
                           Default Address
                         </span>
                       )}
@@ -459,7 +461,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     {!addr.isDefault && (
                       <button
                         onClick={() => setDefaultAddress(addr.id)}
-                        className="text-xs font-bold text-[#FF7A00] hover:underline cursor-pointer"
+                        className="text-xs font-bold text-[var(--color-brand)] hover:underline cursor-pointer"
                       >
                         Set as default
                       </button>
@@ -484,7 +486,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                 </p>
                 <button
                   onClick={() => onNavigate('/services')}
-                  className="px-5 py-2.5 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+                  className="px-5 py-2.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
                 >
                   Explore Services
                 </button>
@@ -507,7 +509,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                       <div className="flex-1 min-w-0">
                         <h4
                           onClick={() => onSelectService(service.slug)}
-                          className="font-bold text-sm text-gray-900 hover:text-[#FF7A00] transition-colors truncate cursor-pointer font-['Outfit']"
+                          className="font-bold text-sm text-gray-900 hover:text-[var(--color-brand)] transition-colors truncate cursor-pointer font-['Outfit']"
                         >
                           {service.name}
                         </h4>
@@ -526,7 +528,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                         </button>
                         <button
                           onClick={() => addItem(service)}
-                          className="px-3.5 py-1.5 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+                          className="px-3.5 py-1.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
                         >
                           Book Now
                         </button>
