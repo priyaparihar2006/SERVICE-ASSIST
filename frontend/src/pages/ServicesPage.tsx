@@ -64,16 +64,16 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F2]/30 py-8 sm:py-12">
+    <div className="min-h-screen bg-[var(--color-brand-soft)]/30 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
         <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF7A00] mb-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--color-brand)] mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Service Assist Marketplace</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-[#15252B] tracking-tight font-['Outfit']">
+            <h1 className="text-3xl sm:text-4xl font-black text-[var(--color-ink)] tracking-tight font-['Outfit']">
               All Doorstep Services
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-2xl">
@@ -84,7 +84,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowCategoryGrid((prev) => !prev)}
-              className="px-3.5 py-2 bg-white rounded-xl border border-orange-100 text-xs font-bold text-[#E85D04] hover:border-[#FF7A00] transition-colors cursor-pointer shadow-xs"
+              className="px-3.5 py-2 bg-white rounded-xl border border-brand-light text-xs font-bold text-[var(--color-brand-hover)] hover:border-[var(--color-brand)] transition-colors cursor-pointer shadow-xs"
             >
               {showCategoryGrid ? 'Hide Category Cards' : 'Browse Category Cards'}
             </button>
@@ -93,10 +93,10 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
 
         {/* Section: Category Showcase Image Cards (Section 13) */}
         {showCategoryGrid && (
-          <div className="mb-12 bg-white rounded-3xl p-5 sm:p-7 border border-orange-100/80 shadow-xs">
+          <div className="mb-12 bg-white rounded-3xl p-5 sm:p-7 border border-brand-light/80 shadow-xs">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-lg sm:text-xl font-black text-[#15252B] font-['Outfit']">
+                <h2 className="text-lg sm:text-xl font-black text-[var(--color-ink)] font-['Outfit']">
                   Browse by Category
                 </h2>
                 <p className="text-xs text-gray-500">
@@ -106,7 +106,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               {selectedCategory !== 'all' && (
                 <button
                   onClick={() => setSelectedCategory('all')}
-                  className="text-xs font-bold text-[#FF7A00] hover:underline cursor-pointer"
+                  className="text-xs font-bold text-[var(--color-brand)] hover:underline cursor-pointer"
                 >
                   Show all categories
                 </button>
@@ -126,7 +126,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
         )}
 
         {/* Filter & Controls Bar */}
-        <div id="service-catalog-results" className="bg-white rounded-2xl p-4 shadow-xs border border-orange-100/70 mb-8 space-y-4">
+        <div id="service-catalog-results" className="bg-white rounded-2xl p-4 shadow-xs border border-brand-light/70 mb-8 space-y-4">
           <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
             {/* Search Input */}
             <div className="relative flex-1">
@@ -136,7 +136,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                 placeholder="Search services (e.g. AC, Deep cleaning, Salon, Tap repair, Laptop)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/30 focus:border-[#FF7A00]"
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
               />
             </div>
 
@@ -146,7 +146,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/30 cursor-pointer"
+                className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 cursor-pointer"
               >
                 <option value="popular">Most Booked</option>
                 <option value="rating">Top Rated (4.8+)</option>
@@ -162,7 +162,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               onClick={() => setSelectedCategory('all')}
               className={`px-3.5 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
                 selectedCategory === 'all'
-                  ? 'bg-[#FF7A00] text-white shadow-xs'
+                  ? 'bg-[var(--color-brand)] text-white shadow-xs'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -176,7 +176,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`px-3.5 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-all border cursor-pointer ${
                     isSelected
-                      ? 'bg-[#FFF1E5] border-[#FF7A00] text-[#E85D04] font-bold shadow-xs'
+                      ? 'bg-[var(--color-brand-light)] border-[var(--color-brand)] text-[var(--color-brand-hover)] font-bold shadow-xs'
                       : 'border-transparent bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
@@ -192,7 +192,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
           <p className="text-xs font-semibold text-gray-500">
             Showing <span className="font-bold text-gray-900">{filteredServices.length}</span> verified services
             {selectedCategory !== 'all' && (
-              <span className="ml-1 text-[#E85D04]">
+              <span className="ml-1 text-[var(--color-brand-hover)]">
                 in {categories.find((c) => c.id === selectedCategory)?.name || 'selected category'}
               </span>
             )}
@@ -203,7 +203,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                 setSelectedCategory('all');
                 setSearchQuery('');
               }}
-              className="text-xs font-bold text-[#FF7A00] hover:underline cursor-pointer"
+              className="text-xs font-bold text-[var(--color-brand)] hover:underline cursor-pointer"
             >
               Clear filters
             </button>
@@ -223,7 +223,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                 setSelectedCategory('all');
                 setSearchQuery('');
               }}
-              className="px-5 py-2.5 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+              className="px-5 py-2.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
             >
               Reset Search & Filters
             </button>
@@ -235,7 +235,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               return (
                 <div
                   key={service.id}
-                  className="group bg-white rounded-3xl border border-gray-100 hover:border-[#FF9A3D] shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                  className="group bg-white rounded-3xl border border-gray-100 hover:border-[var(--color-brand-bright)] shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
                 >
                   {/* Image container */}
                   <div className="relative h-48 overflow-hidden bg-gray-100">
@@ -263,7 +263,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                       <Heart className={`w-4 h-4 ${fav ? 'fill-red-500' : ''}`} />
                     </button>
 
-                    <span className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[10px] font-bold text-[#15252B] shadow-xs">
+                    <span className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[10px] font-bold text-[var(--color-ink)] shadow-xs">
                       {service.categoryName}
                     </span>
                   </div>
@@ -273,7 +273,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                     <div onClick={() => onSelectService(service.slug)} className="cursor-pointer">
                       <div className="flex items-center gap-1.5 mb-1.5">
                         <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md text-amber-800 text-xs font-extrabold">
-                          <Star className="w-3.5 h-3.5 fill-[#FF9A3D] text-[#FF9A3D]" />
+                          <Star className="w-3.5 h-3.5 fill-[var(--color-brand-bright)] text-[var(--color-brand-bright)]" />
                           <span>{service.rating}</span>
                         </div>
                         <span className="text-[11px] text-gray-400 font-medium">
@@ -281,7 +281,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                         </span>
                       </div>
 
-                      <h3 className="font-extrabold text-base text-gray-900 group-hover:text-[#FF7A00] transition-colors mb-1.5 line-clamp-1 font-['Outfit']">
+                      <h3 className="font-extrabold text-base text-gray-900 group-hover:text-[var(--color-brand)] transition-colors mb-1.5 line-clamp-1 font-['Outfit']">
                         {service.name}
                       </h3>
 
@@ -293,7 +293,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                       <div className="space-y-1 mb-4">
                         {service.whatIncluded?.slice(0, 2).map((item, idx) => (
                           <div key={idx} className="flex items-center gap-1.5 text-[11px] text-gray-600 truncate">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-brand shrink-0" />
                             <span className="truncate">{item}</span>
                           </div>
                         ))}
@@ -307,7 +307,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                           <Clock className="w-3.5 h-3.5 text-gray-400" />
                           <span>~{service.durationMin} mins</span>
                         </div>
-                        <span className="text-emerald-600 font-semibold">Instant slot available</span>
+                        <span className="text-brand font-semibold">Instant slot available</span>
                       </div>
 
                       <div className="flex items-center justify-between gap-2">
@@ -324,13 +324,13 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => onSelectService(service.slug)}
-                            className="px-3 py-2 text-xs font-bold text-gray-600 hover:text-[#FF7A00] transition-colors cursor-pointer"
+                            className="px-3 py-2 text-xs font-bold text-gray-600 hover:text-[var(--color-brand)] transition-colors cursor-pointer"
                           >
                             Details
                           </button>
                           <button
                             onClick={() => addItem(service)}
-                            className="px-4 py-2 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shadow-orange-500/20"
+                            className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shadow-brand/20"
                           >
                             Add +
                           </button>

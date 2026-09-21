@@ -36,7 +36,7 @@ export const AuthModal: React.FC = () => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
         {/* Top brand header */}
-        <div className="bg-[#15252B] p-6 text-white text-center relative border-b-2 border-[#FF7A00]">
+        <div className="bg-[var(--color-ink)] p-6 text-white text-center relative border-b-2 border-[var(--color-brand)]">
           <button
             onClick={closeAuthModal}
             className="absolute right-4 top-4 p-1.5 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors cursor-pointer"
@@ -46,7 +46,7 @@ export const AuthModal: React.FC = () => {
           <div className="flex justify-center mb-2">
             <BrandLogo size="md" variant="light" showTagline={false} />
           </div>
-          <p className="text-xs text-orange-200 mt-1">Verified home professionals at your doorstep</p>
+          <p className="text-xs text-brand-light mt-1">Verified home professionals at your doorstep</p>
         </div>
 
         <div className="p-6 space-y-5">
@@ -65,7 +65,7 @@ export const AuthModal: React.FC = () => {
                   placeholder="e.g. Priya Sharma"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/30 focus:border-[#FF7A00]"
+                  className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
                 />
               </div>
             )}
@@ -80,7 +80,7 @@ export const AuthModal: React.FC = () => {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/30 focus:border-[#FF7A00]"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
                 />
               </div>
             </div>
@@ -95,7 +95,7 @@ export const AuthModal: React.FC = () => {
                     placeholder="+91 98765 43210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/30 focus:border-[#FF7A00]"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
                   />
                 </div>
               </div>
@@ -111,7 +111,7 @@ export const AuthModal: React.FC = () => {
                     onClick={() => setSelectedRole(r)}
                     className={`py-2 px-2 text-xs font-medium rounded-xl border capitalize cursor-pointer ${
                       selectedRole === r
-                        ? 'bg-[#FFF1E5] border-[#FF7A00] text-[#E85D04] font-bold'
+                        ? 'bg-[var(--color-brand-light)] border-[var(--color-brand)] text-[var(--color-brand-hover)] font-bold'
                         : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -124,7 +124,7 @@ export const AuthModal: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-orange-500/20 active:scale-[0.99] mt-2 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-brand/20 active:scale-[0.99] mt-2 cursor-pointer"
             >
               <span>{loading ? 'Authenticating...' : isRegisterMode ? 'Create Account' : 'Sign In'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -139,7 +139,7 @@ export const AuthModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsRegisterMode(false)}
-                  className="font-bold text-[#FF7A00] hover:underline cursor-pointer"
+                  className="font-bold text-[var(--color-brand)] hover:underline cursor-pointer"
                 >
                   Sign In
                 </button>
@@ -150,7 +150,7 @@ export const AuthModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsRegisterMode(true)}
-                  className="font-bold text-[#FF7A00] hover:underline cursor-pointer"
+                  className="font-bold text-[var(--color-brand)] hover:underline cursor-pointer"
                 >
                   Create New Account
                 </button>

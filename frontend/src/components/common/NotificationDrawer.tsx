@@ -51,7 +51,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
           {/* Header */}
           <div className="p-5 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF1E5] flex items-center justify-center text-[#FF7A00]">
+              <div className="w-9 h-9 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)]">
                 <Bell className="w-5 h-5" />
               </div>
               <div>
@@ -62,7 +62,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
             <div className="flex items-center gap-2">
               <button
                 onClick={markAllRead}
-                className="text-xs text-[#E85D04] font-medium hover:underline px-2 py-1 rounded cursor-pointer"
+                className="text-xs text-[var(--color-brand-hover)] font-medium hover:underline px-2 py-1 rounded cursor-pointer"
               >
                 Mark all read
               </button>
@@ -94,20 +94,20 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
                   }}
                   className={`p-4 rounded-xl border transition-all cursor-pointer ${
                     notif.read
-                      ? 'bg-white border-gray-100 text-gray-700 hover:border-orange-200'
-                      : 'bg-[#FFF8F2] border-orange-100 text-gray-900 shadow-xs'
+                      ? 'bg-white border-gray-100 text-gray-700 hover:border-brand-light'
+                      : 'bg-[var(--color-brand-soft)] border-brand-light text-gray-900 shadow-xs'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <span className="font-semibold text-sm flex items-center gap-1.5">
-                      {!notif.read && <span className="w-2 h-2 rounded-full bg-[#FF7A00] inline-block" />}
+                      {!notif.read && <span className="w-2 h-2 rounded-full bg-[var(--color-brand)] inline-block" />}
                       {notif.title}
                     </span>
                     <span className="text-[11px] text-gray-400 whitespace-nowrap">{notif.timestamp}</span>
                   </div>
                   <p className="text-xs text-gray-600 leading-relaxed">{notif.message}</p>
                   {notif.link && (
-                    <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-[#E85D04]">
+                    <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-[var(--color-brand-hover)]">
                       <span>View details</span>
                       <ArrowRight className="w-3 h-3" />
                     </div>

@@ -65,18 +65,18 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
   const totalGMV = bookings.filter(b => b.status !== 'CANCELLED').reduce((sum, b) => sum + b.total, 0);
 
   return (
-    <div className="min-h-screen bg-[#FFF8F2]/30 py-8 sm:py-12">
+    <div className="min-h-screen bg-[var(--color-brand-soft)]/30 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Admin Header */}
-        <div className="bg-gradient-to-br from-[#15252B] via-[#1E343C] to-[#15252B] text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-orange-500/20">
+        <div className="bg-gradient-to-br from-[var(--color-ink)] via-[var(--color-ink)] to-[var(--color-ink)] text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-brand/20">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-[#FF9A3D]">
+            <div className="w-14 h-14 rounded-2xl bg-brand/20 border border-brand/30 flex items-center justify-center text-[var(--color-brand-bright)]">
               <Crown className="w-7 h-7" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black font-['Outfit']">Service Assist Admin Operations</h1>
-                <span className="text-[10px] font-bold bg-[#FF7A00] text-white px-2.5 py-0.5 rounded-full uppercase shadow-xs">
+                <span className="text-[10px] font-bold bg-[var(--color-brand)] text-white px-2.5 py-0.5 rounded-full uppercase shadow-xs">
                   Super Admin
                 </span>
               </div>
@@ -105,7 +105,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
               Gross Merchandise Value
             </span>
             <div className="text-2xl font-black text-gray-900 font-['Outfit']">₹{(totalGMV / 100000).toFixed(2)} Lakh</div>
-            <p className="text-[11px] text-emerald-600 font-semibold mt-1">Collected payments: ₹{metrics.revenue || 0}</p>
+            <p className="text-[11px] text-brand font-semibold mt-1">Collected payments: ₹{metrics.revenue || 0}</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
@@ -113,7 +113,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
               Total Platform Bookings
             </span>
             <div className="text-2xl font-black text-gray-900 font-['Outfit']">{metrics.totalBookings || 0}</div>
-            <p className="text-[11px] text-[#FF7A00] font-semibold mt-1">Saved bookings</p>
+            <p className="text-[11px] text-[var(--color-brand)] font-semibold mt-1">Saved bookings</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
@@ -121,14 +121,14 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
               Registered Professionals
             </span>
             <div className="text-2xl font-black text-gray-900 font-['Outfit']">{metrics.totalProfessionals || 0}</div>
-            <p className="text-[11px] text-indigo-600 font-semibold mt-1">Registered professionals</p>
+            <p className="text-[11px] text-brand font-semibold mt-1">Registered professionals</p>
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-xs">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">
               CSAT Quality Score
             </span>
-            <div className="text-2xl font-black text-[#FF9A3D] font-['Outfit']">{metrics.rating || 0} / 5.0</div>
+            <div className="text-2xl font-black text-[var(--color-brand-bright)] font-['Outfit']">{metrics.rating || 0} / 5.0</div>
             <p className="text-[11px] text-gray-500 font-semibold mt-1">Verified booking reviews</p>
           </div>
         </div>
@@ -149,7 +149,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
                   placeholder="Filter by Booking ID, customer..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#FF7A00]"
+                  className="pl-9 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
                 />
               </div>
 
@@ -203,12 +203,12 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
                       <span
                         className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
                           b.status === 'COMPLETED'
-                            ? 'bg-emerald-100 text-emerald-800'
+                            ? 'bg-brand-light text-brand-dark'
                             : b.status === 'IN_PROGRESS'
-                            ? 'bg-[#FFF1E5] text-[#E85D04] border border-[#FF9A3D]/40'
+                            ? 'bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] border border-[var(--color-brand-bright)]/40'
                             : b.status === 'CANCELLED'
                             ? 'bg-red-100 text-red-800'
-                            : 'bg-blue-100 text-blue-800'
+                            : 'bg-brand-light text-brand-dark'
                         }`}
                       >
                         {b.status}

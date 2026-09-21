@@ -302,30 +302,30 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
   const current = HERO_SERVICES[currentIndex];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#F2FCF7] via-white to-[#F2FCF7]/40 pt-10 sm:pt-16 pb-14 sm:pb-20 border-b border-[#DDF7EC]">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[var(--color-brand-soft)] via-white to-[var(--color-brand-soft)]/40 pt-10 sm:pt-16 pb-14 sm:pb-20 border-b border-[var(--color-brand-light)]">
       {/* Subtle organic green ambient glow in background */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#DDF7EC]/70 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-10 left-10 w-80 h-80 bg-[#19C995]/10 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[var(--color-brand-light)]/70 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-10 left-10 w-80 h-80 bg-[var(--color-brand-bright)]/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* Left Column: Typography & CTAs */}
           <div className="lg:col-span-6 space-y-6 sm:space-y-8">
             {/* Small Trust Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#DDF7EC] border border-[#0B9F6E]/30 text-[#087F5B] text-xs font-bold shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-[#0B9F6E] animate-pulse" />
-              <ShieldCheck className="w-4 h-4 text-[#0B9F6E]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-brand-light)] border border-[var(--color-brand)]/30 text-[var(--color-brand-hover)] text-xs font-bold shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-[var(--color-brand)] animate-pulse" />
+              <ShieldCheck className="w-4 h-4 text-[var(--color-brand)]" />
               <span>Trusted professionals. Right at your doorstep.</span>
             </div>
 
             {/* Headline */}
             <div className="space-y-2">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#103C35] tracking-tight leading-[1.08] font-['Outfit']">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[var(--color-brand-dark)] tracking-tight leading-[1.08] font-['Outfit']">
                 Your home, <br />
-                <span className="text-[#0B9F6E] relative inline-block">
+                <span className="text-[var(--color-brand)] relative inline-block">
                   taken care of.
                   <svg
-                    className="absolute -bottom-2 left-0 w-full text-[#19C995]/40 -z-10"
+                    className="absolute -bottom-2 left-0 w-full text-[var(--color-brand-bright)]/40 -z-10"
                     height="8"
                     viewBox="0 0 100 8"
                     preserveAspectRatio="none"
@@ -341,7 +341,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                 </span>
               </h1>
 
-              <p className="text-sm sm:text-base text-[#6B817C] leading-relaxed max-w-xl pt-2 font-normal">
+              <p className="text-sm sm:text-base text-[var(--color-muted)] leading-relaxed max-w-xl pt-2 font-normal">
                 From cleaning and repairs to beauty and home improvement, book trusted professionals whenever you need them.
               </p>
             </div>
@@ -351,7 +351,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
               <button
                 id="hero-book-btn"
                 onClick={onBook}
-                className="flex items-center justify-center gap-2 px-7 py-3.5 bg-[#087F5B] hover:bg-[#0B9F6E] text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-[#087F5B]/20 hover:shadow-[#0B9F6E]/35 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                className="flex items-center justify-center gap-2 px-7 py-3.5 bg-[var(--color-brand-hover)] hover:bg-[var(--color-brand)] text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-[var(--color-brand-hover)]/20 hover:shadow-[var(--color-brand)]/35 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
                 <span>Book a Service</span>
                 <ArrowRight className="w-4 h-4" />
@@ -360,44 +360,44 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
               <button
                 id="hero-explore-btn"
                 onClick={onExplore}
-                className="px-6 py-3.5 rounded-2xl border-2 border-[#0B9F6E] bg-white hover:bg-[#F2FCF7] text-[#087F5B] hover:text-[#0B9F6E] font-bold text-sm transition-all shadow-2xs cursor-pointer"
+                className="px-6 py-3.5 rounded-2xl border-2 border-[var(--color-brand)] bg-white hover:bg-[var(--color-brand-soft)] text-[var(--color-brand-hover)] hover:text-[var(--color-brand)] font-bold text-sm transition-all shadow-2xs cursor-pointer"
               >
                 Explore All Services
               </button>
             </div>
 
             {/* Trust Metrics Bar: 4 Metrics below Hero */}
-            <div className="pt-6 border-t border-[#DDF7EC] grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="pt-6 border-t border-[var(--color-brand-light)] grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
-                <div className="flex items-center gap-1.5 text-[#087F5B] font-black text-xl font-['Outfit']">
-                  <Star className="w-4.5 h-4.5 fill-[#0B9F6E] text-[#0B9F6E]" />
+                <div className="flex items-center gap-1.5 text-[var(--color-brand-hover)] font-black text-xl font-['Outfit']">
+                  <Star className="w-4.5 h-4.5 fill-[var(--color-brand)] text-[var(--color-brand)]" />
                   <span>4.8+</span>
                 </div>
-                <p className="text-xs text-[#6B817C] font-medium mt-0.5">Average Rating</p>
+                <p className="text-xs text-[var(--color-muted)] font-medium mt-0.5">Average Rating</p>
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5 text-[#103C35] font-black text-xl font-['Outfit']">
-                  <Users className="w-4.5 h-4.5 text-[#0B9F6E]" />
+                <div className="flex items-center gap-1.5 text-[var(--color-brand-dark)] font-black text-xl font-['Outfit']">
+                  <Users className="w-4.5 h-4.5 text-[var(--color-brand)]" />
                   <span>50,000+</span>
                 </div>
-                <p className="text-xs text-[#6B817C] font-medium mt-0.5">Verified Professionals</p>
+                <p className="text-xs text-[var(--color-muted)] font-medium mt-0.5">Verified Professionals</p>
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5 text-[#103C35] font-black text-xl font-['Outfit']">
-                  <Briefcase className="w-4.5 h-4.5 text-[#0B9F6E]" />
+                <div className="flex items-center gap-1.5 text-[var(--color-brand-dark)] font-black text-xl font-['Outfit']">
+                  <Briefcase className="w-4.5 h-4.5 text-[var(--color-brand)]" />
                   <span>1.2M+</span>
                 </div>
-                <p className="text-xs text-[#6B817C] font-medium mt-0.5">Services Completed</p>
+                <p className="text-xs text-[var(--color-muted)] font-medium mt-0.5">Services Completed</p>
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5 text-[#087F5B] font-black text-xl font-['Outfit']">
-                  <ShieldCheck className="w-4.5 h-4.5 text-[#0B9F6E]" />
+                <div className="flex items-center gap-1.5 text-[var(--color-brand-hover)] font-black text-xl font-['Outfit']">
+                  <ShieldCheck className="w-4.5 h-4.5 text-[var(--color-brand)]" />
                   <span>30 Days</span>
                 </div>
-                <p className="text-xs text-[#6B817C] font-medium mt-0.5">Service Warranty</p>
+                <p className="text-xs text-[var(--color-muted)] font-medium mt-0.5">Service Warranty</p>
               </div>
             </div>
           </div>
@@ -410,10 +410,10 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
               onMouseLeave={() => setIsPaused(false)}
             >
               {/* Soft green ambient background glow */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-[#0B9F6E]/20 via-[#19C995]/15 to-transparent rounded-[3rem] blur-2xl -z-10" />
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[var(--color-brand)]/20 via-[var(--color-brand-bright)]/15 to-transparent rounded-[3rem] blur-2xl -z-10" />
 
               {/* Main Image Frame (object-cover, 500-700ms smooth transition) */}
-              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-[#DDF7EC]/50 aspect-4/3 sm:aspect-5/4">
+              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-[var(--color-brand-light)]/50 aspect-4/3 sm:aspect-5/4">
                 <AnimatePresence mode="popLayout">
                   <motion.div
                     key={current.id}
@@ -437,12 +437,12 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
 
                 {/* Top Badge: Category Pill */}
                 <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10 pointer-events-none">
-                  <div className="bg-[#103C35]/90 backdrop-blur-md text-white rounded-full px-3.5 py-1.5 shadow-lg flex items-center gap-1.5 text-xs font-bold border border-[#19C995]/30">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#19C995]" />
+                  <div className="bg-[var(--color-brand-dark)]/90 backdrop-blur-md text-white rounded-full px-3.5 py-1.5 shadow-lg flex items-center gap-1.5 text-xs font-bold border border-[var(--color-brand-bright)]/30">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-brand-bright)]" />
                     <span>Verified Professional ✓</span>
                   </div>
 
-                  <span className="bg-[#0B9F6E] text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-md">
+                  <span className="bg-[var(--color-brand)] text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-md">
                     {current.category}
                   </span>
                 </div>
@@ -451,7 +451,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                 <button
                   onClick={handlePrevClick}
                   aria-label="Previous Slide"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[#087F5B] text-white backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover/carousel:opacity-100 cursor-pointer hover:scale-105 active:scale-95 border border-white/20"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[var(--color-brand-hover)] text-white backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover/carousel:opacity-100 cursor-pointer hover:scale-105 active:scale-95 border border-white/20"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -459,7 +459,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                 <button
                   onClick={handleNextClick}
                   aria-label="Next Slide"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[#087F5B] text-white backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover/carousel:opacity-100 cursor-pointer hover:scale-105 active:scale-95 border border-white/20"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[var(--color-brand-hover)] text-white backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover/carousel:opacity-100 cursor-pointer hover:scale-105 active:scale-95 border border-white/20"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -476,7 +476,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                       className="flex items-end justify-between"
                     >
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#DDF7EC] block">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-brand-light)] block">
                           Service Assist Doorstep
                         </span>
                         <h3 className="text-xl sm:text-2xl font-black text-white drop-shadow-sm font-['Outfit']">
@@ -485,7 +485,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                       </div>
                       <div className="text-right">
                         <span className="text-[10px] text-gray-200 block font-medium">Starts from</span>
-                        <span className="text-lg font-black text-[#19C995] drop-shadow-sm">
+                        <span className="text-lg font-black text-[var(--color-brand-bright)] drop-shadow-sm">
                           {current.startingPrice}
                         </span>
                       </div>
@@ -502,38 +502,38 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.96 }}
                   transition={{ duration: 0.35 }}
-                  className="absolute -bottom-6 -left-2 sm:left-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-xl border border-[#DDF7EC] flex items-center gap-3.5 z-20"
+                  className="absolute -bottom-6 -left-2 sm:left-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-3.5 z-20"
                 >
                   <div className="relative shrink-0">
                     <img
                       src={current.avatar}
                       alt={current.professional}
-                      className="w-12 h-12 rounded-xl object-cover border-2 border-[#0B9F6E]"
+                      className="w-12 h-12 rounded-xl object-cover border-2 border-[var(--color-brand)]"
                       referrerPolicy="no-referrer"
                     />
-                    <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#0B9F6E] rounded-full border-2 border-white ring-1 ring-[#19C995]" />
+                    <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[var(--color-brand)] rounded-full border-2 border-white ring-1 ring-[var(--color-brand-bright)]" />
                   </div>
                   <div>
                     {/* Synchronized Card details */}
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#087F5B] uppercase tracking-wider">
-                      <span className="text-emerald-700">Verified Professional ✓</span>
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--color-brand-hover)] uppercase tracking-wider">
+                      <span className="text-brand-hover">Verified Professional ✓</span>
                       <span>•</span>
-                      <span className="text-[#0B9F6E]">{current.category}</span>
+                      <span className="text-[var(--color-brand)]">{current.category}</span>
                     </div>
 
-                    <h4 className="font-extrabold text-xs sm:text-sm text-[#103C35]">
+                    <h4 className="font-extrabold text-xs sm:text-sm text-[var(--color-brand-dark)]">
                       {current.professional}
-                      <span className="font-normal text-[#6B817C] text-xs ml-1">
+                      <span className="font-normal text-[var(--color-muted)] text-xs ml-1">
                         — {current.role}
                       </span>
                     </h4>
 
                     <div className="flex items-center gap-2 mt-0.5">
-                      <div className="flex items-center gap-0.5 text-[#087F5B] font-bold text-xs">
-                        <Star className="w-3.5 h-3.5 fill-[#0B9F6E] text-[#0B9F6E]" />
+                      <div className="flex items-center gap-0.5 text-[var(--color-brand-hover)] font-bold text-xs">
+                        <Star className="w-3.5 h-3.5 fill-[var(--color-brand)] text-[var(--color-brand)]" />
                         <span>★★★★★ {current.rating}</span>
                       </div>
-                      <span className="text-[10px] text-[#0B9F6E] font-bold flex items-center gap-0.5 bg-[#DDF7EC] px-1.5 py-0.5 rounded-md">
+                      <span className="text-[10px] text-[var(--color-brand)] font-bold flex items-center gap-0.5 bg-[var(--color-brand-light)] px-1.5 py-0.5 rounded-md">
                         <Clock className="w-2.5 h-2.5" />
                         Available Near You
                       </span>
@@ -543,16 +543,16 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
               </AnimatePresence>
 
               {/* Synchronized Floating Card 2: Rating Pill (Top-right) */}
-              <div className="absolute top-6 -right-2 sm:right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-[#DDF7EC] flex items-center gap-2.5 z-20">
-                <div className="w-9 h-9 rounded-xl bg-[#DDF7EC] flex items-center justify-center text-[#087F5B]">
+              <div className="absolute top-6 -right-2 sm:right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-2.5 z-20">
+                <div className="w-9 h-9 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand-hover)]">
                   <Award className="w-5 h-5 stroke-[2.2]" />
                 </div>
                 <div>
-                  <div className="font-extrabold text-xs sm:text-sm text-[#103C35] flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 fill-[#0B9F6E] text-[#0B9F6E]" />
+                  <div className="font-extrabold text-xs sm:text-sm text-[var(--color-brand-dark)] flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-[var(--color-brand)] text-[var(--color-brand)]" />
                     <span>{current.rating} / 5.0</span>
                   </div>
-                  <div className="text-[10px] text-[#6B817C] font-medium">{current.reviewsCount} Reviews</div>
+                  <div className="text-[10px] text-[var(--color-muted)] font-medium">{current.reviewsCount} Reviews</div>
                 </div>
               </div>
 
@@ -567,8 +567,8 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                       title={`${s.serviceName} - ${s.professional}`}
                       className={`transition-all duration-300 rounded-full cursor-pointer ${
                         isActive
-                          ? 'w-7 h-2 bg-[#0B9F6E] shadow-xs'
-                          : 'w-2 h-2 bg-[#DDF7EC] hover:bg-[#0B9F6E]/60'
+                          ? 'w-7 h-2 bg-[var(--color-brand)] shadow-xs'
+                          : 'w-2 h-2 bg-[var(--color-brand-light)] hover:bg-[var(--color-brand)]/60'
                       }`}
                       aria-label={`Slide to ${s.serviceName}`}
                     />

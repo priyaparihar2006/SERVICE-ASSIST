@@ -60,7 +60,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F2]/30 py-8">
+    <div className="min-h-screen bg-[var(--color-brand-soft)]/30 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb & Navigation */}
         <div className="flex items-center justify-between gap-4 mb-6">
@@ -118,7 +118,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
               <div>
                 <div className="flex flex-wrap items-center gap-3 mb-2">
                   <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg text-amber-800 text-xs font-extrabold">
-                    <Star className="w-4 h-4 fill-[#FF9A3D] text-[#FF9A3D]" />
+                    <Star className="w-4 h-4 fill-[var(--color-brand-bright)] text-[var(--color-brand-bright)]" />
                     <span>{service.rating}</span>
                   </div>
                   <span className="text-xs text-gray-400 font-medium">
@@ -130,12 +130,12 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                     <span>{selectedVariant.durationMin} mins</span>
                   </div>
                   <span className="text-gray-300">•</span>
-                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
+                  <span className="text-xs font-bold text-brand bg-brand-soft px-2 py-0.5 rounded">
                     30-Day Warranty Included
                   </span>
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl font-black text-[#15252B] tracking-tight mb-3 font-['Outfit']">
+                <h1 className="text-2xl sm:text-3xl font-black text-[var(--color-ink)] tracking-tight mb-3 font-['Outfit']">
                   {service.name}
                 </h1>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -151,7 +151,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                   <h3 className="font-extrabold text-base text-gray-900 font-['Outfit']">Select Service Variant</h3>
                   <p className="text-xs text-gray-500">Choose the package that fits your home requirement</p>
                 </div>
-                <span className="text-xs font-bold text-[#E85D04] bg-[#FFF1E5] px-2.5 py-1 rounded-lg">
+                <span className="text-xs font-bold text-[var(--color-brand-hover)] bg-[var(--color-brand-light)] px-2.5 py-1 rounded-lg">
                   {service.variants.length} options available
                 </span>
               </div>
@@ -165,7 +165,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                       onClick={() => setSelectedVariant(v)}
                       className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
                         isSelected
-                          ? 'border-[#FF7A00] bg-[#FFF1E5]/50 shadow-xs ring-2 ring-[#FF7A00]/20'
+                          ? 'border-[var(--color-brand)] bg-[var(--color-brand-light)]/50 shadow-xs ring-2 ring-[var(--color-brand)]/20'
                           : 'border-gray-200 hover:border-gray-300 bg-white'
                       }`}
                     >
@@ -183,7 +183,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                         <span className="text-gray-400 font-medium">⏱ ~{v.durationMin} mins</span>
                         <span
                           className={`font-bold ${
-                            isSelected ? 'text-[#E85D04]' : 'text-gray-400'
+                            isSelected ? 'text-[var(--color-brand-hover)]' : 'text-gray-400'
                           }`}
                         >
                           {isSelected ? 'Selected ✓' : 'Select'}
@@ -199,14 +199,14 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Included */}
               <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xs">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-700 mb-4">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-hover mb-4">
+                  <CheckCircle2 className="w-4 h-4 text-brand" />
                   <span>What is Included</span>
                 </div>
                 <ul className="space-y-3">
                   {service.whatIncluded.map((inc, i) => (
                     <li key={i} className="flex items-start gap-2.5 text-xs text-gray-700 leading-relaxed">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                       <span>{inc}</span>
                     </li>
                   ))}
@@ -241,7 +241,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                 {!service.steps?.length && <p className="text-xs text-gray-500">Your professional will explain the procedure before work begins.</p>}
                 {(service.steps || []).map((st, i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-xl bg-[#FFF1E5] text-[#FF7A00] font-black text-xs flex items-center justify-center shrink-0 border border-orange-200 font-['Outfit']">
+                    <div className="w-8 h-8 rounded-xl bg-[var(--color-brand-light)] text-[var(--color-brand)] font-black text-xs flex items-center justify-center shrink-0 border border-brand-light font-['Outfit']">
                       0{i + 1}
                     </div>
                     <div className="pt-1">
@@ -255,7 +255,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
 
           {/* Right Column: Sticky Booking & Price Card (4 cols) */}
           <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
-            <div className="bg-white rounded-3xl p-6 border border-orange-100/70 shadow-lg shadow-orange-950/5 space-y-5">
+            <div className="bg-white rounded-3xl p-6 border border-brand-light/70 shadow-lg shadow-brand-dark/5 space-y-5">
               <div>
                 <span className="text-[10px] uppercase font-bold text-gray-400 block tracking-wider mb-1">
                   Selected Package
@@ -279,7 +279,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-emerald-600 font-semibold pt-1 border-t border-gray-200/60">
+                <div className="flex items-center justify-between text-[11px] text-brand font-semibold pt-1 border-t border-gray-200/60">
                   <span>Final price confirmed at checkout</span>
                   <span>Free doorstep visit</span>
                 </div>
@@ -288,7 +288,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
               {/* Trust highlights */}
               <div className="space-y-2.5 text-xs text-gray-600">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#FF7A00]" />
+                  <ShieldCheck className="w-4 h-4 text-[var(--color-brand)]" />
                   <span>30-Day Service Assist Quality Revisit Guarantee</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -296,7 +296,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                   <span>100% Background Verified Technician</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-indigo-500" />
+                  <Calendar className="w-4 h-4 text-brand-soft0" />
                   <span>Earliest Slot: Today / Tomorrow</span>
                 </div>
               </div>
@@ -305,7 +305,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
               <div className="space-y-2 pt-2">
                 <button
                   onClick={handleAddToCart}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#FF7A00] hover:bg-[#E85D04] text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-orange-500/20 active:scale-[0.98] cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-brand/20 active:scale-[0.98] cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>Add to Cart & Select Slot</span>
@@ -316,7 +316,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                     addItem(service, selectedVariant);
                     openCartDrawer();
                   }}
-                  className="w-full py-2.5 bg-gray-50 hover:bg-[#FFF8F2] text-gray-700 hover:text-[#E85D04] font-bold text-xs rounded-xl transition-all border border-gray-200 cursor-pointer"
+                  className="w-full py-2.5 bg-gray-50 hover:bg-[var(--color-brand-soft)] text-gray-700 hover:text-[var(--color-brand-hover)] font-bold text-xs rounded-xl transition-all border border-gray-200 cursor-pointer"
                 >
                   Book Instant Now
                 </button>
@@ -324,11 +324,11 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
             </div>
 
             {/* Quick Promo Banner */}
-            <div className="p-4 bg-[#FFF1E5] border border-orange-200 rounded-2xl text-xs text-orange-950 flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-[#FF7A00] shrink-0" />
+            <div className="p-4 bg-[var(--color-brand-light)] border border-brand-light rounded-2xl text-xs text-brand-dark flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-[var(--color-brand)] shrink-0" />
               <div>
                 <span className="font-bold block">First time on Service Assist?</span>
-                <p className="text-[11px] text-[#E85D04]">Use coupon WELCOME150 for flat ₹150 OFF at checkout.</p>
+                <p className="text-[11px] text-[var(--color-brand-hover)]">Use coupon WELCOME150 for flat ₹150 OFF at checkout.</p>
               </div>
             </div>
           </div>

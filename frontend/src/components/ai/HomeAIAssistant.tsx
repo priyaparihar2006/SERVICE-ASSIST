@@ -100,17 +100,17 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-[#0B9F6E] to-[#087F5B] hover:from-[#087F5B] hover:to-[#103C35] text-white rounded-full shadow-xl shadow-[#0B9F6E]/30 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-[#19C995]/40"
+            className="group flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-[var(--color-brand)] to-[var(--color-brand-hover)] hover:from-[var(--color-brand-hover)] hover:to-[var(--color-brand-dark)] text-white rounded-full shadow-xl shadow-[var(--color-brand)]/30 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-[var(--color-brand-bright)]/40"
           >
             <div className="relative">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                 <Bot className="w-5 h-5 text-white" />
               </div>
-              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[#19C995] rounded-full border-2 border-[#103C35] animate-pulse" />
+              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-[var(--color-brand-bright)] rounded-full border-2 border-[var(--color-brand-dark)] animate-pulse" />
             </div>
             <div className="text-left hidden sm:block">
               <span className="text-xs font-black block leading-tight font-['Outfit']">Ask HomeAI</span>
-              <span className="text-[10px] text-[#DDF7EC] block">Instant Diagnosis & Booking</span>
+              <span className="text-[10px] text-[var(--color-brand-light)] block">Instant Diagnosis & Booking</span>
             </div>
           </button>
         )}
@@ -118,21 +118,21 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
 
       {/* Assistant Modal / Drawer */}
       {isOpen && (
-        <div className="fixed bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] h-[580px] bg-white rounded-3xl shadow-2xl border border-[#DDF7EC] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] h-[580px] bg-white rounded-3xl shadow-2xl border border-[var(--color-brand-light)] flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
-          <div className="p-4 bg-gradient-to-r from-[#103C35] via-[#087F5B] to-[#0B9F6E] text-white flex items-center justify-between">
+          <div className="p-4 bg-gradient-to-r from-[var(--color-brand-dark)] via-[var(--color-brand-hover)] to-[var(--color-brand)] text-white flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white border border-[#19C995]/30">
-                <Sparkles className="w-5 h-5 text-[#19C995]" />
+              <div className="w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white border border-[var(--color-brand-bright)]/30">
+                <Sparkles className="w-5 h-5 text-[var(--color-brand-bright)]" />
               </div>
               <div>
                 <h4 className="font-bold text-sm leading-tight flex items-center gap-1.5 font-['Outfit']">
                   HomeAI Advisor
-                  <span className="text-[10px] bg-[#DDF7EC]/20 text-[#DDF7EC] px-2 py-0.5 rounded-full font-medium border border-white/20">
+                  <span className="text-[10px] bg-[var(--color-brand-light)]/20 text-[var(--color-brand-light)] px-2 py-0.5 rounded-full font-medium border border-white/20">
                     Service Assist AI
                   </span>
                 </h4>
-                <p className="text-[11px] text-[#DDF7EC]/80">Troubleshoot household issues & get instant booking</p>
+                <p className="text-[11px] text-[var(--color-brand-light)]/80">Troubleshoot household issues & get instant booking</p>
               </div>
             </div>
             <button
@@ -144,7 +144,7 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
           </div>
 
           {/* Messages Body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F2FCF7]/40 text-xs">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[var(--color-brand-soft)]/40 text-xs">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -153,14 +153,14 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
                 <div
                   className={`max-w-[85%] rounded-2xl p-3 shadow-2xs leading-relaxed ${
                     msg.sender === 'user'
-                      ? 'bg-[#087F5B] text-white rounded-tr-none'
-                      : 'bg-white text-[#142D2A] border border-[#DDF7EC] rounded-tl-none'
+                      ? 'bg-[var(--color-brand-hover)] text-white rounded-tr-none'
+                      : 'bg-white text-[var(--color-ink)] border border-[var(--color-brand-light)] rounded-tl-none'
                   }`}
                 >
                   <p>{msg.text}</p>
                   <span
                     className={`text-[9px] mt-1 block ${
-                      msg.sender === 'user' ? 'text-[#DDF7EC]/80 text-right' : 'text-[#6B817C]'
+                      msg.sender === 'user' ? 'text-[var(--color-brand-light)]/80 text-right' : 'text-[var(--color-muted)]'
                     }`}
                   >
                     {msg.timestamp}
@@ -174,7 +174,7 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
                         if (onNavigate) onNavigate(msg.action!.link);
                         setIsOpen(false);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0B9F6E] hover:bg-[#087F5B] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                     >
                       <span>{msg.action.title}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -185,8 +185,8 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
             ))}
 
             {loading && (
-              <div className="flex items-center gap-2 text-xs text-[#6B817C] p-2 bg-white rounded-2xl w-fit border border-[#DDF7EC]">
-                <div className="w-2 h-2 rounded-full bg-[#0B9F6E] animate-ping" />
+              <div className="flex items-center gap-2 text-xs text-[var(--color-muted)] p-2 bg-white rounded-2xl w-fit border border-[var(--color-brand-light)]">
+                <div className="w-2 h-2 rounded-full bg-[var(--color-brand)] animate-ping" />
                 <span>HomeAI is analyzing your query...</span>
               </div>
             )}
@@ -194,12 +194,12 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
           </div>
 
           {/* Quick Prompts */}
-          <div className="px-4 py-2 bg-white border-t border-[#DDF7EC] flex items-center gap-1.5 overflow-x-auto text-[11px] no-scrollbar">
+          <div className="px-4 py-2 bg-white border-t border-[var(--color-brand-light)] flex items-center gap-1.5 overflow-x-auto text-[11px] no-scrollbar">
             {quickPrompts.map((prompt) => (
               <button
                 key={prompt}
                 onClick={() => handleSend(prompt)}
-                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-[#F2FCF7] hover:bg-[#DDF7EC] hover:text-[#087F5B] text-[#142D2A] transition-colors cursor-pointer font-medium border border-[#DDF7EC]"
+                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-[var(--color-brand-soft)] hover:bg-[var(--color-brand-light)] hover:text-[var(--color-brand-hover)] text-[var(--color-ink)] transition-colors cursor-pointer font-medium border border-[var(--color-brand-light)]"
               >
                 {prompt}
               </button>
@@ -207,7 +207,7 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
           </div>
 
           {/* Input Area */}
-          <div className="p-3 bg-white border-t border-[#DDF7EC]">
+          <div className="p-3 bg-white border-t border-[var(--color-brand-light)]">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -220,12 +220,12 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
                 placeholder="Ask e.g. 'My fan is vibrating and making noise'..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                className="flex-1 px-3.5 py-2.5 bg-[#F2FCF7] border border-[#DDF7EC] rounded-xl text-xs text-[#142D2A] placeholder-[#6B817C] focus:outline-none focus:ring-2 focus:ring-[#0B9F6E]/30 focus:border-[#0B9F6E]"
+                className="flex-1 px-3.5 py-2.5 bg-[var(--color-brand-soft)] border border-[var(--color-brand-light)] rounded-xl text-xs text-[var(--color-ink)] placeholder-[var(--color-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
-                className="p-2.5 bg-[#0B9F6E] hover:bg-[#087F5B] text-white rounded-xl disabled:opacity-50 transition-all shadow-xs cursor-pointer"
+                className="p-2.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white rounded-xl disabled:opacity-50 transition-all shadow-xs cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </button>

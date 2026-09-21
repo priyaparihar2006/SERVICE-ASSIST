@@ -18,37 +18,37 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
-    <footer className="bg-[#103C35] text-white pt-16 pb-12 border-t border-[#19C995]/20">
+    <footer className="bg-[var(--color-brand-dark)] text-white pt-16 pb-12 border-t border-[var(--color-brand-bright)]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Trust Banner */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pb-12 border-b border-white/10 mb-12">
           <div className="flex items-center gap-4 p-4.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
-            <div className="w-12 h-12 rounded-xl bg-[#0B9F6E]/20 flex items-center justify-center text-[#19C995] shrink-0 border border-[#19C995]/30">
+            <div className="w-12 h-12 rounded-xl bg-[var(--color-brand)]/20 flex items-center justify-center text-[var(--color-brand-bright)] shrink-0 border border-[var(--color-brand-bright)]/30">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <h4 className="font-bold text-sm text-white font-['Outfit']">100% Verified Partners</h4>
-              <p className="text-xs text-[#DDF7EC]/70 mt-0.5">Thorough background checks & criminal verification</p>
+              <p className="text-xs text-[var(--color-brand-light)]/70 mt-0.5">Thorough background checks & criminal verification</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4 p-4.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
-            <div className="w-12 h-12 rounded-xl bg-[#0B9F6E]/20 flex items-center justify-center text-[#19C995] shrink-0 border border-[#19C995]/30">
+            <div className="w-12 h-12 rounded-xl bg-[var(--color-brand)]/20 flex items-center justify-center text-[var(--color-brand-bright)] shrink-0 border border-[var(--color-brand-bright)]/30">
               <Award className="w-6 h-6" />
             </div>
             <div>
               <h4 className="font-bold text-sm text-white font-['Outfit']">30-Day Service Warranty</h4>
-              <p className="text-xs text-[#DDF7EC]/70 mt-0.5">Free revisit guarantee if you are not 100% satisfied</p>
+              <p className="text-xs text-[var(--color-brand-light)]/70 mt-0.5">Free revisit guarantee if you are not 100% satisfied</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4 p-4.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
-            <div className="w-12 h-12 rounded-xl bg-[#0B9F6E]/20 flex items-center justify-center text-[#19C995] shrink-0 border border-[#19C995]/30">
+            <div className="w-12 h-12 rounded-xl bg-[var(--color-brand)]/20 flex items-center justify-center text-[var(--color-brand-bright)] shrink-0 border border-[var(--color-brand-bright)]/30">
               <HeartHandshake className="w-6 h-6" />
             </div>
             <div>
               <h4 className="font-bold text-sm text-white font-['Outfit']">Standard Transparent Pricing</h4>
-              <p className="text-xs text-[#DDF7EC]/70 mt-0.5">Upfront rate cards with zero hidden visit charges</p>
+              <p className="text-xs text-[var(--color-brand-light)]/70 mt-0.5">Upfront rate cards with zero hidden visit charges</p>
             </div>
           </div>
         </div>
@@ -58,17 +58,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Brand Column */}
           <div className="col-span-2 space-y-4">
             <BrandLogo size="lg" variant="light" showTagline={true} />
-            <p className="text-xs text-[#DDF7EC]/80 max-w-sm leading-relaxed">
+            <p className="text-xs text-[var(--color-brand-light)]/80 max-w-sm leading-relaxed">
               Premium On-Demand Home Services delivered right to your doorstep across India. From AC jet servicing and deep bathroom scrubbing to certified cosmetologists and master electricians.
             </p>
 
-            <div className="flex flex-col gap-2 text-xs text-[#DDF7EC]/80 pt-1">
+            <div className="flex flex-col gap-2 text-xs text-[var(--color-brand-light)]/80 pt-1">
               <div className="flex items-center gap-2">
-                <PhoneCall className="w-3.5 h-3.5 text-[#19C995]" />
+                <PhoneCall className="w-3.5 h-3.5 text-[var(--color-brand-bright)]" />
                 <span className="font-medium text-white">1800-420-ASSIST (Toll Free)</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#19C995]" />
+                <Mail className="w-3.5 h-3.5 text-[var(--color-brand-bright)]" />
                 <span className="font-medium text-white">support@serviceassist.in</span>
               </div>
             </div>
@@ -83,7 +83,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               ].map((s) => (
                 <span
                   key={s.name}
-                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-[#0B9F6E] hover:text-white border border-white/10 flex items-center justify-center text-xs font-bold text-[#DDF7EC] cursor-pointer transition-colors"
+                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-[var(--color-brand)] hover:text-white border border-white/10 flex items-center justify-center text-xs font-bold text-[var(--color-brand-light)] cursor-pointer transition-colors"
                   title={s.name}
                 >
                   {s.icon}
@@ -94,8 +94,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 1: Company */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#19C995]">Company</h4>
-            <ul className="space-y-2 text-xs text-[#DDF7EC]/80">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-bright)]">Company</h4>
+            <ul className="space-y-2 text-xs text-[var(--color-brand-light)]/80">
               <li>
                 <button onClick={() => onNavigate('/how-it-works')} className="hover:text-white transition-colors cursor-pointer">
                   About Us
@@ -121,8 +121,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 2: Services */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#19C995]">Services</h4>
-            <ul className="space-y-2 text-xs text-[#DDF7EC]/80">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-bright)]">Services</h4>
+            <ul className="space-y-2 text-xs text-[var(--color-brand-light)]/80">
               <li>
                 <button onClick={() => onNavigate('/services')} className="hover:text-white transition-colors cursor-pointer">
                   AC & Appliances
@@ -153,8 +153,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 3: For Professionals */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#19C995]">For Professionals</h4>
-            <ul className="space-y-2 text-xs text-[#DDF7EC]/80">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-bright)]">For Professionals</h4>
+            <ul className="space-y-2 text-xs text-[var(--color-brand-light)]/80">
               <li>
                 <button onClick={() => onNavigate('/professional/dashboard')} className="hover:text-white transition-colors cursor-pointer">
                   Join as Partner
@@ -180,8 +180,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 4 & 5: Support & Legal */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#19C995]">Support & Legal</h4>
-            <ul className="space-y-2 text-xs text-[#DDF7EC]/80">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-bright)]">Support & Legal</h4>
+            <ul className="space-y-2 text-xs text-[var(--color-brand-light)]/80">
               <li>
                 <button onClick={() => onNavigate('/support')} className="hover:text-white transition-colors cursor-pointer">
                   Help Center
@@ -213,15 +213,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         {/* Cities Section */}
         <div className="pt-8 pb-8 border-b border-white/10">
-          <div className="text-xs font-bold uppercase tracking-wider text-[#19C995] mb-3 flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-[#0B9F6E]" />
+          <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-bright)] mb-3 flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[var(--color-brand)]" />
             <span>Serving 20+ Major Cities Across India</span>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs text-[#DDF7EC]/80">
+          <div className="flex flex-wrap gap-2 text-xs text-[var(--color-brand-light)]/80">
             {CITIES_LIST.map((city) => (
               <span
                 key={city.id}
-                className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-[#0B9F6E] hover:text-white transition-colors cursor-pointer"
+                className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 hover:border-[var(--color-brand)] hover:text-white transition-colors cursor-pointer"
               >
                 {city.name}
               </span>
@@ -230,11 +230,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         {/* Bottom Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-[#A3B8B4] gap-4">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--color-line)] gap-4">
           <p>© 2026 Service Assist Technologies Private Limited. All rights reserved.</p>
           <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1 text-[#DDF7EC]">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#19C995]" />
+            <span className="flex items-center gap-1 text-[var(--color-brand-light)]">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-brand-bright)]" />
               ISO 9001:2025 Certified
             </span>
             <span>•</span>

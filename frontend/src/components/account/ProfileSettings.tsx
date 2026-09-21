@@ -67,7 +67,7 @@ export function ProfileSettings() {
         />
         <button
           disabled={saving}
-          className="bg-orange-500 text-white rounded-xl p-2"
+          className="bg-brand text-white rounded-xl p-2"
         >
           Save profile
         </button>

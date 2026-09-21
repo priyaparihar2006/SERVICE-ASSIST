@@ -157,7 +157,7 @@ export function ProfessionalSettings({ onSaved }: { onSaved: () => void }) {
             />{' '}
             Accept assignments within these hours
           </label>
-          <button className="bg-orange-500 text-white rounded-xl p-3">
+          <button className="bg-brand text-white rounded-xl p-3">
             Save business settings
           </button>
         </form>

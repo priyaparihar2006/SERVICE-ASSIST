@@ -28,13 +28,13 @@ export const FAQSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 bg-[#FFF8F2]/30 border-t border-gray-100">
+    <section className="py-20 bg-[var(--color-brand-soft)]/30 border-t border-gray-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
-          <div className="text-xs font-bold uppercase tracking-wider text-[#FF7A00] mb-1">
+          <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand)] mb-1">
             Got Questions?
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-[#15252B] tracking-tight font-['Outfit']">
+          <h2 className="text-3xl sm:text-4xl font-black text-[var(--color-ink)] tracking-tight font-['Outfit']">
             Frequently Asked Questions
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 mt-2">
@@ -52,12 +52,12 @@ export const FAQSection: React.FC = () => {
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-gray-900 hover:text-[#FF7A00] transition-colors cursor-pointer"
+                  className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-gray-900 hover:text-[var(--color-brand)] transition-colors cursor-pointer"
                 >
                   <span>{faq.q}</span>
                   <ChevronDown
                     className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-[#FF7A00]' : ''
+                      isOpen ? 'rotate-180 text-[var(--color-brand)]' : ''
                     }`}
                   />
                 </button>
@@ -72,7 +72,7 @@ export const FAQSection: React.FC = () => {
           })}
         </div>
 
-        <div className="mt-10 p-6 bg-[#FFF1E5]/70 border border-orange-200/80 rounded-3xl text-center flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-10 p-6 bg-[var(--color-brand-light)]/70 border border-brand-light/80 rounded-3xl text-center flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-left">
             <h4 className="font-bold text-sm text-gray-900 font-['Outfit']">Still have questions?</h4>
             <p className="text-xs text-gray-500">Our customer happiness team is available 24/7 to assist you.</p>
@@ -80,7 +80,7 @@ export const FAQSection: React.FC = () => {
           <div className="flex items-center gap-3">
             <a
               href="tel:18004207378"
-              className="px-4 py-2 bg-[#FF7A00] hover:bg-[#E85D04] text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-xs transition-colors"
+              className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-xs transition-colors"
             >
               <PhoneCall className="w-3.5 h-3.5" />
               <span>Call 1800-420-ASSIST</span>

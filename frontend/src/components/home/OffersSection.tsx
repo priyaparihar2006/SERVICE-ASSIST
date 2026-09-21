@@ -28,14 +28,14 @@ export const OffersSection: React.FC = () => {
         {loading && <p role="status">Loading offers...</p>}
         {!loading && !error && !COUPONS.length && <p>No active offers.</p>}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DDF7EC] text-[#087F5B] text-xs font-bold mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-[#0B9F6E]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] text-xs font-bold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--color-brand)]" />
             <span>Verified Savings & Deals</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-[#103C35] tracking-tight font-['Outfit']">
+          <h2 className="text-2xl sm:text-3xl font-black text-[var(--color-brand-dark)] tracking-tight font-['Outfit']">
             Special Deals & Coupons For You
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B817C] mt-1">
+          <p className="text-xs sm:text-sm text-[var(--color-muted)] mt-1">
             Apply active promotional vouchers directly to save instantly on your doorstep bookings.
           </p>
         </div>
@@ -48,43 +48,43 @@ export const OffersSection: React.FC = () => {
                 key={coupon.code}
                 className={`relative rounded-3xl p-6 border transition-all duration-300 flex flex-col justify-between overflow-hidden ${
                   isApplied
-                    ? 'border-[#0B9F6E] bg-[#F2FCF7] shadow-md ring-2 ring-[#0B9F6E]/20'
-                    : 'border-[#DDF7EC] bg-gradient-to-br from-white to-[#F2FCF7]/40 hover:border-[#0B9F6E] hover:shadow-xl'
+                    ? 'border-[var(--color-brand)] bg-[var(--color-brand-soft)] shadow-md ring-2 ring-[var(--color-brand)]/20'
+                    : 'border-[var(--color-brand-light)] bg-gradient-to-br from-white to-[var(--color-brand-soft)]/40 hover:border-[var(--color-brand)] hover:shadow-xl'
                 }`}
               >
                 {/* Decorative background circle */}
-                <div className="absolute -right-8 -bottom-8 w-28 h-28 rounded-full bg-[#DDF7EC]/50 pointer-events-none" />
+                <div className="absolute -right-8 -bottom-8 w-28 h-28 rounded-full bg-[var(--color-brand-light)]/50 pointer-events-none" />
 
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <span className="px-3 py-1 rounded-xl bg-[#0B9F6E] text-white font-extrabold text-xs tracking-wider uppercase shadow-xs">
+                    <span className="px-3 py-1 rounded-xl bg-[var(--color-brand)] text-white font-extrabold text-xs tracking-wider uppercase shadow-xs">
                       {coupon.discountType === 'FLAT' ? `₹${coupon.value} OFF` : `${coupon.value}% OFF`}
                     </span>
-                    <span className="text-[11px] text-[#6B817C] font-semibold">
+                    <span className="text-[11px] text-[var(--color-muted)] font-semibold">
                       Min order ₹{coupon.minBookingAmount}
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-[#103C35] text-base mb-1.5 font-['Outfit']">{coupon.description}</h3>
-                  <p className="text-xs text-[#6B817C] mb-4">
+                  <h3 className="font-bold text-[var(--color-brand-dark)] text-base mb-1.5 font-['Outfit']">{coupon.description}</h3>
+                  <p className="text-xs text-[var(--color-muted)] mb-4">
                     Valid on all services scheduled through {coupon.expiry}.
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-dashed border-[#DDF7EC] flex items-center justify-between gap-3">
+                <div className="pt-4 border-t border-dashed border-[var(--color-brand-light)] flex items-center justify-between gap-3">
                   {/* Code badge with copy */}
                   <div
                     onClick={() => handleCopy(coupon.code)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-[#F2FCF7] hover:bg-[#DDF7EC] rounded-xl cursor-pointer transition-colors border border-[#DDF7EC]"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-brand-soft)] hover:bg-[var(--color-brand-light)] rounded-xl cursor-pointer transition-colors border border-[var(--color-brand-light)]"
                     title="Click to copy"
                   >
-                    <span className="font-mono font-bold text-xs text-[#103C35] tracking-wider">
+                    <span className="font-mono font-bold text-xs text-[var(--color-brand-dark)] tracking-wider">
                       {coupon.code}
                     </span>
                     {copiedCode === coupon.code ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#0B9F6E]" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-brand)]" />
                     ) : (
-                      <Copy className="w-3.5 h-3.5 text-[#6B817C]" />
+                      <Copy className="w-3.5 h-3.5 text-[var(--color-muted)]" />
                     )}
                   </div>
 
@@ -94,8 +94,8 @@ export const OffersSection: React.FC = () => {
                     disabled={isApplied}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
                       isApplied
-                        ? 'bg-[#087F5B] text-white cursor-default'
-                        : 'bg-[#0B9F6E] hover:bg-[#087F5B] text-white active:scale-95 shadow-[#0B9F6E]/20'
+                        ? 'bg-[var(--color-brand-hover)] text-white cursor-default'
+                        : 'bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white active:scale-95 shadow-[var(--color-brand)]/20'
                     }`}
                   >
                     {isApplied ? 'Applied ✓' : 'Apply Offer'}

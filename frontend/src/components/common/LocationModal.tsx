@@ -33,7 +33,7 @@ export const LocationModal: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#FFF1E5] flex items-center justify-center text-[#FF7A00]">
+            <div className="w-8 h-8 rounded-lg bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)]">
               <MapPin className="w-4 h-4" />
             </div>
             <div>
@@ -58,16 +58,16 @@ export const LocationModal: React.FC = () => {
               placeholder="Search city, state or pincode..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FF7A00]/30 focus:border-[#FF7A00] transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all"
             />
           </div>
 
           <button
             onClick={handleDetectLocation}
             disabled={isDetecting}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-orange-200 bg-[#FFF8F2] hover:bg-[#FFF1E5] text-[#E85D04] text-sm font-semibold transition-all group cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-brand-light bg-[var(--color-brand-soft)] hover:bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] text-sm font-semibold transition-all group cursor-pointer"
           >
-            <Navigation className={`w-4 h-4 text-[#FF7A00] group-hover:rotate-45 transition-transform ${isDetecting ? 'animate-spin' : ''}`} />
+            <Navigation className={`w-4 h-4 text-[var(--color-brand)] group-hover:rotate-45 transition-transform ${isDetecting ? 'animate-spin' : ''}`} />
             {isDetecting ? 'Detecting nearest service zone...' : 'Use Current Location (GPS)'}
           </button>
 
@@ -85,15 +85,15 @@ export const LocationModal: React.FC = () => {
                     onClick={() => setCity(city)}
                     className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       isSelected
-                        ? 'border-[#FF7A00] bg-[#FFF1E5] text-[#15252B] font-bold shadow-xs'
-                        : 'border-gray-100 hover:border-orange-200 hover:bg-[#FFF8F2] text-gray-700'
+                        ? 'border-[var(--color-brand)] bg-[var(--color-brand-light)] text-[var(--color-ink)] font-bold shadow-xs'
+                        : 'border-gray-100 hover:border-brand-light hover:bg-[var(--color-brand-soft)] text-gray-700'
                     }`}
                   >
                     <div>
                       <div className="text-sm">{city.name}</div>
                       <div className="text-[11px] text-gray-400">{city.state}</div>
                     </div>
-                    {isSelected && <Check className="w-4 h-4 text-[#FF7A00]" />}
+                    {isSelected && <Check className="w-4 h-4 text-[var(--color-brand)]" />}
                   </button>
                 );
               })}

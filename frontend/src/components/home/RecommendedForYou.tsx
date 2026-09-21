@@ -19,21 +19,21 @@ export const RecommendedForYou: React.FC<RecommendedForYouProps> = ({
   const recommendedList = services.slice(1, 4);
 
   return (
-    <section className="py-16 bg-[#F2FCF7]/40">
+    <section className="py-16 bg-[var(--color-brand-soft)]/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-6 h-6 rounded-lg bg-[#DDF7EC] flex items-center justify-center text-[#087F5B]">
-            <Sparkles className="w-3.5 h-3.5 text-[#0B9F6E]" />
+          <div className="w-6 h-6 rounded-lg bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand-hover)]">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--color-brand)]" />
           </div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#087F5B]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-hover)]">
             Smart Match AI
           </span>
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-black text-[#103C35] tracking-tight mb-2 font-['Outfit']">
+        <h2 className="text-2xl sm:text-3xl font-black text-[var(--color-brand-dark)] tracking-tight mb-2 font-['Outfit']">
           Recommended For You
         </h2>
-        <p className="text-xs sm:text-sm text-[#6B817C] max-w-xl mb-8">
+        <p className="text-xs sm:text-sm text-[var(--color-muted)] max-w-xl mb-8">
           Personalized home service recommendations based on your seasonal needs, home size, and customer preferences in your neighborhood.
         </p>
 
@@ -49,11 +49,11 @@ export const RecommendedForYou: React.FC<RecommendedForYouProps> = ({
             return (
               <div
                 key={service.id}
-                className="group relative rounded-3xl bg-white border border-[#DDF7EC] hover:border-[#0B9F6E] shadow-xs hover:shadow-xl transition-all duration-300 p-5 flex flex-col justify-between"
+                className="group relative rounded-3xl bg-white border border-[var(--color-brand-light)] hover:border-[var(--color-brand)] shadow-xs hover:shadow-xl transition-all duration-300 p-5 flex flex-col justify-between"
               >
                 {/* Reason Banner */}
-                <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DDF7EC] text-[11px] font-bold text-[#087F5B] w-fit">
-                  <Sparkles className="w-3 h-3 text-[#0B9F6E]" />
+                <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-brand-light)] text-[11px] font-bold text-[var(--color-brand-hover)] w-fit">
+                  <Sparkles className="w-3 h-3 text-[var(--color-brand)]" />
                   <span>{reason}</span>
                 </div>
 
@@ -66,41 +66,41 @@ export const RecommendedForYou: React.FC<RecommendedForYouProps> = ({
                     onClick={() => onSelectService(service.slug)}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1 text-xs font-bold text-[#087F5B] mb-1">
-                      <Star className="w-3.5 h-3.5 fill-[#0B9F6E] text-[#0B9F6E]" />
+                    <div className="flex items-center gap-1 text-xs font-bold text-[var(--color-brand-hover)] mb-1">
+                      <Star className="w-3.5 h-3.5 fill-[var(--color-brand)] text-[var(--color-brand)]" />
                       <span>{service.rating}</span>
-                      <span className="text-[10px] text-[#6B817C]">({service.reviewsCount})</span>
+                      <span className="text-[10px] text-[var(--color-muted)]">({service.reviewsCount})</span>
                     </div>
 
                     <h3
                       onClick={() => onSelectService(service.slug)}
-                      className="font-bold text-sm text-[#103C35] group-hover:text-[#0B9F6E] transition-colors line-clamp-2 cursor-pointer mb-1 font-['Outfit']"
+                      className="font-bold text-sm text-[var(--color-brand-dark)] group-hover:text-[var(--color-brand)] transition-colors line-clamp-2 cursor-pointer mb-1 font-['Outfit']"
                     >
                       {service.name}
                     </h3>
-                    <p className="text-xs text-[#6B817C] line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-[var(--color-muted)] line-clamp-2 leading-relaxed">
                       {service.shortDesc}
                     </p>
                   </div>
                 </div>
 
                 {/* Bottom Row */}
-                <div className="pt-3 border-t border-[#DDF7EC]/70 flex items-center justify-between">
+                <div className="pt-3 border-t border-[var(--color-brand-light)]/70 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-[#6B817C] block">Starting at</span>
-                    <span className="text-base font-extrabold text-[#103C35]">₹{service.startingPrice}</span>
+                    <span className="text-[10px] uppercase font-bold text-[var(--color-muted)] block">Starting at</span>
+                    <span className="text-base font-extrabold text-[var(--color-brand-dark)]">₹{service.startingPrice}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => onSelectService(service.slug)}
-                      className="px-3 py-2 text-xs font-bold text-[#6B817C] hover:text-[#0B9F6E] transition-colors cursor-pointer"
+                      className="px-3 py-2 text-xs font-bold text-[var(--color-muted)] hover:text-[var(--color-brand)] transition-colors cursor-pointer"
                     >
                       Details
                     </button>
                     <button
                       onClick={() => addItem(service)}
-                      className="px-4 py-2 bg-[#0B9F6E] hover:bg-[#087F5B] text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shadow-[#0B9F6E]/20"
+                      className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shadow-[var(--color-brand)]/20"
                     >
                       Add +
                     </button>

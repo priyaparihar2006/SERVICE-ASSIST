@@ -1,15 +1,34 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand: #009051;
+  --color-brand-hover: #007A45;
+  --color-brand-dark: #005C3A;
+  --color-brand-bright: #00A968;
+  --color-brand-light: #E8F8F0;
+  --color-brand-soft: #F2FBF6;
+  --color-page: #F8FCFA;
+  --color-ink: #172033;
+  --color-muted: #64748B;
+  --color-line: #E1EDE7;
+  --color-warning: #D98A18;
+  --color-error: #DC3545;
+}
+
+:root {
+  color-scheme: light;
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #142D2A;
-    background-color: #F2FCF7;
+    color: var(--color-ink);
+    background-color: var(--color-page);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-    color: #103C35;
+    color: var(--color-ink);
   }
 }
 
@@ -20,16 +39,25 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #F2FCF7;
+  background: var(--color-brand-soft);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #A3B8B4;
+  background: var(--color-line);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0B9F6E;
+  background: var(--color-brand);
+}
+
+button, input, select, textarea, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
 }
 
 /* Hide scrollbar utility */

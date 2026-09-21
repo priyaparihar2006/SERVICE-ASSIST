@@ -22,21 +22,21 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({
   const mostBooked = services.filter((s) => s.popular || s.rating >= 4.85);
 
   return (
-    <section className="py-16 bg-white border-y border-[#DDF7EC]/70">
+    <section className="py-16 bg-white border-y border-[var(--color-brand-light)]/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-[#087F5B] mb-1 bg-[#DDF7EC] px-3 py-1 rounded-full w-fit">
+            <div className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand-hover)] mb-1 bg-[var(--color-brand-light)] px-3 py-1 rounded-full w-fit">
               Customer Favorites
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#103C35] tracking-tight font-['Outfit'] mt-1">
+            <h2 className="text-2xl sm:text-3xl font-black text-[var(--color-brand-dark)] tracking-tight font-['Outfit'] mt-1">
               Most Booked Near You
             </h2>
           </div>
           <button
             onClick={onViewAll}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#087F5B] hover:text-[#0B9F6E] transition-colors group cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-brand-hover)] hover:text-[var(--color-brand)] transition-colors group cursor-pointer"
           >
             <span>View All Services</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -50,10 +50,10 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({
             return (
               <div
                 key={service.id}
-                className="group snap-start shrink-0 w-72 sm:w-80 rounded-3xl border border-[#DDF7EC] bg-white hover:border-[#0B9F6E] shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                className="group snap-start shrink-0 w-72 sm:w-80 rounded-3xl border border-[var(--color-brand-light)] bg-white hover:border-[var(--color-brand)] shadow-xs hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
               >
                 {/* Image Container with Zoom */}
-                <div className="relative h-44 overflow-hidden bg-[#DDF7EC]/30">
+                <div className="relative h-44 overflow-hidden bg-[var(--color-brand-light)]/30">
                   <ImageWithFallback
                     src={service.image}
                     alt={service.name}
@@ -79,7 +79,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({
                   </button>
 
                   {/* Category Pill */}
-                  <span className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-xs text-[10px] font-bold text-[#103C35] shadow-xs">
+                  <span className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur-xs text-[10px] font-bold text-[var(--color-brand-dark)] shadow-xs">
                     {service.categoryName}
                   </span>
                 </div>
@@ -89,33 +89,33 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({
                   <div onClick={() => onSelectService(service.slug)} className="cursor-pointer">
                     {/* Rating & Reviews */}
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="flex items-center gap-1 bg-[#DDF7EC] px-2 py-0.5 rounded-md text-[#087F5B] text-xs font-extrabold">
-                        <Star className="w-3.5 h-3.5 fill-[#0B9F6E] text-[#0B9F6E]" />
+                      <div className="flex items-center gap-1 bg-[var(--color-brand-light)] px-2 py-0.5 rounded-md text-[var(--color-brand-hover)] text-xs font-extrabold">
+                        <Star className="w-3.5 h-3.5 fill-[var(--color-brand)] text-[var(--color-brand)]" />
                         <span>{service.rating}</span>
                       </div>
-                      <span className="text-[11px] text-[#6B817C] font-medium">
+                      <span className="text-[11px] text-[var(--color-muted)] font-medium">
                         ({(service.reviewsCount / 1000).toFixed(1)}k reviews)
                       </span>
                     </div>
 
-                    <h3 className="font-bold text-base text-[#103C35] mb-1.5 group-hover:text-[#0B9F6E] transition-colors line-clamp-1 font-['Outfit']">
+                    <h3 className="font-bold text-base text-[var(--color-brand-dark)] mb-1.5 group-hover:text-[var(--color-brand)] transition-colors line-clamp-1 font-['Outfit']">
                       {service.name}
                     </h3>
 
-                    <p className="text-xs text-[#6B817C] line-clamp-2 leading-relaxed mb-4">
+                    <p className="text-xs text-[var(--color-muted)] line-clamp-2 leading-relaxed mb-4">
                       {service.shortDesc}
                     </p>
                   </div>
 
                   {/* Meta Details: Duration & Today availability */}
-                  <div className="pt-3 border-t border-[#DDF7EC]/80 space-y-3">
-                    <div className="flex items-center justify-between text-[11px] text-[#6B817C] font-medium">
+                  <div className="pt-3 border-t border-[var(--color-brand-light)]/80 space-y-3">
+                    <div className="flex items-center justify-between text-[11px] text-[var(--color-muted)] font-medium">
                       <div className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-[#6B817C]" />
+                        <Clock className="w-3.5 h-3.5 text-[var(--color-muted)]" />
                         <span>~{service.durationMin} mins</span>
                       </div>
-                      <div className="flex items-center gap-1 text-[#087F5B] font-semibold">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#0B9F6E]" />
+                      <div className="flex items-center gap-1 text-[var(--color-brand-hover)] font-semibold">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-brand)]" />
                         <span>Available today</span>
                       </div>
                     </div>
@@ -123,18 +123,18 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({
                     {/* Price & Book Now CTA */}
                     <div className="flex items-center justify-between gap-2">
                       <div>
-                        <span className="text-[10px] text-[#6B817C] uppercase font-bold block">Starts at</span>
+                        <span className="text-[10px] text-[var(--color-muted)] uppercase font-bold block">Starts at</span>
                         <div className="flex items-baseline gap-1.5">
-                          <span className="text-base font-extrabold text-[#103C35]">₹{service.startingPrice}</span>
+                          <span className="text-base font-extrabold text-[var(--color-brand-dark)]">₹{service.startingPrice}</span>
                           {service.originalPrice && (
-                            <span className="text-xs text-[#6B817C] line-through">₹{service.originalPrice}</span>
+                            <span className="text-xs text-[var(--color-muted)] line-through">₹{service.originalPrice}</span>
                           )}
                         </div>
                       </div>
 
                       <button
                         onClick={() => addItem(service)}
-                        className="px-4 py-2 bg-[#DDF7EC] hover:bg-[#087F5B] text-[#087F5B] hover:text-white font-bold text-xs rounded-xl transition-all border border-[#0B9F6E]/30 hover:border-transparent active:scale-95 shadow-xs cursor-pointer"
+                        className="px-4 py-2 bg-[var(--color-brand-light)] hover:bg-[var(--color-brand-hover)] text-[var(--color-brand-hover)] hover:text-white font-bold text-xs rounded-xl transition-all border border-[var(--color-brand)]/30 hover:border-transparent active:scale-95 shadow-xs cursor-pointer"
                       >
                         Book Now
                       </button>

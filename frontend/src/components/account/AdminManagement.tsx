@@ -143,7 +143,7 @@ export function AdminManagement({ onChanged }: { onChanged: () => void }) {
         <label>
           <input name="active" type="checkbox" defaultChecked /> Active
         </label>
-        <button className="bg-orange-500 text-white rounded-xl p-2">
+        <button className="bg-brand text-white rounded-xl p-2">
           Save category
         </button>
       </form>
@@ -219,7 +219,7 @@ export function AdminManagement({ onChanged }: { onChanged: () => void }) {
           aria-label="Duration"
           className="border rounded-xl p-2"
         />
-        <button className="bg-orange-500 text-white rounded-xl p-2">
+        <button className="bg-brand text-white rounded-xl p-2">
           Save service
         </button>
       </form>
