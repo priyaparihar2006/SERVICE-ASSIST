@@ -68,7 +68,10 @@ export const bookingInclude = {
   payment: true,
   history: { orderBy: { timestamp: 'asc' } },
 };
+// Customers and professionals must never receive each other's phone number or e-mail address:
+// they communicate through in-app chat. Only administrators (support/safety) see contact details.
 export function bookingView(b, role) {
+  const contactVisible = role === 'ADMIN';
   return {
     id: b.id,
     bookingNumber: b.id,
@@ -76,12 +79,12 @@ export function bookingView(b, role) {
     userId: b.customerId,
     userName: b.customer.name,
     customerName: b.customer.name,
-    userPhone: b.customer.phone,
-    customerPhone: b.customer.phone,
-    userEmail: b.customer.email,
+    userPhone: contactVisible ? b.customer.phone : undefined,
+    customerPhone: contactVisible ? b.customer.phone : undefined,
+    userEmail: contactVisible ? b.customer.email : undefined,
     professionalId: b.professionalId,
     professionalName: b.professional?.user.name || 'Awaiting assignment',
-    professionalPhone: b.professional?.user.phone,
+    professionalPhone: contactVisible ? b.professional?.user.phone : undefined,
     professionalAvatar: b.professional?.user.profileImage,
     serviceId: b.serviceId,
     serviceName: b.service.name,
