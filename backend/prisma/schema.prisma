@@ -48,6 +48,14 @@ model User {
   notifications Notification[]
   tickets SupportTicket[]
   sessions Session[]
+  chatParticipations ConversationParticipant[]
+  chatMessages Message[]
+  chatReceipts MessageReceipt[]
+  blocksMade BlockedUser[] @relation("Blocker")
+  blocksReceived BlockedUser[] @relation("Blocked")
+  chatReports ChatReport[] @relation("ReportReporter")
+  chatReportsResolved ChatReport[] @relation("ReportResolver")
+  chatAccessLogs ChatAccessLog[]
 }
 model Session {
   id String @id @default(uuid())
@@ -194,6 +202,7 @@ model Booking {
   payment Payment?
   review Review?
   history BookingHistory[]
+  conversations Conversation[]
   @@unique([customerId, requestKey])
   @@index([customerId, createdAt])
   @@index([professionalId, startAt, endAt])
@@ -280,4 +289,149 @@ model SupportTicket {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([userId, createdAt])
+}
+enum ConversationStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum MessageType {
+  TEXT
+}
+
+enum ChatReportReason {
+  HARASSMENT
+  SPAM
+  OFF_PLATFORM_CONTACT
+  SAFETY
+  OTHER
+}
+
+enum ChatReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+// One private thread per booking and assigned professional. Message bodies are stored only as
+// AES-256-GCM ciphertext under a per-conversation data key, which is itself wrapped by a
+// versioned master key held outside the database (see src/services/chatCrypto.js).
+model Conversation {
+  id String @id @default(uuid())
+  bookingId String
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  status ConversationStatus @default(ACTIVE)
+  // Equals bookingId while ACTIVE and NULL once CLOSED, so at most one active thread exists per booking.
+  activeKey String? @unique
+  wrappedKey Bytes
+  keyVersion Int
+  lastMessageAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  participants ConversationParticipant[]
+  messages Message[]
+  reports ChatReport[]
+  accessLogs ChatAccessLog[]
+
+  @@index([bookingId])
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id String @id @default(uuid())
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  role Role
+  joinedAt DateTime @default(now())
+  // Set when the user's booking relationship ends (e.g. professional reassigned); revokes access.
+  leftAt DateTime?
+  lastReadAt DateTime?
+
+  @@unique([conversationId, userId])
+  @@index([userId, leftAt])
+}
+
+model Message {
+  id String @id @default(uuid())
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId String
+  sender User @relation(fields: [senderId], references: [id], onDelete: Restrict)
+  // Client-generated UUID that makes a retried send idempotent.
+  clientMessageId String?
+  // iv (12) || auth tag (16) || ciphertext. NULL once the sender deletes the message.
+  encryptedContent Bytes?
+  encryptionVersion Int @default(1)
+  messageType MessageType @default(TEXT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  receipts MessageReceipt[]
+
+  @@unique([conversationId, senderId, clientMessageId])
+  @@index([conversationId, createdAt, id])
+}
+
+model MessageReceipt {
+  id String @id @default(uuid())
+  messageId String
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  deliveredAt DateTime?
+  readAt DateTime?
+
+  @@unique([messageId, userId])
+  @@index([userId, readAt])
+}
+
+model BlockedUser {
+  id String @id @default(uuid())
+  blockerId String
+  blocker User @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked User @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+}
+
+model ChatReport {
+  id String @id @default(uuid())
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Restrict)
+  reporterId String
+  reporter User @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Restrict)
+  reason ChatReportReason
+  details String @default("")
+  status ChatReportStatus @default(OPEN)
+  // conversationId:reporterId while OPEN, NULL afterwards: one open report per reporter and thread.
+  openKey String? @unique
+  resolvedById String?
+  resolvedBy User? @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: Restrict)
+  resolutionNote String @default("")
+  createdAt DateTime @default(now())
+  resolvedAt DateTime?
+
+  @@index([status, createdAt])
+  @@index([conversationId])
+}
+
+// Append-only audit trail of every administrator read of conversation content.
+model ChatAccessLog {
+  id String @id @default(uuid())
+  adminId String
+  admin User @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Restrict)
+  reportId String
+  justification String
+  messageCount Int
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([adminId, createdAt])
 }

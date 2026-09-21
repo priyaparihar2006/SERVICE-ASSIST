@@ -4,6 +4,7 @@ import { cookieOptions } from '../config/env.js';
 import * as auth from '../services/auth.service.js';
 import { publicUser } from '../utils/serializers.js';
 import { ensure } from '../utils/errors.js';
+import { hub } from '../realtime/hub.js';
 
 export const register = async (req, res) =>
   res
@@ -30,6 +31,7 @@ export const me = async (req, res) =>
   });
 export const logout = async (req, res) => {
   await db.session.deleteMany({ where: { id: req.sessionId } });
+  hub.disconnectSession(req.sessionId);
   res.clearCookie('session', cookieOptions).json({ success: true });
 };
 export const profile = async (req, res) =>
@@ -55,5 +57,6 @@ export const changePassword = async (req, res) => {
     }),
     db.session.deleteMany({ where: { userId: req.user.id } }),
   ]);
+  hub.disconnectUser(req.user.id);
   res.clearCookie('session', cookieOptions).json({ success: true });
 };

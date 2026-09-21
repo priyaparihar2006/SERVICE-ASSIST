@@ -14,6 +14,7 @@ import professionals from './routes/professional.routes.js';
 import account from './routes/account.routes.js';
 import admin from './routes/admin.routes.js';
 import ai from './routes/ai.routes.js';
+import chat from './routes/chat.routes.js';
 
 export const app = express();
 app.disable('x-powered-by');
@@ -54,7 +55,7 @@ app.get(
     res.json({ status: 'ok', service: 'Service Assist API' });
   }),
 );
-app.use('/api', auth, catalog, bookings, professionals, account, admin, ai);
+app.use('/api', auth, catalog, bookings, professionals, account, chat, admin, ai);
 app.use((req, res) => res.status(404).json({ error: 'Endpoint not found' }));
 app.use((err, req, res, next) => {
   if (err instanceof ZodError)
@@ -83,5 +84,6 @@ app.use((err, req, res, next) => {
     .status(status)
     .json({
       error: status >= 500 ? 'Service temporarily unavailable. Please try again.' : err.message,
+      ...(status < 500 && err.publicCode ? { code: err.publicCode } : {}),
     });
 });

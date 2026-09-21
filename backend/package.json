@@ -13,12 +13,14 @@
     "db:migrate": "prisma migrate deploy",
     "db:seed": "node prisma/seed.js",
     "admin:create": "node scripts/create-admin.js",
-    "test": "node --test test/*.test.js",
+    "chat:rotate-keys": "node scripts/rotate-chat-keys.js",
+    "test": "node --test --test-concurrency=1 test/*.test.js",
     "test:browser": "node scripts/browser-tests.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "bcrypt": "^6.0.0",
+    "cookie": "^2.0.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -26,11 +28,13 @@
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.8.3",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "prettier": "^3.9.8",
     "prisma": "^6.19.0",
+    "socket.io-client": "^4.8.3",
     "supertest": "^7.1.4"
   },
   "overrides": {

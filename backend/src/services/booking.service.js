@@ -2,6 +2,7 @@ import { randomInt } from 'node:crypto';
 import { db } from '../config/db.js';
 import { ensure } from '../utils/errors.js';
 import { bookingInclude } from '../utils/serializers.js';
+import { announceClosed, closeConversationsForBooking } from './chat.service.js';
 
 export const transitions = {
   PENDING: ['ASSIGNED', 'CANCELLED'],
@@ -168,7 +169,8 @@ export async function createBooking(user, data, requestKey) {
   });
 }
 export async function updateStatus(user, bookingId, data) {
-  return db.$transaction(async (tx) => {
+  let closedChats = [];
+  const result = await db.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM "Booking" WHERE id = ${bookingId} FOR UPDATE`;
     const b = await tx.booking.findFirst({
       where: { id: bookingId, ...scope(user) },
@@ -251,6 +253,9 @@ export async function updateStatus(user, bookingId, data) {
         return { otpError: true };
       }
     }
+    // A different (or no) professional means the previous professional's chat access ends now.
+    if (professionalId !== b.professionalId)
+      closedChats = await closeConversationsForBooking(tx, b.id);
     const updated = await tx.booking.update({
       where: { id: b.id },
       data: {
@@ -269,4 +274,6 @@ export async function updateStatus(user, bookingId, data) {
     });
     return updated;
   });
+  announceClosed(closedChats);
+  return result;
 }
