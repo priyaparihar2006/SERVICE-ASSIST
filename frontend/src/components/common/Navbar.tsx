@@ -289,7 +289,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
             ) : (
               <button
                 onClick={openAuthModal}
-                className="px-2 sm:px-4 py-2 border border-[var(--color-brand-light)] hover:border-[var(--color-brand)] text-[var(--color-brand-dark)] hover:text-[var(--color-brand-hover)] text-xs font-bold rounded-xl transition-all cursor-pointer"
+                className="hidden sm:inline-flex px-4 py-2 border border-[var(--color-brand-light)] hover:border-[var(--color-brand)] text-[var(--color-brand-dark)] hover:text-[var(--color-brand-hover)] text-xs font-bold rounded-xl transition-all cursor-pointer"
               >
                 Sign In
               </button>
@@ -345,6 +345,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
             </form>
 
             {/* Mobile Navigation Links */}
+            {!isAuthenticated && (
+              <button
+                onClick={() => {
+                  openAuthModal();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full rounded-xl border border-[var(--color-brand)] bg-[var(--color-brand-light)] px-3 py-2.5 text-left text-xs font-bold text-[var(--color-brand-dark)] sm:hidden"
+              >
+                Sign In or Register
+              </button>
+            )}
             <div className="grid grid-cols-2 gap-2 pt-1">
               {navLinks.map((link) => (
                 <button
