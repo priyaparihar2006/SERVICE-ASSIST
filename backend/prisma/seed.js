@@ -71,6 +71,7 @@ try {
           requiredTools: s.requiredTools || [],
           isDemo: true,
           image: s.image,
+          galleryImages: s.galleryImages || [],
           startingPrice: s.startingPrice,
           duration: s.durationMin,
           rating: 0,
@@ -93,6 +94,7 @@ try {
           warrantyPolicy: data.warrantyPolicy,
           requiredTools: data.requiredTools,
           image: data.image,
+          galleryImages: data.galleryImages,
         } });
         for (const v of s.variants)
           await tx.serviceVariant.upsert({

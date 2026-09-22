@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Wrench } from 'lucide-react';
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -10,9 +10,12 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   alt,
   className,
   fallbackTitle,
+  onError,
+  onLoad,
   ...props
 }) => {
   const [error, setError] = useState(false);
+  useEffect(() => setError(false), [src]);
 
   if (error || !src) {
     return (
@@ -37,7 +40,8 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
       src={src}
       alt={alt || 'Service Assist'}
       className={className}
-      onError={() => setError(true)}
+      onError={(event) => { setError(true); onError?.(event); }}
+      onLoad={(event) => { setError(false); onLoad?.(event); }}
       referrerPolicy="no-referrer"
       loading="lazy"
       {...props}

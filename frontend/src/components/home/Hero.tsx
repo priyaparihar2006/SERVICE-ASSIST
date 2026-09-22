@@ -227,7 +227,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     id: 'water-purifier',
     serviceName: 'Water Purifier & RO Service',
     category: 'Water Purifier',
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=1200&q=80',
+    image: '/service-images/ro-purifier/servicing.png',
     alt: 'Technician inspecting and replacing filters on a water purifier',
     professional: 'Deepak G.',
     role: 'Water Quality Tech',

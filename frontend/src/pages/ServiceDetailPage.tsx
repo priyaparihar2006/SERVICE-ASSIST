@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Service, ServiceVariant } from '../types';
 import {
   Star,
@@ -45,6 +45,16 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
   );
 
   const [copied, setCopied] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [imageLoading, setImageLoading] = useState(true);
+  const images = Array.from(new Set([service.image, ...(service.galleryImages || [])].filter(Boolean)));
+  const imageLabel = (src: string) => src.split('/').pop()?.replace(/\.[^.]+$/, '').replace(/-/g, ' ') || 'service';
+  const activeImage = images[activeImageIndex] || service.image;
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+    setImageLoading(true);
+  }, [service.id]);
   const fav = isFavorite(service.id);
 
   const handleAddToCart = () => {
@@ -103,17 +113,32 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
           <div className="lg:col-span-8 space-y-8">
             {/* Header & Hero Image */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-xs space-y-6">
-              <div className="relative rounded-2xl overflow-hidden aspect-16/9 bg-gray-100 border border-gray-100">
+              <div className="relative rounded-2xl overflow-hidden aspect-[3/2] bg-gray-100 border border-gray-100">
                 <ImageWithFallback
-                  src={service.image}
-                  alt={service.name}
+                  key={`${service.id}-${activeImage}`}
+                  src={activeImage}
+                  alt={`${service.name}: ${imageLabel(activeImage)}`}
                   fallbackTitle={service.name}
-                  className="w-full h-full object-cover"
+                  loading="eager"
+                  onLoad={() => setImageLoading(false)}
+                  onError={() => setImageLoading(false)}
+                  className="w-full h-full object-contain"
                 />
+                {imageLoading && activeImage && <div role="status" aria-label="Loading service image" className="absolute inset-0 bg-gray-100 animate-pulse pointer-events-none" />}
                 <span className="absolute bottom-4 left-4 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-bold">
                   {service.categoryName}
                 </span>
               </div>
+              {images.length > 1 && <div className="grid grid-cols-5 gap-2 sm:gap-3" aria-label="Service image gallery">
+                {images.map((src, index) => <button
+                  key={src}
+                  type="button"
+                  aria-label={`View ${imageLabel(src)} image`}
+                  aria-pressed={activeImageIndex === index}
+                  onClick={() => { if (index !== activeImageIndex) { setActiveImageIndex(index); setImageLoading(true); } }}
+                  className={`aspect-[3/2] overflow-hidden rounded-xl border-2 bg-gray-100 transition-colors cursor-pointer ${activeImageIndex === index ? 'border-[var(--color-brand)]' : 'border-transparent hover:border-[var(--color-brand)]/50'}`}
+                ><ImageWithFallback src={src} alt={`${service.name}: ${imageLabel(src)}`} fallbackTitle={service.name} className="h-full w-full object-cover" /></button>)}
+              </div>}
 
               <div>
                 <div className="flex flex-wrap items-center gap-3 mb-2">

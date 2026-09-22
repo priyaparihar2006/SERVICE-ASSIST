@@ -58,6 +58,7 @@ export interface Service {
   originalPrice?: number;
   durationMin: number;
   image: string;
+  galleryImages?: string[];
   shortDesc: string;
   description: string;
   variants: ServiceVariant[];

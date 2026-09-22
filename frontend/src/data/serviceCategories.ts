@@ -145,7 +145,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     name: 'Water Purifier',
     subtitle: 'RO Service • Filter Change • Installation',
     description: 'TDS testing, sediment filter replacement & membrane check',
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=800&q=80',
+    image: '/service-images/ro-purifier/servicing.png',
     alt: 'Technician servicing a water purifier RO filtration unit',
     servicesCount: 6,
     popular: true,

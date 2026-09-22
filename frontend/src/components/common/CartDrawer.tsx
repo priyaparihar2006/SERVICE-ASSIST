@@ -66,6 +66,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
             </div>
             <button
               onClick={closeCartDrawer}
+              aria-label="Close cart"
               className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />

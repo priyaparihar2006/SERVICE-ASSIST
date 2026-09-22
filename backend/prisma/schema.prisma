@@ -96,6 +96,7 @@ model Service {
   requiredTools String[] @default([])
   isDemo Boolean @default(false)
   image String
+  galleryImages String[] @default([])
   startingPrice Decimal @db.Decimal(12, 2)
   duration Int
   rating Float @default(0)

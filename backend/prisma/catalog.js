@@ -169,7 +169,7 @@ export const CATEGORIES = [
     description: 'RO service, membrane filter replacement & TDS water purity check',
     color: '#0EA5E9',
     bgPastel: '#E0F2FE',
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=800&q=80',
+    image: '/service-images/ro-purifier/servicing.png',
     servicesCount: 6,
   },
   {
@@ -871,7 +871,13 @@ export const SERVICES = [
     startingPrice: 399,
     originalPrice: 599,
     durationMin: 40,
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=800&q=80',
+    image: '/service-images/ro-purifier/servicing.png',
+    galleryImages: [
+      '/service-images/ro-purifier/inspection-water-test.png',
+      '/service-images/ro-purifier/filter-replacement.png',
+      '/service-images/ro-purifier/installation.png',
+      '/service-images/ro-purifier/maintenance-cartridges.png',
+    ],
     shortDesc: 'Complete TDS water quality test, sediment/carbon filter flush & leakage seal.',
     description: 'Protect your family with certified drinking water servicing. We test inlet and outlet TDS and check UV/UF membrane integrity.',
     popular: true,

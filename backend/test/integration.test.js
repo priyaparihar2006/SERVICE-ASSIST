@@ -191,6 +191,19 @@ test('PostgreSQL-backed marketplace integration', async (t) => {
         (!subcategory || service.subcategory === subcategory)), id);
     }
   });
+  await t.test('RO service keeps its price and serves local gallery images', async () => {
+    const { service: ro } = (await request(app).get('/api/services/slug/ro-water-purifier-service').expect(200)).body;
+    assert.equal(ro.id, 'srv-water-purifier-ro');
+    assert.equal(ro.name, 'RO Water Purifier Service & Filter Replacement');
+    assert.equal(ro.categoryName, 'Water Purifier');
+    assert.equal(ro.startingPrice, 399);
+    assert.equal(ro.durationMin, 40);
+    assert.equal(ro.isActive, true);
+    assert.equal(ro.image, '/service-images/ro-purifier/servicing.png');
+    assert.equal(ro.galleryImages.length, 4);
+    assert.equal(new Set([ro.image, ...ro.galleryImages]).size, 5);
+    assert.equal(await db.service.count({ where: { id: ro.id } }), 1);
+  });
   await t.test('address persistence, ownership and default address', async () => {
     const a = await send(customer, 'post', '/api/addresses', {
       house: '10',
