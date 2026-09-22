@@ -37,8 +37,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-white font-['Outfit']">30-Day Service Warranty</h4>
-              <p className="text-xs text-[var(--color-brand-light)]/70 mt-0.5">Free revisit guarantee if you are not 100% satisfied</p>
+              <h4 className="font-bold text-sm text-white font-['Outfit']">Clear Service Scope</h4>
+              <p className="text-xs text-[var(--color-brand-light)]/70 mt-0.5">Warranty terms, when offered, appear on the service details</p>
             </div>
           </div>
 
@@ -48,7 +48,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </div>
             <div>
               <h4 className="font-bold text-sm text-white font-['Outfit']">Standard Transparent Pricing</h4>
-              <p className="text-xs text-[var(--color-brand-light)]/70 mt-0.5">Upfront rate cards with zero hidden visit charges</p>
+              <p className="text-xs text-[var(--color-brand-light)]/70 mt-0.5">Visit fees and inspection charges shown before checkout</p>
             </div>
           </div>
         </div>

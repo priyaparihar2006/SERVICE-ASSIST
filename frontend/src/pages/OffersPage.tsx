@@ -62,7 +62,7 @@ export const OffersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ o
 
                   <h3 className="font-extrabold text-base text-gray-900 mb-2 font-['Outfit']">{coupon.description}</h3>
                   <p className="text-xs text-gray-500 mb-6 leading-relaxed">
-                    Applicable on all eligible home categories. Can be combined with standard 30-day warranty.
+                    Applicable only to eligible categories and bookings. Check each service for its own warranty terms.
                   </p>
                 </div>
 

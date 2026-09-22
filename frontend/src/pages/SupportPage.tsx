@@ -152,7 +152,7 @@ export const SupportPage: React.FC = () => {
                 >
                   <option value="">Select subject...</option>
                   <option value="Schedule change or reschedule">Schedule change or reschedule</option>
-                  <option value="Claim 30-Day Quality Warranty">Claim 30-Day Quality Warranty</option>
+                  <option value="Service quality or warranty question">Service quality or warranty question</option>
                   <option value="Billing & invoice query">Billing & invoice query</option>
                   <option value="Feedback regarding professional">Feedback regarding professional</option>
                   <option value="Other">Other</option>
@@ -188,23 +188,23 @@ export const SupportPage: React.FC = () => {
               <ShieldCheck className="w-6 h-6" />
             </div>
 
-            <h3 className="text-xl font-black font-['Outfit']">The Service Assist 30-Day Revisit Guarantee</h3>
+            <h3 className="text-xl font-black font-['Outfit']">Help With Your Service</h3>
             <p className="text-xs text-brand-light/80 leading-relaxed">
-              Every job completed by Service Assist partners is protected by our zero-cost warranty. If your AC leaks, a clean tap develops a drip, or deep cleaning misses a corner, we will return and fix it free.
+              Tell us about an issue with a completed service. We will review your booking and any warranty terms shown for that service.
             </p>
 
             <ul className="space-y-2 text-xs text-brand-light/90 pt-2">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[var(--color-brand-bright)] shrink-0" />
-                <span>Zero questions asked inspection</span>
+                <span>Share your booking and issue details</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[var(--color-brand-bright)] shrink-0" />
-                <span>Assigned to a master quality technician</span>
+                <span>Our support team reviews your request</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[var(--color-brand-bright)] shrink-0" />
-                <span>Genuine spare parts backed by warranty</span>
+                <span>Next steps depend on your service terms</span>
               </li>
             </ul>
           </div>

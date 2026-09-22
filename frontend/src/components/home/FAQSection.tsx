@@ -10,8 +10,8 @@ export const FAQSection: React.FC = () => {
       a: 'Every technician, cleaner, and aesthetician goes through mandatory 3-point background screening including government ID verification (Aadhaar/PAN), court record checks, and police clearance. We also test their hands-on domain competency and train them on safety protocols before onboarding.',
     },
     {
-      q: 'What is the 30-Day Service Assist Quality Guarantee?',
-      a: 'If any service provided by our partner fails to meet standards or issues persist within 30 days of service completion, we dispatch a senior supervisor to inspect and rectify the work completely free of charge.',
+      q: 'Does my service include a warranty?',
+      a: 'Warranty terms vary by service. Check the service details before booking; if no warranty is shown, none is included in the listed package.',
     },
     {
       q: 'Can I reschedule or cancel my booking?',

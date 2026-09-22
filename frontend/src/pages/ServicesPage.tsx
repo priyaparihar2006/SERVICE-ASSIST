@@ -32,7 +32,10 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
   const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [sortBy, setSortBy] = useState<'popular' | 'rating' | 'price-asc' | 'price-desc'>('popular');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('all');
+  const [availableOnly, setAvailableOnly] = useState(true);
   const [showCategoryGrid, setShowCategoryGrid] = useState<boolean>(true);
+  const subcategories = useMemo(() => Array.from(new Set(services.filter(s => selectedCategory === 'all' || s.categoryId === selectedCategory || categories.find(c => c.slug === selectedCategory)?.id === s.categoryId).map(s => s.subcategory).filter((s): s is string => Boolean(s && s !== 'General')))).sort(), [services, selectedCategory, categories]);
 
   const filteredServices = useMemo(() => {
     return services
@@ -41,21 +44,23 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
 
         const matchesSearch =
           !searchQuery.trim() ||
-          s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          s.shortDesc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          s.categoryName.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch && s.locations.includes(selectedCity.name);
+          s.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+          s.shortDesc.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+          s.categoryName.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+          (s.subcategory || '').toLowerCase().includes(searchQuery.trim().toLowerCase());
+        return matchesCategory && matchesSearch && (selectedSubcategory === 'all' || s.subcategory === selectedSubcategory) && (!availableOnly || s.locations.includes(selectedCity.name));
       })
       .sort((a, b) => {
-        if (sortBy === 'rating') return b.rating - a.rating;
+        if (sortBy === 'rating') return (b.reviewsCount ? b.rating : 0) - (a.reviewsCount ? a.rating : 0);
         if (sortBy === 'price-asc') return a.startingPrice - b.startingPrice;
         if (sortBy === 'price-desc') return b.startingPrice - a.startingPrice;
         return (b.reviewsCount || 0) - (a.reviewsCount || 0);
       });
-  }, [services, categories, selectedCategory, searchQuery, sortBy, selectedCity.name]);
+  }, [services, categories, selectedCategory, selectedSubcategory, availableOnly, searchQuery, sortBy, selectedCity.name]);
 
   const handleCategoryCardClick = (catId: string) => {
     setSelectedCategory(catId);
+    setSelectedSubcategory('all');
     // Smooth scroll down to service list
     const el = document.getElementById('service-catalog-results');
     if (el) {
@@ -77,7 +82,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               All Doorstep Services
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-2xl">
-              Select a category or browse all verified professionals with standard upfront pricing and 30-day rework warranty.
+              Browse services with clear visit pricing. Inspection services receive a quote before additional work.
             </p>
           </div>
 
@@ -149,7 +154,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                 className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 cursor-pointer"
               >
                 <option value="popular">Most Booked</option>
-                <option value="rating">Top Rated (4.8+)</option>
+              <option value="rating">Top Rated</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
               </select>
@@ -159,7 +164,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
           {/* Category Chips Bar */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
             <button
-              onClick={() => setSelectedCategory('all')}
+              onClick={() => { setSelectedCategory('all'); setSelectedSubcategory('all'); }}
               className={`px-3.5 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
                 selectedCategory === 'all'
                   ? 'bg-[var(--color-brand)] text-white shadow-xs'
@@ -173,7 +178,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => { setSelectedCategory(cat.id); setSelectedSubcategory('all'); }}
                   className={`px-3.5 py-1.5 rounded-xl font-semibold whitespace-nowrap transition-all border cursor-pointer ${
                     isSelected
                       ? 'bg-[var(--color-brand-light)] border-[var(--color-brand)] text-[var(--color-brand-hover)] font-bold shadow-xs'
@@ -185,12 +190,17 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               );
             })}
           </div>
+          {subcategories.length > 0 && <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs" aria-label="Subcategory filters">
+            <button onClick={() => setSelectedSubcategory('all')} className={`px-3 py-1.5 rounded-xl whitespace-nowrap ${selectedSubcategory === 'all' ? 'bg-brand text-white' : 'bg-gray-100 text-gray-600'}`}>All services</button>
+            {subcategories.map(subcategory => <button key={subcategory} onClick={() => setSelectedSubcategory(subcategory)} className={`px-3 py-1.5 rounded-xl whitespace-nowrap ${selectedSubcategory === subcategory ? 'bg-brand text-white' : 'bg-gray-100 text-gray-600'}`}>{subcategory}</button>)}
+          </div>}
+          <label className="flex items-center gap-2 text-xs font-semibold text-gray-600"><input type="checkbox" checked={availableOnly} onChange={(event) => setAvailableOnly(event.target.checked)} className="accent-[#009051]" /> Available in {selectedCity.name}</label>
         </div>
 
         {/* Results Counter */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-xs font-semibold text-gray-500">
-            Showing <span className="font-bold text-gray-900">{filteredServices.length}</span> verified services
+            Showing <span className="font-bold text-gray-900">{filteredServices.length}</span> services
             {selectedCategory !== 'all' && (
               <span className="ml-1 text-[var(--color-brand-hover)]">
                 in {categories.find((c) => c.id === selectedCategory)?.name || 'selected category'}
@@ -201,6 +211,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
             <button
               onClick={() => {
                 setSelectedCategory('all');
+                setSelectedSubcategory('all');
                 setSearchQuery('');
               }}
               className="text-xs font-bold text-[var(--color-brand)] hover:underline cursor-pointer"
@@ -221,6 +232,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
             <button
               onClick={() => {
                 setSelectedCategory('all');
+                setSelectedSubcategory('all');
                 setSearchQuery('');
               }}
               className="px-5 py-2.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
@@ -264,14 +276,14 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                     </button>
 
                     <span className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-xs text-[10px] font-bold text-[var(--color-ink)] shadow-xs">
-                      {service.categoryName}
+                      {service.subcategory && service.subcategory !== 'General' ? service.subcategory : service.categoryName}
                     </span>
                   </div>
 
                   {/* Body Content */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div onClick={() => onSelectService(service.slug)} className="cursor-pointer">
-                      <div className="flex items-center gap-1.5 mb-1.5">
+                      {service.reviewsCount > 0 && <div className="flex items-center gap-1.5 mb-1.5">
                         <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md text-amber-800 text-xs font-extrabold">
                           <Star className="w-3.5 h-3.5 fill-[var(--color-brand-bright)] text-[var(--color-brand-bright)]" />
                           <span>{service.rating}</span>
@@ -279,7 +291,8 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                         <span className="text-[11px] text-gray-400 font-medium">
                           ({service.reviewsCount} reviews)
                         </span>
-                      </div>
+                      </div>}
+                      {service.isDemo && <span className="text-[10px] font-semibold text-gray-500">Demo catalog</span>}
 
                       <h3 className="font-extrabold text-base text-gray-900 group-hover:text-[var(--color-brand)] transition-colors mb-1.5 line-clamp-1 font-['Outfit']">
                         {service.name}
@@ -307,12 +320,12 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                           <Clock className="w-3.5 h-3.5 text-gray-400" />
                           <span>~{service.durationMin} mins</span>
                         </div>
-                        <span className="text-brand font-semibold">Instant slot available</span>
+                        <span className="text-brand font-semibold">{service.locations.includes(selectedCity.name) ? `Available in ${selectedCity.name}` : 'Choose a supported city'}</span>
                       </div>
 
                       <div className="flex items-center justify-between gap-2">
                         <div>
-                          <span className="text-[10px] uppercase font-bold text-gray-400 block">Starts at</span>
+                          <span className="text-[10px] uppercase font-bold text-gray-400 block">{service.priceType === 'INSPECTION' ? 'Inspection fee' : 'Starts at'}</span>
                           <div className="flex items-baseline gap-1.5">
                             <span className="text-lg font-black text-gray-900">₹{service.startingPrice}</span>
                             {service.originalPrice && (
@@ -330,7 +343,8 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                           </button>
                           <button
                             onClick={() => addItem(service)}
-                            className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shadow-brand/20"
+                            disabled={!service.locations.includes(selectedCity.name)}
+                            className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer shadow-brand/20 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Add +
                           </button>

@@ -14,13 +14,13 @@ export const TrustSection: React.FC = () => {
       icon: <Award className="w-6 h-6 text-[var(--color-brand-bright)]" />,
     },
     {
-      title: '30-Day Service Warranty',
-      desc: 'If anything is not up to mark, our quality supervisor revisits and fixes it at zero extra charge.',
+      title: 'Clear Service Terms',
+      desc: 'See the service scope and any applicable warranty before you book.',
       icon: <RefreshCw className="w-6 h-6 text-[var(--color-brand-bright)]" />,
     },
     {
       title: 'No Hidden Surcharges',
-      desc: 'Standard itemized rate card for spare parts and labour. What you see is what you pay.',
+      desc: 'Inspection fees are shown upfront. Parts and extra work need your approval.',
       icon: <FileCheck className="w-6 h-6 text-[var(--color-brand-bright)]" />,
     },
   ];

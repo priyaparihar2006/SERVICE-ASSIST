@@ -117,22 +117,21 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
 
               <div>
                 <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg text-amber-800 text-xs font-extrabold">
+                  {service.reviewsCount > 0 && <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg text-amber-800 text-xs font-extrabold">
                     <Star className="w-4 h-4 fill-[var(--color-brand-bright)] text-[var(--color-brand-bright)]" />
                     <span>{service.rating}</span>
-                  </div>
-                  <span className="text-xs text-gray-400 font-medium">
+                  </div>}
+                  {service.reviewsCount > 0 && <span className="text-xs text-gray-400 font-medium">
                     ({service.reviewsCount} customer ratings)
-                  </span>
+                  </span>}
                   <span className="text-gray-300">•</span>
                   <div className="flex items-center gap-1 text-xs text-gray-600 font-semibold">
                     <Clock className="w-3.5 h-3.5 text-gray-400" />
                     <span>{selectedVariant.durationMin} mins</span>
                   </div>
                   <span className="text-gray-300">•</span>
-                  <span className="text-xs font-bold text-brand bg-brand-soft px-2 py-0.5 rounded">
-                    30-Day Warranty Included
-                  </span>
+                  {service.warrantyPolicy && <span className="text-xs font-bold text-brand bg-brand-soft px-2 py-0.5 rounded">{service.warrantyPolicy}</span>}
+                  {service.isDemo && <span className="text-xs font-semibold text-gray-500">Demo catalog</span>}
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl font-black text-[var(--color-ink)] tracking-tight mb-3 font-['Outfit']">
@@ -141,6 +140,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                   {service.description}
                 </p>
+                {service.priceType === 'INSPECTION' && <p className="mt-2 text-xs font-semibold text-amber-800">The listed amount is an inspection fee. Parts and further work require a separate quote and your approval.</p>}
               </div>
             </div>
 
@@ -281,23 +281,23 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
 
                 <div className="flex items-center justify-between text-[11px] text-brand font-semibold pt-1 border-t border-gray-200/60">
                   <span>Final price confirmed at checkout</span>
-                  <span>Free doorstep visit</span>
+                  <span>{service.priceType === 'INSPECTION' ? 'Inspection visit fee applies' : 'Service visit included'}</span>
                 </div>
               </div>
 
               {/* Trust highlights */}
               <div className="space-y-2.5 text-xs text-gray-600">
-                <div className="flex items-center gap-2">
+                {service.warrantyPolicy && <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[var(--color-brand)]" />
-                  <span>30-Day Service Assist Quality Revisit Guarantee</span>
-                </div>
+                  <span>{service.warrantyPolicy}</span>
+                </div>}
                 <div className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-amber-500" />
-                  <span>100% Background Verified Technician</span>
+                  <span>Qualified professional assigned for this service</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-brand-soft0" />
-                  <span>Earliest Slot: Today / Tomorrow</span>
+                  <span>Choose an available slot at checkout</span>
                 </div>
               </div>
 

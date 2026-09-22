@@ -3,6 +3,7 @@ import { serviceInclude, serviceView } from '../utils/serializers.js';
 export async function listServices(q) {
   const category = q.category || q.categoryId;
   const location = q.location || q.city;
+  const search = q.search?.trim().replace(/\s+/g, ' ');
   const where = {
     isActive: true,
     category: { isActive: true },
@@ -15,13 +16,14 @@ export async function listServices(q) {
         }
       : {}),
     ...(location ? { locations: { has: location } } : {}),
-    ...(q.search
+    ...(q.subcategory ? { subcategory: { equals: q.subcategory, mode: 'insensitive' } } : {}),
+    ...(search
       ? {
           AND: [
             {
               OR: ['name', 'description', 'shortDesc']
-                .map((k) => ({ [k]: { contains: q.search, mode: 'insensitive' } }))
-                .concat([{ category: { name: { contains: q.search, mode: 'insensitive' } } }]),
+                .map((k) => ({ [k]: { contains: search, mode: 'insensitive' } }))
+                .concat([{ subcategory: { contains: search, mode: 'insensitive' } }, { category: { name: { contains: search, mode: 'insensitive' } } }]),
             },
           ],
         }

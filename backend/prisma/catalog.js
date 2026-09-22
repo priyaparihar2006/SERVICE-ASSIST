@@ -12,6 +12,18 @@ export const CITIES = [
 
 export const CATEGORIES = [
   {
+    id: 'cat-laptop-computer', slug: 'laptop-and-computer', name: 'Laptop & Computer',
+    icon: 'Laptop', description: 'Laptop repairs, software help, upgrades and home network setup',
+    color: '#2563EB', bgPastel: '#DBEAFE',
+    image: '/service-images/computers.svg', servicesCount: 0,
+  },
+  {
+    id: 'cat-electronics', slug: 'electronics', name: 'Electronics',
+    icon: 'Tv', description: 'Mobile, TV, security camera and smart home assistance',
+    color: '#7C3AED', bgPastel: '#EDE9FE',
+    image: '/service-images/electronics.svg', servicesCount: 0,
+  },
+  {
     id: 'cat-ac-appliances',
     slug: 'ac-and-appliances',
     name: 'AC & Appliances',

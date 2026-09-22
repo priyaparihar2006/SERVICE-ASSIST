@@ -2,6 +2,7 @@ import 'dotenv/config';
 import bcrypt from 'bcrypt';
 import { db } from '../src/config/db.js';
 import { CATEGORIES, SERVICES, PROFESSIONALS, CITIES, COUPONS } from './catalog.js';
+import { EXPANDED_SERVICES, EXPANDED_PROFESSIONALS } from './catalog-expansion.js';
 import { password } from '../src/middleware/validate.js';
 if (process.env.NODE_ENV === 'production' || process.env.SEED_DEMO !== 'true')
   throw new Error('Demo seeding requires SEED_DEMO=true outside production');
@@ -18,7 +19,7 @@ try {
         'srv-bathroom-deep': 'cat-bathroom-cleaning',
         'srv-pest-control': 'cat-pest-control',
       };
-      const catalog = SERVICES.map((s) => ({
+      const catalog = [...SERVICES, ...EXPANDED_SERVICES].map((s) => ({
         ...s,
         categoryId: corrections[s.id] || s.categoryId,
       }));
@@ -63,6 +64,12 @@ try {
           categoryId: s.categoryId,
           description: s.description,
           shortDesc: s.shortDesc,
+          subcategory: s.subcategory || 'General',
+          priceType: s.priceType || 'FIXED',
+          serviceType: s.serviceType || 'HOME_VISIT',
+          warrantyPolicy: s.warrantyPolicy || null,
+          requiredTools: s.requiredTools || [],
+          isDemo: true,
           image: s.image,
           startingPrice: s.startingPrice,
           duration: s.durationMin,
@@ -75,7 +82,18 @@ try {
           whyChoose: s.whyChoose,
           faqs: s.faqs,
         };
-        await tx.service.upsert({ where: { id: s.id }, create: data, update: {} });
+        const existing = await tx.service.findUnique({ where: { id: s.id }, select: { isDemo: true } });
+        if (!existing) await tx.service.create({ data });
+        else if (existing.isDemo) await tx.service.update({ where: { id: s.id }, data: {
+          description: data.description,
+          shortDesc: data.shortDesc,
+          subcategory: data.subcategory,
+          priceType: data.priceType,
+          serviceType: data.serviceType,
+          warrantyPolicy: data.warrantyPolicy,
+          requiredTools: data.requiredTools,
+          image: data.image,
+        } });
         for (const v of s.variants)
           await tx.serviceVariant.upsert({
             where: { id: v.id },
@@ -84,7 +102,7 @@ try {
           });
       }
       const passwordHash = await bcrypt.hash(demoPassword, 12);
-      for (const [i, p] of PROFESSIONALS.entries()) {
+      for (const [i, p] of [...PROFESSIONALS, ...EXPANDED_PROFESSIONALS].entries()) {
         const email = `professional${i + 1}@demo.service-assist.test`;
         const user = await tx.user.upsert({
           where: { email },
@@ -102,16 +120,22 @@ try {
         const serviceIds = catalog
           .filter(
             (s) =>
-              s.categoryId === p.categoryId ||
+              (s.categoryId === p.categoryId &&
+                (!p.specialtySubcategories || p.specialtySubcategories.includes(s.subcategory || 'General')) &&
+                !(p.id === 'pro-priya' && s.subcategory === 'Manicure & Pedicure') &&
+                !(p.id === 'pro-rahul' && s.subcategory === 'Appliances')) ||
+              (p.categoryId === 'cat-laptop-computer' && s.categoryId === 'cat-laptop-electronics') ||
               (p.categoryId === 'cat-cleaning' &&
                 ['cat-sofa-cleaning', 'cat-bathroom-cleaning', 'cat-pest-control'].includes(
                   s.categoryId,
                 )),
           )
           .map((s) => ({ id: s.id }));
+        // Repeated demo seeds may add catalog entries; keep demo professionals eligible
+        // for their own category without changing real professional records.
         await tx.professional.upsert({
           where: { userId: user.id },
-          update: {},
+          update: { services: { connect: serviceIds } },
           create: {
             userId: user.id,
             id: p.id,
@@ -149,10 +173,10 @@ try {
         });
       }
     },
-    { timeout: 60000 },
+    { timeout: 180000 },
   );
   console.log(
-    'Demo catalog seeded without overwriting existing records. Passwords come from DEMO_PASSWORD.',
+    'Demo catalog seeded without modifying customer data or non-demo records. Passwords come from DEMO_PASSWORD.',
   );
 } finally {
   await db.$disconnect();

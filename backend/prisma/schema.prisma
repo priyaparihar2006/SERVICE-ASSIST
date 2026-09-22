@@ -89,6 +89,12 @@ model Service {
   slug String @unique
   description String
   shortDesc String
+  subcategory String @default("General")
+  priceType String @default("FIXED")
+  serviceType String @default("HOME_VISIT")
+  warrantyPolicy String?
+  requiredTools String[] @default([])
+  isDemo Boolean @default(false)
   image String
   startingPrice Decimal @db.Decimal(12, 2)
   duration Int

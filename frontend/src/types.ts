@@ -46,6 +46,12 @@ export interface Service {
   name: string;
   categoryId: string;
   categoryName: string;
+  subcategory?: string;
+  priceType?: 'FIXED' | 'INSPECTION';
+  serviceType?: 'HOME_VISIT' | 'PICKUP_OR_HOME_VISIT';
+  warrantyPolicy?: string | null;
+  requiredTools?: string[];
+  isDemo?: boolean;
   rating: number;
   reviewsCount: number;
   startingPrice: number;

@@ -223,7 +223,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                 {/* Guarantee trust pill */}
                 <div className="flex items-center gap-2 p-3 bg-[var(--color-brand-light)]/80 rounded-xl border border-brand-light text-[var(--color-ink)] text-xs">
                   <ShieldCheck className="w-4 h-4 text-[var(--color-brand)] shrink-0" />
-                  <span>30-Day Service Assist Quality Guarantee included on all bookings</span>
+                  <span>Review each service's scope, visit fee and warranty terms before checkout</span>
                 </div>
               </div>
 

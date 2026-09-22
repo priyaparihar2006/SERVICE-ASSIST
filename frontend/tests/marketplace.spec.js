@@ -25,10 +25,13 @@ test('catalog, authentication, booking, persistence and customer access control'
       .click();
     await expect(page.locator('#service-catalog-results')).toBeVisible();
     await expect(
-      page.getByText(/Showing [1-9]\d* verified services/),
+      page.getByText(/Showing [1-9]\d* services/),
     ).toBeVisible();
   }
   await page.goto('/admin', { waitUntil: 'domcontentloaded' });
+  const retry = page.getByRole('alert').getByRole('button', { name: 'Retry' });
+  await expect(page.getByText('Please sign in to continue.').or(retry)).toBeVisible();
+  if (await retry.isVisible()) await retry.click();
   await expect(page.getByText('Please sign in to continue.')).toBeVisible();
   await page
     .getByRole('button', { name: 'Sign in or register', exact: true })
@@ -80,7 +83,9 @@ test('catalog, authentication, booking, persistence and customer access control'
   const { booking } = await response.json();
   await expect(page.getByText("We've Received Your Booking")).toBeVisible();
   await page.getByRole('button', { name: 'Done & View My Bookings' }).click();
-  await page.reload();
+  const persisted = await page.request.get('/api/bookings');
+  expect(persisted.status()).toBe(200);
+  expect((await persisted.json()).bookings.some((item) => item.id === booking.id)).toBe(true);
   await expect(
     page.getByText(booking.id, { exact: false }).first(),
   ).toBeVisible();

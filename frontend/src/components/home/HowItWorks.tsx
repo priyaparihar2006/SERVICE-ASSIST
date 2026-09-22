@@ -27,7 +27,7 @@ export const HowItWorks: React.FC = () => {
     {
       num: '04',
       title: "Relax — it's done",
-      desc: 'Inspect completed work, pay seamlessly online or via UPI, and enjoy our 30-day rework warranty.',
+      desc: 'Inspect completed work and pay using the available checkout method. Review any service-specific warranty terms before booking.',
       icon: <ShieldCheck className="w-5 h-5" />,
       color: 'bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] border-[var(--color-brand)]/30',
     },

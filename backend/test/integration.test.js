@@ -162,6 +162,35 @@ test('PostgreSQL-backed marketplace integration', async (t) => {
       await request(app).get('/api/search?q=sofa').expect(200);
     },
   );
+  await t.test('expanded catalog has unique services, working filters and explicit inspection fees', async () => {
+    const rows = await db.service.findMany({ where: { isDemo: true }, select: {
+      name: true, slug: true, categoryId: true, subcategory: true, priceType: true,
+      image: true, variants: { select: { price: true } },
+    } });
+    assert.ok(rows.length >= 138);
+    assert.equal(new Set(rows.map((row) => row.slug)).size, rows.length);
+    assert.equal(new Set(rows.map((row) => `${row.categoryId}:${row.name.toLowerCase()}`)).size, rows.length);
+    const categories = new Set(rows.map((row) => row.categoryId));
+    for (const category of ['cat-beauty', 'cat-laptop-computer', 'cat-electronics', 'cat-electrician', 'cat-plumber', 'cat-cleaning', 'cat-ac-appliances']) assert.ok(categories.has(category));
+    assert.ok(rows.every((row) => row.image && row.variants.length > 0));
+    const filtered = (await request(app).get('/api/services?category=cat-beauty&subcategory=Manicure%20%26%20Pedicure&limit=100').expect(200)).body;
+    assert.ok(filtered.services.length >= 9);
+    assert.ok(filtered.services.every((s) => s.subcategory === 'Manicure & Pedicure'));
+    const search = (await request(app).get('/api/services?search=%20%20laptop%20%20screen%20%20replacement%20&limit=100').expect(200)).body;
+    assert.ok(search.services.some((s) => s.name === 'Laptop Screen Replacement' && s.priceType === 'INSPECTION'));
+    for (const [id, category, subcategory] of [
+      ['pro-demo-nails', 'cat-beauty', 'Manicure & Pedicure'],
+      ['pro-demo-computers', 'cat-laptop-computer', null],
+      ['pro-demo-electronics', 'cat-electronics', null],
+      ['pro-demo-appliances', 'cat-ac-appliances', 'Appliances'],
+    ]) {
+      const professional = await db.professional.findUnique({ where: { id }, select: { services: { select: { categoryId: true, subcategory: true } } } });
+      assert.ok(professional?.services.length, id);
+      assert.ok(professional.services.every((service) =>
+        (service.categoryId === category || (id === 'pro-demo-computers' && service.categoryId === 'cat-laptop-electronics')) &&
+        (!subcategory || service.subcategory === subcategory)), id);
+    }
+  });
   await t.test('address persistence, ownership and default address', async () => {
     const a = await send(customer, 'post', '/api/addresses', {
       house: '10',
@@ -216,6 +245,23 @@ test('PostgreSQL-backed marketplace integration', async (t) => {
       await send(customer, 'post', '/api/bookings', payload()).expect(400);
     },
   );
+  await t.test('new catalog service books with the database inspection fee', async () => {
+    const laptop = await db.service.findFirstOrThrow({
+      where: { name: 'Laptop Screen Replacement', categoryId: 'cat-laptop-computer' },
+      include: { variants: true },
+    });
+    const response = await book(customer, {
+      addressId,
+      items: [{ serviceId: laptop.id, variantId: laptop.variants[0].id, quantity: 1 }],
+      bookingDate: new Date(Date.now() + 4 * 86400000).toISOString().slice(0, 10),
+      bookingTime: '10:00 AM - 11:00 AM',
+      paymentMethod: 'CASH',
+      total: 1,
+    }).expect(201);
+    assert.equal(response.body.booking.total, Number(laptop.variants[0].price));
+    assert.equal(response.body.booking.status, 'PENDING');
+    assert.ok(await db.booking.findUnique({ where: { id: response.body.booking.id } }));
+  });
   await t.test('booking ownership and status transition enforcement', async () => {
     assert.equal(
       (await other.get(`/api/bookings?customerId=${customerId}`)).body.bookings.length,
