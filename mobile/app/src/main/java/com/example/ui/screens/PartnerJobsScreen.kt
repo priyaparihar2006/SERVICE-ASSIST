@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -907,8 +908,9 @@ private fun PartnerJobCard(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(46.dp)
-                        .testTag("btn_partner_advance_job")
+                        .heightIn(min = 46.dp)
+                        .testTag("btn_partner_advance_job"),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -930,17 +932,19 @@ private fun PartnerJobCard(
                         Text(
                             text = when (booking.status) {
                                 BookingStatus.ASSIGNED -> "Start Travel to Customer"
-                                BookingStatus.ON_THE_WAY -> "I Have Arrived at Doorstep"
+                                BookingStatus.ON_THE_WAY -> "Arrived at Doorstep"
                                 BookingStatus.ARRIVED -> "Verify Customer OTP (${booking.startOtp})"
-                                BookingStatus.STARTED -> "Complete Job & Collect ₹${booking.totalAmount}"
-                                BookingStatus.AWAITING_PAYMENT -> "Awaiting Payment — Tap to Collect ₹${booking.totalAmount}"
+                                BookingStatus.STARTED -> "Complete & Collect ₹${booking.totalAmount}"
+                                BookingStatus.AWAITING_PAYMENT -> "Collect Payment • ₹${booking.totalAmount}"
                                 else -> "Job Complete"
                             },
                             style = MaterialTheme.typography.titleSmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 13.5.sp,
+                                fontSize = 13.sp,
                                 color = Color.White
-                            )
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
