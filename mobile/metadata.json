@@ -1,0 +1,6 @@
+{
+  "name": "Service Assist",
+  "description": "Premium home services marketplace for booking verified home repair, cleaning, beauty, and maintenance professionals in Agra.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
