@@ -19,6 +19,9 @@ import { ImageWithFallback } from '../common/ImageWithFallback';
 interface HeroProps {
   onExplore: () => void;
   onBook: () => void;
+  onNavigate?: (path: string) => void;
+  onSelectService?: (slug: string) => void;
+  onSelectCategory?: (categoryId: string) => void;
 }
 
 export interface HeroServiceItem {
@@ -34,6 +37,8 @@ export interface HeroServiceItem {
   avatar: string;
   eta: string;
   startingPrice: string;
+  targetSlug?: string;
+  targetCategory?: string;
 }
 
 // Exact 15-service sequence requested in prompt:
@@ -54,6 +59,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/ac-technician-1.jpg',
     eta: '15 mins',
     startingPrice: '₹499',
+    targetSlug: 'ac-jet-service',
+    targetCategory: 'cat-ac-appliances',
   },
   {
     id: 'home-cleaning',
@@ -68,6 +75,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/cleaner-1.jpg',
     eta: '20 mins',
     startingPrice: '₹999',
+    targetSlug: 'bathroom-deep-cleaning',
+    targetCategory: 'cat-cleaning',
   },
   {
     id: 'salon-beauty',
@@ -82,6 +91,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/beauty-1.jpg',
     eta: '25 mins',
     startingPrice: '₹799',
+    targetSlug: 'salon-at-home-women',
+    targetCategory: 'cat-beauty',
   },
   {
     id: 'electrician',
@@ -96,6 +107,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/electrician-1.jpg',
     eta: '12 mins',
     startingPrice: '₹199',
+    targetSlug: 'electrician-on-demand',
+    targetCategory: 'cat-electrician',
   },
   {
     id: 'plumber',
@@ -110,6 +123,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/plumber-1.jpg',
     eta: '15 mins',
     startingPrice: '₹149',
+    targetSlug: 'plumbing-tap-leakage-fix',
+    targetCategory: 'cat-plumber',
   },
   {
     id: 'carpenter',
@@ -124,6 +139,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/carpenter-1.jpg',
     eta: '30 mins',
     startingPrice: '₹249',
+    targetCategory: 'cat-carpenter',
   },
   {
     id: 'pest-control',
@@ -138,6 +154,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/pest-control-1.jpg',
     eta: '22 mins',
     startingPrice: '₹699',
+    targetSlug: 'cockroach-pest-control',
+    targetCategory: 'cat-pest-control',
   },
   {
     id: 'painting',
@@ -152,6 +170,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/painter-1.jpg',
     eta: '45 mins',
     startingPrice: '₹1,499',
+    targetCategory: 'cat-painting',
   },
   {
     id: 'appliance-repair',
@@ -166,6 +185,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/appliance-1.jpg',
     eta: '20 mins',
     startingPrice: '₹299',
+    targetSlug: 'washing-machine-refrigerator-repair',
+    targetCategory: 'cat-appliance-repair',
   },
   {
     id: 'bathroom-cleaning',
@@ -180,6 +201,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/cleaner-2.jpg',
     eta: '18 mins',
     startingPrice: '₹449',
+    targetSlug: 'bathroom-deep-cleaning',
+    targetCategory: 'cat-bathroom-cleaning',
   },
   {
     id: 'sofa-cleaning',
@@ -194,6 +217,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/cleaner-3.jpg',
     eta: '25 mins',
     startingPrice: '₹599',
+    targetSlug: 'sofa-carpet-shampooing',
+    targetCategory: 'cat-sofa-cleaning',
   },
   {
     id: 'packers-movers',
@@ -208,6 +233,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/movers-1.jpg',
     eta: '60 mins',
     startingPrice: '₹1,899',
+    targetCategory: 'cat-moving',
   },
   {
     id: 'home-improvement',
@@ -222,6 +248,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/carpenter-2.jpg',
     eta: '30 mins',
     startingPrice: '₹499',
+    targetSlug: 'home-improvement-fixtures',
+    targetCategory: 'cat-home-improvement',
   },
   {
     id: 'water-purifier',
@@ -236,6 +264,8 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/water-purifier-1.jpg',
     eta: '20 mins',
     startingPrice: '₹399',
+    targetSlug: 'ro-water-purifier-service',
+    targetCategory: 'cat-water-purifier',
   },
   {
     id: 'electronics-repair',
@@ -250,10 +280,19 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     avatar: '/images/professionals/laptop-tech-1.jpg',
     eta: '35 mins',
     startingPrice: '₹349',
+    targetCategory: 'cat-laptop-computer',
   },
 ];
 
-export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
+const AUTO_SLIDE_INTERVAL = 5000; // 5 seconds per slide
+
+export const Hero: React.FC<HeroProps> = ({
+  onExplore,
+  onBook,
+  onNavigate,
+  onSelectService,
+  onSelectCategory,
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -265,28 +304,41 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
     img.src = HERO_SERVICES[nextIdx].image;
   }, [currentIndex]);
 
-  // Strict 1-second auto-cycle (1000ms)
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (!isPaused) {
+      timerRef.current = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % HERO_SERVICES.length);
+      }, AUTO_SLIDE_INTERVAL);
+    }
+  }, [isPaused]);
+
+  useEffect(() => {
+    resetTimer();
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [resetTimer]);
+
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % HERO_SERVICES.length);
-  }, []);
+    resetTimer();
+  }, [resetTimer]);
 
   const prevSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + HERO_SERVICES.length) % HERO_SERVICES.length);
-  }, []);
+    resetTimer();
+  }, [resetTimer]);
 
-  useEffect(() => {
-    if (isPaused) return;
-    timerRef.current = setInterval(() => {
-      nextSlide();
-    }, 1000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPaused, nextSlide]);
-
-  const handleIndicatorClick = (idx: number) => {
+  const handleIndicatorClick = (idx: number, e: React.MouseEvent) => {
+    e.stopPropagation();
     setCurrentIndex(idx);
+    resetTimer();
   };
 
   const handlePrevClick = (e: React.MouseEvent) => {
@@ -297,6 +349,28 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
   const handleNextClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     nextSlide();
+  };
+
+  const handleCardClick = () => {
+    const current = HERO_SERVICES[currentIndex];
+    if (current.targetSlug && onSelectService) {
+      onSelectService(current.targetSlug);
+    } else if (current.targetSlug && onNavigate) {
+      onNavigate(`/services/${current.targetSlug}`);
+    } else if (current.targetCategory && onSelectCategory) {
+      onSelectCategory(current.targetCategory);
+    } else if (current.targetCategory && onNavigate) {
+      onNavigate(`/services?category=${current.targetCategory}`);
+    } else if (onExplore) {
+      onExplore();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCardClick();
+    }
   };
 
   const current = HERO_SERVICES[currentIndex];
@@ -402,12 +476,17 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
             </div>
           </div>
 
-          {/* Right Column: 1-Second Synchronized Image & Text Carousel */}
+          {/* Right Column: 5-Second Synchronized Image & Text Carousel */}
           <div className="lg:col-span-6 relative">
             <div
-              className="relative mx-auto max-w-lg lg:max-w-none group/carousel"
+              className="relative mx-auto max-w-lg lg:max-w-none group/carousel cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] rounded-[2.5rem]"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
+              onClick={handleCardClick}
+              onKeyDown={handleKeyDown}
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${current.serviceName} service details`}
             >
               {/* Soft green ambient background glow */}
               <div className="absolute -inset-4 bg-gradient-to-tr from-[var(--color-brand)]/20 via-[var(--color-brand-bright)]/15 to-transparent rounded-[3rem] blur-2xl -z-10" />
@@ -502,7 +581,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.96 }}
                   transition={{ duration: 0.35 }}
-                  className="absolute -bottom-6 -left-2 sm:left-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-3.5 z-20"
+                  className="absolute -bottom-6 -left-2 sm:left-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-3.5 z-20 pointer-events-none"
                 >
                   <div className="relative shrink-0">
                     <ImageWithFallback
@@ -545,7 +624,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
               </AnimatePresence>
 
               {/* Synchronized Floating Card 2: Rating Pill (Top-right) */}
-              <div className="absolute top-6 -right-2 sm:right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-2.5 z-20">
+              <div className="absolute top-6 -right-2 sm:right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-2.5 z-20 pointer-events-none">
                 <div className="w-9 h-9 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand-hover)]">
                   <Award className="w-5 h-5 stroke-[2.2]" />
                 </div>
@@ -565,7 +644,7 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                   return (
                     <button
                       key={s.id}
-                      onClick={() => handleIndicatorClick(idx)}
+                      onClick={(e) => handleIndicatorClick(idx, e)}
                       title={`${s.serviceName} - ${s.professional}`}
                       className={`transition-all duration-300 rounded-full cursor-pointer ${
                         isActive

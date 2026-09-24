@@ -37,6 +37,9 @@ export const HomePage: React.FC<HomePageProps> = ({
       <Hero
         onExplore={() => onNavigate('/services')}
         onBook={() => onNavigate('/services')}
+        onNavigate={onNavigate}
+        onSelectService={onSelectService}
+        onSelectCategory={onSelectCategory}
       />
 
       <SmartSearchSection
