@@ -253,6 +253,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                   <div className="relative h-48 overflow-hidden bg-gray-100">
                     <ImageWithFallback
                       src={service.image}
+                      fallbackSrc={service.categoryImage}
                       alt={service.name}
                       fallbackTitle={service.name}
                       onClick={() => onSelectService(service.slug)}

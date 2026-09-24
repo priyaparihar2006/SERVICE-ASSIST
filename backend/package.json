@@ -12,6 +12,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "node prisma/seed.js",
+    "validate:service-images": "node scripts/validate-service-images.js",
     "admin:create": "node scripts/create-admin.js",
     "chat:rotate-keys": "node scripts/rotate-chat-keys.js",
     "test": "node --test --test-concurrency=1 test/*.test.js",

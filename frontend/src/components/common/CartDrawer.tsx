@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { ShoppingBag, X, Plus, Minus, Trash2, Tag, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { ImageWithFallback } from './ImageWithFallback';
 
 interface CartDrawerProps {
   onNavigate?: (path: string) => void;
@@ -103,11 +104,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {
                     className="p-3.5 rounded-2xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-[var(--color-brand-bright)]/40 transition-all shadow-xs"
                   >
                     <div className="flex gap-3">
-                      <img
+                      <ImageWithFallback
                         src={item.service.image}
+                        fallbackSrc={item.service.categoryImage}
+                        fallbackTitle={item.service.name}
                         alt={item.service.name}
                         className="w-16 h-16 rounded-xl object-cover shrink-0 border border-gray-100"
-                        referrerPolicy="no-referrer"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-1">

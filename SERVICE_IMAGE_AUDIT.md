@@ -1,0 +1,11 @@
+# Service image audit — 22 September 2026
+
+The local database contains 154 active services. Before this work, all 154 had a nonempty image reference, but 138 services used 13 shared SVG category tiles. The 15 remote service photos returned valid image responses during the audit; their exact visual relevance has not been established. The RO service already has a local photo gallery.
+
+Three visually reviewed, generated 3:2 photographs were added under `frontend/public/service-images`: `srv-ac-foamjet.png` (foam cleaning an AC unit), `srv-bathroom-deep.png` (bathroom floor scrubbing), and `srv-catalog-ac-appliances-ac-cooling-issue.png` (technician inspecting an AC unit). The prompt requested photorealistic editorial photography of a qualified professional actively performing the named service in a clean Indian home, with correct equipment, natural light, a clear central subject, and no logos, text, or watermark. A generated image for the combined washing machine and refrigerator service was rejected because it only depicted refrigerator repair.
+
+Repeatable migrations update the three exact service records and the AC and bathroom category images only when they still have their inspected old paths. Seed definitions for those services and categories now reference the local photos. The API includes `categoryImage` with each service. Listing, detail, recommendations, most booked, saved services, and cart previews use a shared component that tries the service image, then its category image, then a visible tile and logs failures locally.
+
+`cd backend && npm run validate:service-images` checks every active service image reference, local file signature, and remote response. Add `--verbose` for the complete shared-tile list, or `--strict` to fail while shared tiles remain. After migration it reports 154 valid references, 0 broken references, 137 shared SVG tiles, 13 remote service photos, 3 new service-specific local photos, and the existing RO local photo. The 137 shared tiles remain the largest gap against the requested distinct-photo goal.
+
+Frontend TypeScript and production build passed. Backend tests passed 60 cases. All 154 image references were checked, but all 154 pages were not browser-tested, and the distinct-photo requirement is incomplete. No commit or push was made.

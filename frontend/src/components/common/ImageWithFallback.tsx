@@ -3,6 +3,7 @@ import { Wrench } from 'lucide-react';
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackTitle?: string;
+  fallbackSrc?: string;
 }
 
 export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
@@ -10,14 +11,19 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   alt,
   className,
   fallbackTitle,
+  fallbackSrc,
   onError,
   onLoad,
   ...props
 }) => {
-  const [error, setError] = useState(false);
-  useEffect(() => setError(false), [src]);
+  const [failedSource, setFailedSource] = useState<string | undefined>();
+  const [failedFallback, setFailedFallback] = useState<string | undefined>();
+  useEffect(() => { setFailedSource(undefined); setFailedFallback(undefined); }, [src, fallbackSrc]);
+  const useFallback = !src || failedSource === src;
+  const currentSrc = useFallback && fallbackSrc !== src && failedFallback !== fallbackSrc ? fallbackSrc : src;
+  const showTile = !currentSrc || (useFallback && (!fallbackSrc || failedFallback === fallbackSrc || fallbackSrc === src));
 
-  if (error || !src) {
+  if (showTile) {
     return (
       <div
         className={`flex flex-col items-center justify-center bg-gradient-to-br from-[var(--color-brand-light)] to-[var(--color-brand-soft)] border border-[var(--color-brand-bright)]/20 text-[var(--color-brand)] p-4 text-center ${
@@ -37,11 +43,17 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
 
   return (
     <img
-      src={src}
+      src={currentSrc}
       alt={alt || 'Service Assist'}
       className={className}
-      onError={(event) => { setError(true); onError?.(event); }}
-      onLoad={(event) => { setError(false); onLoad?.(event); }}
+      onError={(event) => {
+        if (typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname))
+          console.warn('Service image failed to load:', currentSrc, alt);
+        if (currentSrc === fallbackSrc) setFailedFallback(fallbackSrc);
+        else setFailedSource(src);
+        onError?.(event);
+      }}
+      onLoad={(event) => { onLoad?.(event); }}
       referrerPolicy="no-referrer"
       loading="lazy"
       {...props}

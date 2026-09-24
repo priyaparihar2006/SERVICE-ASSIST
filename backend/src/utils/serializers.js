@@ -17,6 +17,7 @@ export const serviceView = (s) => ({
   ...s,
   startingPrice: Number(s.startingPrice),
   categoryName: s.category.name,
+  categoryImage: s.category.image,
   durationMin: s.duration,
   reviewsCount: s._count?.items || 0,
   variants: s.variants.map((v) => ({

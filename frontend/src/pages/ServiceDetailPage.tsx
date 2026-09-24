@@ -117,6 +117,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                 <ImageWithFallback
                   key={`${service.id}-${activeImage}`}
                   src={activeImage}
+                  fallbackSrc={service.categoryImage}
                   alt={`${service.name}: ${imageLabel(activeImage)}`}
                   fallbackTitle={service.name}
                   loading="eager"
@@ -137,7 +138,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                   aria-pressed={activeImageIndex === index}
                   onClick={() => { if (index !== activeImageIndex) { setActiveImageIndex(index); setImageLoading(true); } }}
                   className={`aspect-[3/2] overflow-hidden rounded-xl border-2 bg-gray-100 transition-colors cursor-pointer ${activeImageIndex === index ? 'border-[var(--color-brand)]' : 'border-transparent hover:border-[var(--color-brand)]/50'}`}
-                ><ImageWithFallback src={src} alt={`${service.name}: ${imageLabel(src)}`} fallbackTitle={service.name} className="h-full w-full object-cover" /></button>)}
+                ><ImageWithFallback src={src} fallbackSrc={service.categoryImage} alt={`${service.name}: ${imageLabel(src)}`} fallbackTitle={service.name} className="h-full w-full object-cover" /></button>)}
               </div>}
 
               <div>

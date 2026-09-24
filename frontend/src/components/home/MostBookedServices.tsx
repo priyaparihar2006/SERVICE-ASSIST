@@ -56,6 +56,7 @@ export const MostBookedServices: React.FC<MostBookedServicesProps> = ({
                 <div className="relative h-44 overflow-hidden bg-[var(--color-brand-light)]/30">
                   <ImageWithFallback
                     src={service.image}
+                    fallbackSrc={service.categoryImage}
                     alt={service.name}
                     fallbackTitle={service.name}
                     className="w-full h-full object-cover object-center group-hover:scale-106 transition-transform duration-500 cursor-pointer"

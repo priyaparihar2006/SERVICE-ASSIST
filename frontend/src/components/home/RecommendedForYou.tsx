@@ -60,6 +60,7 @@ export const RecommendedForYou: React.FC<RecommendedForYouProps> = ({
                 <div className="flex gap-4 mb-4">
                   <ImageWithFallback
                     src={service.image}
+                    fallbackSrc={service.categoryImage}
                     alt={service.name}
                     fallbackTitle={service.name}
                     className="w-24 h-24 rounded-2xl object-cover shrink-0 cursor-pointer group-hover:scale-105 transition-transform"

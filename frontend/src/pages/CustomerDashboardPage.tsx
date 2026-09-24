@@ -17,6 +17,7 @@ import {
 import { useCart } from '../context/CartContext';
 import { useChat } from '../context/ChatContext';
 import { chatApi } from '../services/chat';
+import { ImageWithFallback } from '../components/common/ImageWithFallback';
 
 interface CustomerDashboardPageProps {
   services: Service[];
@@ -520,12 +521,13 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                     className="bg-white rounded-3xl border border-gray-100 p-5 shadow-xs flex flex-col justify-between"
                   >
                     <div className="flex gap-3 mb-4">
-                      <img
+                      <ImageWithFallback
                         src={service.image}
+                        fallbackSrc={service.categoryImage}
+                        fallbackTitle={service.name}
                         alt={service.name}
                         className="w-20 h-20 rounded-2xl object-cover shrink-0 cursor-pointer"
                         onClick={() => onSelectService(service.slug)}
-                        referrerPolicy="no-referrer"
                       />
                       <div className="flex-1 min-w-0">
                         <h4

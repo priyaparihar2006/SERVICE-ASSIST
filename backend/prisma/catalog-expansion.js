@@ -77,7 +77,7 @@ export const EXPANDED_SERVICES = groups.flatMap(([categoryId, subcategory, baseP
       isDemo: true,
       startingPrice: basePrice,
       durationMin,
-      image: `/service-images/${imageKey}.svg`,
+      image: name === 'AC Cooling Issue' ? '/service-images/srv-catalog-ac-appliances-ac-cooling-issue.png' : `/service-images/${imageKey}.svg`,
       shortDesc, description,
       whatIncluded: isInspection ? ['On-site diagnosis', 'Itemized quote before additional work'] : ['Standard service visit', 'Scope confirmation before work'],
       whatExcluded: [...(isInspection ? ['Replacement parts', 'Repair work beyond diagnosis'] : ['Parts and optional add-ons']), ...(licenseNote ? ['Windows license purchase'] : [])],
