@@ -8,5 +8,6 @@ coverage/
 .local/
 backend/.pgdata/
 backend/.pglog
+backend/.local-postgres/
 test-results/
 playwright-report/

@@ -18,6 +18,7 @@ import { useCart } from '../context/CartContext';
 import { useChat } from '../context/ChatContext';
 import { chatApi } from '../services/chat';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
+import { getProfessionalImage } from '../utils/professionalImages';
 
 interface CustomerDashboardPageProps {
   services: Service[];
@@ -313,9 +314,20 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                   {/* Assigned Professional Card & Actions */}
                   <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)]">
-                        <UserCheck className="w-5 h-5" />
-                      </div>
+                      {booking.professionalId && booking.professionalName ? (
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-orange-200">
+                          <ImageWithFallback
+                            src={booking.professionalAvatar || getProfessionalImage({ name: booking.professionalName })}
+                            fallbackProfession={booking.serviceName}
+                            alt={booking.professionalName}
+                            className="w-full h-full object-cover object-top"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] shrink-0">
+                          <UserCheck className="w-5 h-5" />
+                        </div>
+                      )}
                       <div>
                         <span className="text-[10px] text-gray-400 font-bold uppercase block">
                           Assigned Professional

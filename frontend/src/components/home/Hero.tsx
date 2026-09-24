@@ -51,7 +51,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'HVAC Specialist',
     rating: '4.9',
     reviewsCount: '14,200+',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/ac-technician-1.jpg',
     eta: '15 mins',
     startingPrice: '₹499',
   },
@@ -65,7 +65,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Cleaning Specialist',
     rating: '4.9',
     reviewsCount: '11,450+',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/cleaner-1.jpg',
     eta: '20 mins',
     startingPrice: '₹999',
   },
@@ -79,7 +79,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Beauty Specialist',
     rating: '4.9',
     reviewsCount: '18,800+',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/beauty-1.jpg',
     eta: '25 mins',
     startingPrice: '₹799',
   },
@@ -93,7 +93,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Electrical Specialist',
     rating: '4.9',
     reviewsCount: '16,700+',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/electrician-1.jpg',
     eta: '12 mins',
     startingPrice: '₹199',
   },
@@ -107,7 +107,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Plumbing Specialist',
     rating: '4.8',
     reviewsCount: '13,100+',
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/plumber-1.jpg',
     eta: '15 mins',
     startingPrice: '₹149',
   },
@@ -121,7 +121,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Carpentry Specialist',
     rating: '4.9',
     reviewsCount: '8,600+',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/carpenter-1.jpg',
     eta: '30 mins',
     startingPrice: '₹249',
   },
@@ -135,7 +135,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Pest Control Specialist',
     rating: '4.8',
     reviewsCount: '7,400+',
-    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/pest-control-1.jpg',
     eta: '22 mins',
     startingPrice: '₹699',
   },
@@ -149,7 +149,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Master Painter',
     rating: '4.9',
     reviewsCount: '6,900+',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/painter-1.jpg',
     eta: '45 mins',
     startingPrice: '₹1,499',
   },
@@ -163,7 +163,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Appliance Engineer',
     rating: '4.8',
     reviewsCount: '9,100+',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/appliance-1.jpg',
     eta: '20 mins',
     startingPrice: '₹299',
   },
@@ -177,7 +177,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Sanitization Expert',
     rating: '4.9',
     reviewsCount: '15,300+',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/cleaner-2.jpg',
     eta: '18 mins',
     startingPrice: '₹449',
   },
@@ -191,7 +191,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Upholstery Specialist',
     rating: '4.8',
     reviewsCount: '8,400+',
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/cleaner-3.jpg',
     eta: '25 mins',
     startingPrice: '₹599',
   },
@@ -205,7 +205,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Relocation Lead',
     rating: '4.9',
     reviewsCount: '5,200+',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/movers-1.jpg',
     eta: '60 mins',
     startingPrice: '₹1,899',
   },
@@ -219,7 +219,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Interior Craftsman',
     rating: '4.9',
     reviewsCount: '4,280+',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/carpenter-2.jpg',
     eta: '30 mins',
     startingPrice: '₹499',
   },
@@ -233,7 +233,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Water Quality Tech',
     rating: '4.9',
     reviewsCount: '8,200+',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/water-purifier-1.jpg',
     eta: '20 mins',
     startingPrice: '₹399',
   },
@@ -247,7 +247,7 @@ export const HERO_SERVICES: HeroServiceItem[] = [
     role: 'Hardware Engineer',
     rating: '4.8',
     reviewsCount: '5,120+',
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80',
+    avatar: '/images/professionals/laptop-tech-1.jpg',
     eta: '35 mins',
     startingPrice: '₹349',
   },
@@ -505,10 +505,12 @@ export const Hero: React.FC<HeroProps> = ({ onExplore, onBook }) => {
                   className="absolute -bottom-6 -left-2 sm:left-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-3.5 z-20"
                 >
                   <div className="relative shrink-0">
-                    <img
+                    <ImageWithFallback
                       src={current.avatar}
+                      fallbackProfession={current.category}
+                      fallbackSrc={current.avatar}
                       alt={current.professional}
-                      className="w-12 h-12 rounded-xl object-cover border-2 border-[var(--color-brand)]"
+                      className="w-12 h-12 rounded-xl object-cover object-top border-2 border-[var(--color-brand)]"
                       referrerPolicy="no-referrer"
                     />
                     <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[var(--color-brand)] rounded-full border-2 border-white ring-1 ring-[var(--color-brand-bright)]" />

@@ -251,8 +251,8 @@ export const EXPANDED_SERVICES = groups.flatMap(([categoryId, subcategory, baseP
 );
 
 export const EXPANDED_PROFESSIONALS = [
-  { id: 'pro-demo-nails', name: 'Neha Singh', profession: 'Nail Technician', categoryId: 'cat-beauty', specialtySubcategories: ['Manicure & Pedicure'], experienceYears: 5, bio: 'Demo nail technician for manicure, pedicure and nail care requests.' },
-  { id: 'pro-demo-computers', name: 'Arjun Mehta', profession: 'Laptop Technician', categoryId: 'cat-laptop-computer', experienceYears: 6, bio: 'Demo laptop technician for computer repair, upgrades and software assistance.' },
-  { id: 'pro-demo-electronics', name: 'Rohan Kapoor', profession: 'Electronics Technician', categoryId: 'cat-electronics', experienceYears: 6, bio: 'Demo electronics technician for mobile, TV, CCTV and smart home assistance.' },
-  { id: 'pro-demo-appliances', name: 'Sanjay Verma', profession: 'Appliance Technician', categoryId: 'cat-ac-appliances', specialtySubcategories: ['Appliances'], experienceYears: 7, bio: 'Demo appliance technician for washing machines, refrigerators and home appliances.' },
+  { id: 'pro-demo-nails', name: 'Neha Singh', profession: 'Nail Technician', categoryId: 'cat-beauty', specialtySubcategories: ['Manicure & Pedicure'], experienceYears: 5, avatar: '/images/professionals/nail-tech-1.jpg', bio: 'Demo nail technician for manicure, pedicure and nail care requests.' },
+  { id: 'pro-demo-computers', name: 'Arjun Mehta', profession: 'Laptop Technician', categoryId: 'cat-laptop-computer', experienceYears: 6, avatar: '/images/professionals/laptop-tech-1.jpg', bio: 'Demo laptop technician for computer repair, upgrades and software assistance.' },
+  { id: 'pro-demo-electronics', name: 'Rohan Kapoor', profession: 'Electronics Technician', categoryId: 'cat-electronics', experienceYears: 6, avatar: '/images/professionals/electronics-1.jpg', bio: 'Demo electronics technician for mobile, TV, CCTV and smart home assistance.' },
+  { id: 'pro-demo-appliances', name: 'Sanjay Verma', profession: 'Appliance Technician', categoryId: 'cat-ac-appliances', specialtySubcategories: ['Appliances'], experienceYears: 7, avatar: '/images/professionals/appliance-1.jpg', bio: 'Demo appliance technician for washing machines, refrigerators and home appliances.' },
 ];

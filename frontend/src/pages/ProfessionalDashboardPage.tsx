@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { ProfileSettings } from '../components/account/ProfileSettings';
 import { ProfessionalSettings } from '../components/account/ProfessionalSettings';
 import { apiFetch } from '../services/api';
+import { ImageWithFallback } from '../components/common/ImageWithFallback';
+import { getProfessionalImage } from '../utils/professionalImages';
 import React, { useState, useEffect } from 'react';
 import { Booking } from '../types';
 import { useChat } from '../context/ChatContext';
@@ -84,10 +86,11 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
         {/* Partner Header Banner */}
         <div className="bg-gradient-to-br from-[var(--color-ink)] to-[var(--color-ink)] text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-brand/20">
           <div className="flex items-center gap-4">
-            <img
-              src={user?.avatar || '/favicon.svg'}
-              alt="Partner Profile"
-              className="w-16 h-16 rounded-2xl object-cover border-2 border-[var(--color-brand)]"
+            <ImageWithFallback
+              src={user?.avatar || getProfessionalImage(user)}
+              fallbackProfession={profile?.profession || 'HVAC Specialist'}
+              alt={user?.name || 'Partner Profile'}
+              className="w-16 h-16 rounded-2xl object-cover object-top border-2 border-[var(--color-brand)]"
               referrerPolicy="no-referrer"
             />
             <div>

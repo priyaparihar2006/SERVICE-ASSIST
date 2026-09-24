@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Wrench } from 'lucide-react';
+import { getProfessionFallbackImage } from '../../utils/professionalImages';
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackTitle?: string;
   fallbackSrc?: string;
+  fallbackProfession?: string;
 }
 
 export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
@@ -12,16 +14,31 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   className,
   fallbackTitle,
   fallbackSrc,
+  fallbackProfession,
   onError,
   onLoad,
   ...props
 }) => {
   const [failedSource, setFailedSource] = useState<string | undefined>();
   const [failedFallback, setFailedFallback] = useState<string | undefined>();
-  useEffect(() => { setFailedSource(undefined); setFailedFallback(undefined); }, [src, fallbackSrc]);
+
+  const effectiveFallback =
+    fallbackSrc ||
+    getProfessionFallbackImage(fallbackProfession || fallbackTitle || (alt as string) || '', alt as string || '');
+
+  useEffect(() => {
+    setFailedSource(undefined);
+    setFailedFallback(undefined);
+  }, [src, effectiveFallback]);
+
   const useFallback = !src || failedSource === src;
-  const currentSrc = useFallback && fallbackSrc !== src && failedFallback !== fallbackSrc ? fallbackSrc : src;
-  const showTile = !currentSrc || (useFallback && (!fallbackSrc || failedFallback === fallbackSrc || fallbackSrc === src));
+  const currentSrc =
+    useFallback && effectiveFallback !== src && failedFallback !== effectiveFallback
+      ? effectiveFallback
+      : src;
+  const showTile =
+    !currentSrc ||
+    (useFallback && (!effectiveFallback || failedFallback === effectiveFallback || effectiveFallback === src));
 
   if (showTile) {
     return (
@@ -49,11 +66,13 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
       onError={(event) => {
         if (typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname))
           console.warn('Service image failed to load:', currentSrc, alt);
-        if (currentSrc === fallbackSrc) setFailedFallback(fallbackSrc);
+        if (currentSrc === effectiveFallback) setFailedFallback(effectiveFallback);
         else setFailedSource(src);
         onError?.(event);
       }}
-      onLoad={(event) => { onLoad?.(event); }}
+      onLoad={(event) => {
+        onLoad?.(event);
+      }}
       referrerPolicy="no-referrer"
       loading="lazy"
       {...props}
