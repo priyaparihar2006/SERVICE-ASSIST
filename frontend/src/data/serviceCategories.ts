@@ -161,16 +161,5 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     servicesCount: 11,
     badge: 'Premium',
     popular: true,
-  },
-  {
-    id: 'cat-laptop-electronics',
-    slug: 'laptop-and-electronics',
-    name: 'Electronics Repair',
-    subtitle: 'Screen • Battery • Motherboard • Diagnostics',
-    description: 'On-site diagnostics for laptops, PCs, TV & devices',
-    image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80',
-    alt: 'Technician repairing a laptop computer and electronic device',
-    servicesCount: 8,
-    popular: true,
-  },
+  },
 ];

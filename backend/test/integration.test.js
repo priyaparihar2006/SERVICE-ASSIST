@@ -187,7 +187,7 @@ test('PostgreSQL-backed marketplace integration', async (t) => {
       const professional = await db.professional.findUnique({ where: { id }, select: { services: { select: { categoryId: true, subcategory: true } } } });
       assert.ok(professional?.services.length, id);
       assert.ok(professional.services.every((service) =>
-        (service.categoryId === category || (id === 'pro-demo-computers' && service.categoryId === 'cat-laptop-electronics')) &&
+        service.categoryId === category &&
         (!subcategory || service.subcategory === subcategory)), id);
     }
   });

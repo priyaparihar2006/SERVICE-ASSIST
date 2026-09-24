@@ -10,9 +10,11 @@ const demoPassword = password.parse(process.env.DEMO_PASSWORD);
 try {
   await db.$transaction(
     async (tx) => {
+      await tx.service.deleteMany({ where: { categoryId: 'cat-laptop-electronics' } });
+      await tx.category.deleteMany({ where: { id: 'cat-laptop-electronics' } });
       for (const c of CATEGORIES) {
         const { servicesCount, ...data } = c;
-        await tx.category.upsert({ where: { id: c.id }, create: data, update: {} });
+        await tx.category.upsert({ where: { id: c.id }, create: data, update: { image: data.image, name: data.name, description: data.description } });
       }
       const corrections = {
         'srv-sofa-cleaning': 'cat-sofa-cleaning',
@@ -126,7 +128,6 @@ try {
                 (!p.specialtySubcategories || p.specialtySubcategories.includes(s.subcategory || 'General')) &&
                 !(p.id === 'pro-priya' && s.subcategory === 'Manicure & Pedicure') &&
                 !(p.id === 'pro-rahul' && s.subcategory === 'Appliances')) ||
-              (p.categoryId === 'cat-laptop-computer' && s.categoryId === 'cat-laptop-electronics') ||
               (p.categoryId === 'cat-cleaning' &&
                 ['cat-sofa-cleaning', 'cat-bathroom-cleaning', 'cat-pest-control'].includes(
                   s.categoryId,
