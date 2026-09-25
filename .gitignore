@@ -11,5 +11,3 @@ backend/.pglog
 backend/.local-postgres/
 test-results/
 playwright-report/
-package-lock.json
-frontend/package-lock.json
