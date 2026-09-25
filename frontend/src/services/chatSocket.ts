@@ -1,6 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-
-const API_URL = (((import.meta as any).env?.VITE_API_URL as string | undefined) || '/api').replace(/\/$/, '');
+import { API_URL } from './api';
 
 /**
  * Opens the authenticated chat WebSocket. Authentication is the HttpOnly session cookie the browser
@@ -9,9 +8,10 @@ const API_URL = (((import.meta as any).env?.VITE_API_URL as string | undefined) 
  */
 export function createChatSocket(): Socket {
   const base = new URL(API_URL, window.location.origin);
+  const path = `${base.pathname.replace(/\/$/, '')}/socket.io`;
   return io(base.origin, {
-    path: `${base.pathname.replace(/\/$/, '')}/socket.io`,
-    transports: ['websocket'],
+    path,
+    transports: ['websocket', 'polling'],
     withCredentials: true,
     reconnection: true,
     reconnectionDelay: 1000,

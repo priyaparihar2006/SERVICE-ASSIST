@@ -4,8 +4,13 @@ import { db } from '../src/config/db.js';
 import { CATEGORIES, SERVICES, PROFESSIONALS, CITIES, COUPONS } from './catalog.js';
 import { EXPANDED_SERVICES, EXPANDED_PROFESSIONALS } from './catalog-expansion.js';
 import { password } from '../src/middleware/validate.js';
-if (process.env.NODE_ENV === 'production' || process.env.SEED_DEMO !== 'true')
-  throw new Error('Demo seeding requires SEED_DEMO=true outside production');
+if (process.env.SEED_DEMO !== 'true') {
+  console.log('Seeding skipped: set SEED_DEMO=true and DEMO_PASSWORD (min 8 chars, mixed case + digit) in your environment to seed categories and services.');
+  process.exit(0);
+}
+if (!process.env.DEMO_PASSWORD) {
+  throw new Error('Seeding error: DEMO_PASSWORD must be provided in environment when SEED_DEMO=true.');
+}
 const demoPassword = password.parse(process.env.DEMO_PASSWORD);
 try {
   await db.$transaction(
