@@ -35,6 +35,11 @@ For the full suite including admin login, run `npm run test:browser` from `backe
 
 ### Vercel
 
+Use Node.js 22.x (declared in both package manifests). From the repository root,
+run `npm run install:frontend` followed by `npm run build` to verify the deployment.
+Commit both package manifests and lockfiles together. The install includes dev
+and optional dependencies required by Vite and Tailwind's native build tools.
+
 The repository includes Vercel configuration for either the repository root or
 `frontend` as the project's Root Directory. Both explicitly select Vite, install
 only frontend dependencies, publish the static build, and rewrite browser routes
