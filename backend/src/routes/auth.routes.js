@@ -13,9 +13,19 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 const registration = z.object({
-  name: text,
+  name: z
+    .string()
+    .trim()
+    .min(2)
+    .max(100)
+    .regex(/^[a-zA-Z\s]+$/, 'Full name must contain only letters and spaces'),
   email: z.email().max(254),
-  phone: z.string().max(25).optional(),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^[6-9]\d{9}$/, 'Mobile phone must be a valid 10-digit Indian number')
+    .optional()
+    .or(z.literal('')),
   password,
   role: z.enum(['CUSTOMER', 'PROFESSIONAL']).default('CUSTOMER'),
   businessName: text.optional(),

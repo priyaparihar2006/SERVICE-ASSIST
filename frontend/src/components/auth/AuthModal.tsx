@@ -19,13 +19,60 @@ export const AuthModal: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      setError('Please enter your email address.');
+      return;
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(cleanEmail)) {
+      setError('Please enter a valid email address (e.g. name@example.com).');
+      return;
+    }
+
+    if (isRegisterMode) {
+      const cleanName = name.trim();
+      if (!cleanName) {
+        setError('Please enter your full name.');
+        return;
+      }
+      if (cleanName.length < 2) {
+        setError('Full name must be at least 2 characters long.');
+        return;
+      }
+      if (!/^[a-zA-Z\s]+$/.test(cleanName)) {
+        setError('Full name must contain only letters and spaces (numbers and symbols are not allowed).');
+        return;
+      }
+
+      const cleanPhone = phone.trim();
+      if (cleanPhone) {
+        if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+          setError('Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.');
+          return;
+        }
+      }
+
+      if (password.length < 12) {
+        setError('Password must be at least 12 characters long.');
+        return;
+      }
+    } else {
+      if (!password) {
+        setError('Please enter your password.');
+        return;
+      }
+    }
+
+    setLoading(true);
     try {
       if (isRegisterMode) {
-        await register(name, email, phone, password, selectedRole);
+        await register(name.trim(), cleanEmail, phone.trim(), password, selectedRole);
       } else {
-        await login(email, password);
+        await login(cleanEmail, password);
       }
     } catch (e: any) {
       setError(e.message || 'Authentication failed. Please try again.');
@@ -71,13 +118,13 @@ export const AuthModal: React.FC = () => {
             {error && (
               <div
                 role="alert"
-                className="p-2.5 sm:p-3 text-xs sm:text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl leading-relaxed break-words"
+                className="p-2.5 sm:p-3 text-xs sm:text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl leading-relaxed break-words font-medium"
               >
                 {error}
               </div>
             )}
 
-            {/* Full Name (Register only) */}
+            {/* Full Name (Register only - only letters and spaces allowed) */}
             {isRegisterMode && (
               <div>
                 <label htmlFor="auth-name" className="block text-xs font-semibold text-gray-700 mb-1">
@@ -93,7 +140,11 @@ export const AuthModal: React.FC = () => {
                     autoComplete="name"
                     placeholder="e.g. Priya Sharma"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      // Strictly filter out digits and special characters
+                      const clean = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                      setName(clean);
+                    }}
                     className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] focus:bg-white transition-all"
                   />
                 </div>
@@ -121,7 +172,7 @@ export const AuthModal: React.FC = () => {
               </div>
             </div>
 
-            {/* Mobile Phone (Register only) */}
+            {/* Mobile Phone (Register only - strictly 10 digits numeric) */}
             {isRegisterMode && (
               <div>
                 <label htmlFor="auth-phone" className="block text-xs font-semibold text-gray-700 mb-1">
@@ -133,11 +184,17 @@ export const AuthModal: React.FC = () => {
                     id="auth-phone"
                     name="phone"
                     type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
                     autoComplete="tel"
-                    placeholder="+91 98765 43210"
+                    placeholder="9876543210 (10 digits)"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] focus:bg-white transition-all"
+                    onChange={(e) => {
+                      // Strictly digits only, max 10 chars
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setPhone(digits);
+                    }}
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] focus:bg-white transition-all font-mono"
                   />
                 </div>
               </div>
