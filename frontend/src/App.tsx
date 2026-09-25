@@ -28,26 +28,45 @@ import { MessagesPage } from './pages/MessagesPage';
 // Types and default seed data
 import { Category, Service, Professional, Review, Booking } from './types';
 import { api, getAll } from './services/api';
+import {
+  DEFAULT_CATEGORIES,
+  DEFAULT_SERVICES,
+  DEFAULT_PROFESSIONALS,
+  DEFAULT_REVIEWS,
+} from './data/defaultCatalog';
 
 export function AppContent() {
   const [currentPath, setCurrentPath] = useState<string>(() => {
     return window.location.pathname + window.location.search || '/';
   });
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+  const [services, setServices] = useState<Service[]>(DEFAULT_SERVICES);
+  const [professionals, setProfessionals] = useState<Professional[]>(DEFAULT_PROFESSIONALS);
+  const [reviews, setReviews] = useState<Review[]>(DEFAULT_REVIEWS);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const { user, loading: authLoading, openAuthModal } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  // Load the persisted catalog
+
+  // Load the persisted catalog from API (syncs dynamically when backend is online)
   useEffect(() => {
-    Promise.all([api('/categories'), getAll('/services', 'services'), getAll('/professionals', 'professionals'), api('/reviews')])
-      .then(([c, s, p, r]) => { setCategories(c.categories); setServices(s); setProfessionals(p); setReviews(r.reviews); })
-      .catch(e => setError(e.message)).finally(() => setLoading(false));
+    Promise.all([
+      api('/categories').catch(() => null),
+      getAll('/services', 'services').catch(() => null),
+      getAll('/professionals', 'professionals').catch(() => null),
+      api('/reviews').catch(() => null),
+    ])
+      .then(([c, s, p, r]) => {
+        if (c?.categories && c.categories.length > 0) setCategories(c.categories);
+        if (s && s.length > 0) setServices(s);
+        if (p && p.length > 0) setProfessionals(p);
+        if (r?.reviews && r.reviews.length > 0) setReviews(r.reviews);
+      })
+      .catch((e) => {
+        console.warn('API sync notice:', e?.message || e);
+      });
   }, []);
 
   // Listen to browser popstate (back/forward)
