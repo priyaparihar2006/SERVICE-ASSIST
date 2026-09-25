@@ -51,6 +51,14 @@ build overrides and deploy the commit containing the configuration. A homepage
 showing `FUNCTION_INVOCATION_FAILED` indicates a failing function handled the
 request; this frontend is static and does not need a function to serve its HTML.
 
+If deployment reports `Missing script: "install:frontend"` together with Node
+`>=22`, check the selected Root Directory and deployment commit. In this checkout,
+`>=22` belongs to the backend package; the root and frontend packages use `22.x`.
+For a frontend-only Vercel project, set Root Directory to `frontend`, remove any
+Install Command override of `npm run install:frontend`, and use the commands from
+`frontend/vercel.json`: `npm ci --include=dev --include=optional`, `npm run build`,
+and output directory `dist`. Redeploy the commit containing these files.
+
 Set `VITE_API_URL=https://YOUR-API-HOST/api` in the Vercel production environment
 before building. Deploy the Express/PostgreSQL backend separately using the
 [backend guide](../backend/README.md), and include the exact frontend origin

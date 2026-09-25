@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "installCommand": "npm run install:frontend",
-  "buildCommand": "npm run build",
+  "installCommand": "npm --prefix frontend ci --include=dev --include=optional",
+  "buildCommand": "npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
   "rewrites": [
     { "source": "/((?!api(?:/|$)|assets(?:/|$)|.*\\.[^/]+$).*)", "destination": "/index.html" }
