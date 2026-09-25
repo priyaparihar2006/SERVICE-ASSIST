@@ -33,6 +33,32 @@ For the full suite including admin login, run `npm run test:browser` from `backe
 
 ## Production hosting
 
+### Vercel
+
+The repository includes Vercel configuration for either the repository root or
+`frontend` as the project's Root Directory. Both explicitly select Vite, install
+only frontend dependencies, publish the static build, and rewrite browser routes
+to `index.html`. API and asset requests are excluded from the SPA fallback.
+
+In Vercel Settings, use the repository root (leave Root Directory empty) or
+`frontend`, never `backend`, for the website project. Remove conflicting dashboard
+build overrides and deploy the commit containing the configuration. A homepage
+showing `FUNCTION_INVOCATION_FAILED` indicates a failing function handled the
+request; this frontend is static and does not need a function to serve its HTML.
+
+Set `VITE_API_URL=https://YOUR-API-HOST/api` in the Vercel production environment
+before building. Deploy the Express/PostgreSQL backend separately using the
+[backend guide](../backend/README.md), and include the exact frontend origin
+(for example `https://service-assist-steel.vercel.app`) in its `FRONTEND_ORIGINS`.
+Use a backend host that supports the persistent Socket.IO server. These Vercel
+configs deploy the website only; login, catalog, bookings and chat still require
+a working API. Local `backend/.env` values are not uploaded to Vercel automatically.
+
+After deployment, check `/`, refresh `/dashboard`, and confirm `/favicon.svg`
+loads. Check the deployed API's `/api/health` independently.
+
+### General hosting
+
 1. Set VITE_API_URL before `npm run build`, or host the API at the same site's `/api` path.
 2. Publish only `dist/` to your static host. Do not publish the backend environment or source secrets.
 3. Rewrite frontend routes such as `/services/ac-jet-service` and `/dashboard` to `index.html` so refresh works.
