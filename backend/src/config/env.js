@@ -61,8 +61,16 @@ function parseOrigins(value, nodeEnv) {
   }
   const parsed = new Set();
   for (const raw of list.split(',')) {
-    const entry = raw.trim();
+    const entry = raw.trim().replace(/\/+$/, '');
     if (!entry) continue;
+    if (entry === '*') {
+      parsed.add('*');
+      continue;
+    }
+    if (entry.includes('*')) {
+      parsed.add(entry);
+      continue;
+    }
     let url;
     try {
       url = new URL(entry);
@@ -72,18 +80,44 @@ function parseOrigins(value, nodeEnv) {
     if (
       !url ||
       !['http:', 'https:'].includes(url.protocol) ||
-      entry.includes('*') ||
       url.username ||
       url.password ||
-      url.pathname !== '/' ||
+      (url.pathname !== '/' && url.pathname !== '') ||
       url.search ||
       url.hash
     )
       throw new Error(
-        `FRONTEND_ORIGINS entry "${entry}" must be an exact origin such as http://localhost:5173 (no wildcard, path or query)`,
+        `FRONTEND_ORIGINS entry "${entry}" must be a valid origin (no path or query)`,
       );
     parsed.add(url.origin); // normalises a trailing slash, letter case and default ports
   }
   if (!parsed.size) throw new Error('FRONTEND_ORIGINS must list at least one origin');
   return [...parsed];
 }
+
+export function isAllowedOrigin(origin) {
+  if (!origin) return false;
+  try {
+    const url = new URL(origin);
+    const normalized = url.origin;
+    for (const allowed of origins) {
+      if (allowed === '*' || allowed === normalized) return true;
+      if (allowed.includes('*')) {
+        const regexStr =
+          '^' + allowed.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$';
+        if (new RegExp(regexStr).test(normalized)) return true;
+      }
+      // If any vercel domain or vercel origin is configured, allow Vercel project preview deployments
+      if (
+        (allowed.includes('.vercel.app') || allowed.includes('serviceassist')) &&
+        url.hostname.endsWith('.vercel.app')
+      ) {
+        return true;
+      }
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+

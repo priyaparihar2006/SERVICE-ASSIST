@@ -11,7 +11,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: FRONTEND_ORIGINS
-        value: https://serviceassist-mop9su4gi-priyaparihar2006s-projects.vercel.app
+        value: https://*.vercel.app,http://localhost:5173
       - key: COOKIE_SAME_SITE
         value: none
       - key: TRUST_PROXY

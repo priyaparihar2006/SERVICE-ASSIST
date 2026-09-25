@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { ZodError } from 'zod';
-import { env, origins } from './config/env.js';
+import { env, origins, isAllowedOrigin } from './config/env.js';
 import { db } from './config/db.js';
 import { HttpError, endpoint, ensure } from './utils/errors.js';
 import auth from './routes/auth.routes.js';
@@ -20,7 +20,18 @@ export const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', env.TRUST_PROXY);
 app.use(helmet());
-app.use(cors({ origin: origins, credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || isAllowedOrigin(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
 app.use(
@@ -32,7 +43,7 @@ app.use('/api', (req, res, next) => {
   try {
     if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
       const origin = req.get('Origin');
-      if (origin && !origins.includes(origin)) {
+      if (origin && !isAllowedOrigin(origin)) {
         // Development only: say which origin was refused, so a mismatch (another Vite port,
         // 127.0.0.1 instead of localhost) is obvious. Production stays generic.
         if (env.NODE_ENV !== 'development') throw new HttpError(403, 'Origin is not allowed');

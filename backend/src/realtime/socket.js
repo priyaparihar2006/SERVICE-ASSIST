@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import { parseCookie } from 'cookie';
 import { z } from 'zod';
 import { db } from '../config/db.js';
-import { env, origins } from '../config/env.js';
+import { env, origins, isAllowedOrigin } from '../config/env.js';
 import { authenticateToken } from '../middleware/auth.js';
 import {
   acknowledgeDelivery,
@@ -74,7 +74,7 @@ export function attachRealtime(httpServer) {
       // Browsers do not apply CORS/SameSite protections to WebSocket upgrades, so the Origin must be
       // checked here (cross-site WebSocket hijacking). Cookie authentication requires an Origin.
       const origin = req.headers.origin;
-      if (!origin || !origins.includes(origin)) return callback('Origin is not allowed', false);
+      if (!origin || !isAllowedOrigin(origin)) return callback('Origin is not allowed', false);
       if (!limiter.allow(clientIp(req))) return callback('Too many connection attempts', false);
       callback(null, true);
     },
