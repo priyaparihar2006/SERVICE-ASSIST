@@ -1,4 +1,4 @@
-import { Category, Service, Professional, Review } from '../types';
+import { Category, Service, Professional, Review, Coupon } from '../types';
 
 export const CITIES = [
   { id: 'agra', name: 'Agra', state: 'Uttar Pradesh', active: true },
@@ -1015,3 +1015,50 @@ export const DEFAULT_REVIEWS: Review[] = [
     verifiedBooking: true,
   },
 ];
+
+export const DEFAULT_COUPONS: Coupon[] = [
+  {
+    code: 'WELCOME150',
+    discountType: 'FLAT',
+    value: 150,
+    minBookingAmount: 399,
+    description: 'Flat ₹150 OFF on your first Service Assist service booking',
+    expiry: '2026-12-31',
+  },
+  {
+    code: 'CLEAN10',
+    discountType: 'PERCENTAGE',
+    value: 10,
+    minBookingAmount: 500,
+    maxDiscount: 200,
+    description: '10% OFF on all Cleaning & Pest Control services',
+    expiry: '2026-10-30',
+    categoryIds: ['cat-cleaning', 'cat-bathroom-cleaning', 'cat-sofa-cleaning', 'cat-pest-control'],
+  },
+  {
+    code: 'SALON200',
+    discountType: 'FLAT',
+    value: 200,
+    minBookingAmount: 799,
+    description: 'Flat ₹200 OFF on premium salon at home packages',
+    expiry: '2026-11-15',
+    categoryIds: ['cat-beauty'],
+  },
+  {
+    code: 'WEEKEND50',
+    discountType: 'FLAT',
+    value: 50,
+    minBookingAmount: 299,
+    description: '₹50 instant cash discount for weekend slots',
+    expiry: '2026-12-31',
+  },
+  {
+    code: 'FESTIVE300',
+    discountType: 'FLAT',
+    value: 300,
+    minBookingAmount: 1299,
+    description: 'Flat ₹300 OFF on full home service combos over ₹1299',
+    expiry: '2026-12-31',
+  },
+];
+

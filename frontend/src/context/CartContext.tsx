@@ -2,6 +2,7 @@ import { apiFetch } from '../services/api';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Service, ServiceVariant, CartItem, Address, Coupon } from '../types';
 import { useAuth } from './AuthContext';
+import { DEFAULT_COUPONS } from '../data/defaultCatalog';
 
 interface CartContextType {
   items: CartItem[];
@@ -179,6 +180,27 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCouponError(data.message || 'This coupon could not be applied');
       return false;
     } catch (e: any) {
+      // Local fallback validation using DEFAULT_COUPONS if network/backend is unreachable
+      const localCoupon = DEFAULT_COUPONS.find((c) => c.code.toUpperCase() === cleanCode);
+      if (localCoupon) {
+        if (subtotal < localCoupon.minBookingAmount) {
+          setCouponError(`Minimum booking amount of ₹${localCoupon.minBookingAmount} required for this coupon`);
+          return false;
+        }
+        let calculatedDiscount = 0;
+        if (localCoupon.discountType === 'FLAT') {
+          calculatedDiscount = Math.min(localCoupon.value, subtotal);
+        } else {
+          calculatedDiscount = Math.round((subtotal * localCoupon.value) / 100);
+          if (localCoupon.maxDiscount) {
+            calculatedDiscount = Math.min(calculatedDiscount, localCoupon.maxDiscount);
+          }
+        }
+        setAppliedCoupon({ ...localCoupon, discount: calculatedDiscount });
+        setCouponSuccess(`Coupon ${localCoupon.code} applied! Saved ₹${calculatedDiscount}`);
+        return true;
+      }
+
       // Show the server's actual reason (expired, minimum not met, wrong category, already used...).
       setCouponError(e.message || 'This coupon could not be applied');
       return false;
