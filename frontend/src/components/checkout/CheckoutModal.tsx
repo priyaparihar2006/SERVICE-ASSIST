@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useLocation } from '../../context/LocationContext';
 import { Booking } from '../../types';
+import { LiveBookingTrackerModal } from './LiveBookingTrackerModal';
 import {
   X,
   Calendar,
@@ -147,66 +148,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess }) => {
     }
   };
 
-  // If order confirmed, show Success Screen
+  // If order confirmed, show Live Booking Tracker Screen (Screenshot 2)
   if (confirmedBooking) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-        <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 sm:p-8 text-center overflow-hidden">
-          <div className="w-16 h-16 rounded-full bg-brand-light text-brand flex items-center justify-center mx-auto mb-4 animate-bounce">
-            <Check className="w-8 h-8 stroke-[3]" />
-          </div>
-
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] text-xs font-bold mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-[var(--color-brand)]" />
-            <span>Booking Confirmed!</span>
-          </div>
-
-          <h3 className="text-2xl font-black text-gray-900 tracking-tight mb-1 font-['Outfit']">
-            We've Received Your Booking
-          </h3>
-          <p className="text-xs text-gray-500 mb-6">
-            Your booking is saved. We will notify you when a professional is assigned.
-          </p>
-
-          {/* Details Card */}
-          <div className="bg-[var(--color-brand-soft)]/60 rounded-2xl p-4 text-left space-y-2.5 text-xs mb-6 border border-brand-light">
-            <div className="flex justify-between pb-2 border-b border-gray-200/60">
-              <span className="text-gray-500 font-medium">Booking Reference</span>
-              <span className="font-bold text-gray-900">{confirmedBooking.id}</span>
-            </div>
-            <div className="flex justify-between pb-2 border-b border-gray-200/60">
-              <span className="text-gray-500 font-medium">Scheduled Time</span>
-              <span className="font-bold text-[var(--color-brand-hover)]">
-                {confirmedBooking.scheduledDate} ({confirmedBooking.scheduledTimeSlot})
-              </span>
-            </div>
-            <div className="flex justify-between pb-2 border-b border-gray-200/60">
-              <span className="text-gray-500 font-medium">Assigned Professional</span>
-              <span className="font-bold text-gray-900">{confirmedBooking.professionalName}</span>
-            </div>
-            <div className="flex justify-between pb-2 border-b border-gray-200/60">
-              <span className="text-gray-500 font-medium">Service Verification OTP</span>
-              <span className="font-mono font-extrabold text-sm text-[var(--color-brand)] bg-[var(--color-brand-light)] px-2 py-0.5 rounded">
-                {confirmedBooking.verificationOtp}
-              </span>
-            </div>
-            <div className="flex justify-between pt-1 font-bold text-sm text-gray-900">
-              <span>Total Payable</span>
-              <span className="text-[var(--color-brand)] font-black">₹{confirmedBooking.total} ({confirmedBooking.paymentMethod})</span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => {
-              setConfirmedBooking(null);
-              closeCheckoutModal();
-            }}
-            className="w-full py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-brand/20 cursor-pointer"
-          >
-            Done & View My Bookings
-          </button>
-        </div>
-      </div>
+      <LiveBookingTrackerModal
+        booking={confirmedBooking}
+        onClose={() => {
+          setConfirmedBooking(null);
+          closeCheckoutModal();
+        }}
+      />
     );
   }
 

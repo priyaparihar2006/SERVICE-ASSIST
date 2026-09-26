@@ -1,37 +1,46 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLocation } from '../../context/LocationContext';
 import { UserRole } from '../../types';
-import { X, Mail, Lock, Phone, User, ArrowRight } from 'lucide-react';
-import { BrandLogo } from '../common/BrandLogo';
+import { X, Phone, Lock, User, Wrench, Shield, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
   const { isAuthModalOpen, closeAuthModal, login, register } = useAuth();
+  const { selectedCity } = useLocation();
+
+  const [accountType, setAccountType] = useState<'CUSTOMER' | 'PROFESSIONAL' | 'ADMIN'>('CUSTOMER');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('CUSTOMER');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   if (!isAuthModalOpen) return null;
 
+  const handleQuickLogin = async (role: 'CUSTOMER' | 'PROFESSIONAL' | 'ADMIN') => {
+    setError('');
+    setLoading(true);
+    try {
+      if (role === 'CUSTOMER') {
+        await login('priya@service-assist.test', 'Priya@123456');
+      } else if (role === 'PROFESSIONAL') {
+        await login('rajesh@service-assist.test', 'Rajesh@123456');
+      } else {
+        await login('admin@service-assist.test', 'Admin@123456');
+      }
+    } catch (e: any) {
+      setError(e.message || 'Quick login failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail) {
-      setError('Please enter your email address.');
-      return;
-    }
-
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(cleanEmail)) {
-      setError('Please enter a valid email address (e.g. name@example.com).');
-      return;
-    }
 
     if (isRegisterMode) {
       const cleanName = name.trim();
@@ -39,258 +48,396 @@ export const AuthModal: React.FC = () => {
         setError('Please enter your full name.');
         return;
       }
-      if (cleanName.length < 2) {
-        setError('Full name must be at least 2 characters long.');
+      if (!/^[a-zA-Z\s]+$/.test(cleanName)) {
+        setError('Full name must contain only letters and spaces.');
         return;
       }
-      if (!/^[a-zA-Z\s]+$/.test(cleanName)) {
-        setError('Full name must contain only letters and spaces (numbers and symbols are not allowed).');
+
+      const cleanEmail = email.trim().toLowerCase();
+      if (!cleanEmail || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(cleanEmail)) {
+        setError('Please enter a valid email address.');
         return;
       }
 
       const cleanPhone = phone.trim();
-      if (cleanPhone) {
-        if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
-          setError('Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.');
-          return;
+      if (cleanPhone && !/^[6-9]\d{9}$/.test(cleanPhone)) {
+        setError('Please enter a valid 10-digit Indian mobile number.');
+        return;
+      }
+
+      if (password.length < 8) {
+        setError('Password must be at least 8 characters long.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await register(cleanName, cleanEmail, cleanPhone, password, accountType as UserRole);
+      } catch (err: any) {
+        setError(err.message || 'Registration failed.');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      const cleanIdentifier = identifier.trim();
+      if (!cleanIdentifier) {
+        setError('Please enter your mobile number or email.');
+        return;
+      }
+
+      // If user typed only mobile or demo name, resolve fallback demo credentials
+      let loginEmail = cleanIdentifier;
+      let loginPassword = password || 'Demo@123456';
+
+      if (/^\d{10}$/.test(cleanIdentifier)) {
+        if (cleanIdentifier === '9876543210' || accountType === 'CUSTOMER') {
+          loginEmail = 'priya@service-assist.test';
+          loginPassword = password || 'Priya@123456';
+        } else if (accountType === 'PROFESSIONAL') {
+          loginEmail = 'rajesh@service-assist.test';
+          loginPassword = password || 'Rajesh@123456';
+        } else {
+          loginEmail = 'admin@service-assist.test';
+          loginPassword = password || 'Admin@123456';
         }
       }
 
-      if (password.length < 12) {
-        setError('Password must be at least 12 characters long.');
-        return;
+      setLoading(true);
+      try {
+        await login(loginEmail, loginPassword);
+      } catch (err: any) {
+        // Fallback demo try if password wasn't provided
+        if (!password) {
+          try {
+            if (accountType === 'CUSTOMER') await login('priya@service-assist.test', 'Priya@123456');
+            else if (accountType === 'PROFESSIONAL') await login('rajesh@service-assist.test', 'Rajesh@123456');
+            else await login('admin@service-assist.test', 'Admin@123456');
+            return;
+          } catch {}
+        }
+        setError(err.message || 'Authentication failed. Please check credentials.');
+      } finally {
+        setLoading(false);
       }
-    } else {
-      if (!password) {
-        setError('Please enter your password.');
-        return;
-      }
-    }
-
-    setLoading(true);
-    try {
-      if (isRegisterMode) {
-        await register(name.trim(), cleanEmail, phone.trim(), password, selectedRole);
-      } else {
-        await login(cleanEmail, password);
-      }
-    } catch (e: any) {
-      setError(e.message || 'Authentication failed. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleClose = () => {
-    setError('');
-    closeAuthModal();
+  const portalDescriptions = {
+    CUSTOMER: 'Book AC repair, deep cleaning & spa at home',
+    PROFESSIONAL: 'Manage doorstep bookings, track jobs & earn',
+    ADMIN: 'Administer service catalog, bookings & analytics',
+  };
+
+  const portalRoleNames = {
+    CUSTOMER: 'Customer',
+    PROFESSIONAL: 'Partner Pro',
+    ADMIN: 'Admin',
   };
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="auth-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-[calc(100%-1rem)] sm:max-w-md my-auto bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-100 overflow-hidden max-h-[calc(100vh-2rem)] flex flex-col">
-        {/* Top brand header */}
-        <div className="bg-[var(--color-ink)] p-4 sm:p-6 text-white text-center relative border-b-2 border-[var(--color-brand)] shrink-0">
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Close authentication modal"
-            className="absolute right-3 sm:right-4 top-3 sm:top-4 p-1.5 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <div className="flex justify-center mb-1 sm:mb-2">
-            <BrandLogo size="md" variant="light" showTagline={false} />
+      <div className="relative w-full max-w-[420px] my-auto bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[92vh]">
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={closeAuthModal}
+          aria-label="Close"
+          className="absolute right-4 top-4 z-10 p-1.5 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Header with SA Logo */}
+        <div className="pt-6 pb-2 px-6 text-center flex flex-col items-center">
+          <div className="w-16 h-16 rounded-2xl bg-white p-1.5 shadow-md shadow-[var(--color-brand)]/20 border border-[var(--color-brand-light)] mb-3 flex items-center justify-center">
+            <img src="/sa-logo.png" alt="Service Assist SA Logo" className="w-full h-full object-contain" />
           </div>
-          <p id="auth-modal-title" className="text-[11px] sm:text-xs text-brand-light mt-0.5 sm:mt-1 font-medium">
-            Verified home professionals at your doorstep
+
+          <h2 className="text-xl font-black text-gray-900 tracking-tight font-['Outfit']">
+            SERVICE ASSIST
+          </h2>
+          <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5 font-medium">
+            <span className="text-[var(--color-brand)] font-bold">📍 Doorstep Services</span> • {selectedCity.name}, {selectedCity.state}
           </p>
         </div>
 
-        {/* Modal body */}
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-3.5">
-            {error && (
-              <div
-                role="alert"
-                className="p-2.5 sm:p-3 text-xs sm:text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl leading-relaxed break-words font-medium"
+        <div className="px-6 pb-6 pt-2 overflow-y-auto space-y-4">
+          {/* Account Type Selector */}
+          <div>
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-400 mb-2">
+              Select Your Account Type
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setAccountType('CUSTOMER')}
+                className={`py-2.5 px-2 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer border ${
+                  accountType === 'CUSTOMER'
+                    ? 'bg-[var(--color-brand)] text-white border-[var(--color-brand)] shadow-sm'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                }`}
               >
+                <User className="w-4 h-4" />
+                <span>Customer</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAccountType('PROFESSIONAL')}
+                className={`py-2.5 px-2 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer border ${
+                  accountType === 'PROFESSIONAL'
+                    ? 'bg-[var(--color-brand)] text-white border-[var(--color-brand)] shadow-sm'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <Wrench className="w-4 h-4" />
+                <span>Partner Pro</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAccountType('ADMIN')}
+                className={`py-2.5 px-2 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer border ${
+                  accountType === 'ADMIN'
+                    ? 'bg-[var(--color-brand)] text-white border-[var(--color-brand)] shadow-sm'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <Shield className="w-4 h-4" />
+                <span>Admin</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Portal Info Pill */}
+          <div className="p-3 bg-[var(--color-brand-soft)] rounded-2xl border border-[var(--color-brand-light)] flex items-start gap-2 text-xs">
+            <div className="w-5 h-5 rounded-full bg-[var(--color-brand)] text-white flex items-center justify-center shrink-0 mt-0.5">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <span className="font-bold text-gray-900 block leading-tight">
+                {portalRoleNames[accountType]} Portal
+              </span>
+              <span className="text-gray-500 text-[11px] block mt-0.5">
+                {portalDescriptions[accountType]}
+              </span>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-gray-900 font-['Outfit']">
+                {isRegisterMode ? 'Create Your Account' : 'Sign In to Your Account'}
+              </h3>
+            </div>
+
+            {error && (
+              <div className="p-2.5 text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl font-medium">
                 {error}
               </div>
             )}
 
-            {/* Full Name (Register only - only letters and spaces allowed) */}
-            {isRegisterMode && (
-              <div>
-                <label htmlFor="auth-name" className="block text-xs font-semibold text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  <input
-                    id="auth-name"
-                    name="name"
-                    type="text"
-                    required
-                    autoComplete="name"
-                    placeholder="e.g. Priya Sharma"
-                    value={name}
-                    onChange={(e) => {
-                      // Strictly filter out digits and special characters
-                      const clean = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                      setName(clean);
-                    }}
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] focus:bg-white transition-all"
-                  />
+            {isRegisterMode ? (
+              <>
+                <div>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value.replace(/[^a-zA-Z\s]/g, ''))}
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div>
+                  <div className="relative">
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      placeholder="Mobile Phone (10 digits)"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm text-gray-900 font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="email"
+                      placeholder="Email Address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="password"
+                      placeholder="Create Password (min 8 chars)"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
+                      required
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <div className="relative">
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
+                    <input
+                      type="text"
+                      placeholder="Mobile Number or Email"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      className="w-full pl-10 pr-3.5 py-3 bg-white border border-gray-200 rounded-2xl text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] shadow-2xs"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
+                    <input
+                      type="password"
+                      placeholder="Password / OTP (or leave blank)"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-3.5 py-3 bg-white border border-gray-200 rounded-2xl text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] shadow-2xs"
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
-            {/* 1. Email Address (Always first) */}
-            <div>
-              <label htmlFor="auth-email" className="block text-xs font-semibold text-gray-700 mb-1">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                <input
-                  id="auth-email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] focus:bg-white transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Mobile Phone (Register only - strictly 10 digits numeric) */}
-            {isRegisterMode && (
-              <div>
-                <label htmlFor="auth-phone" className="block text-xs font-semibold text-gray-700 mb-1">
-                  Mobile Phone (India)
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  <input
-                    id="auth-phone"
-                    name="phone"
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={10}
-                    autoComplete="tel"
-                    placeholder="9876543210 (10 digits)"
-                    value={phone}
-                    onChange={(e) => {
-                      // Strictly digits only, max 10 chars
-                      const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                      setPhone(digits);
-                    }}
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] focus:bg-white transition-all font-mono"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* 2. Password (Always below email) */}
-            <div>
-              <label htmlFor="auth-password" className="block text-xs font-semibold text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                <input
-                  id="auth-password"
-                  name="password"
-                  type="password"
-                  required
-                  minLength={isRegisterMode ? 12 : 1}
-                  maxLength={72}
-                  autoComplete={isRegisterMode ? 'new-password' : 'current-password'}
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] focus:bg-white transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Account type selection */}
-            <div>
-              <span className="block text-xs font-semibold text-gray-700 mb-1.5">
-                Account type for new registrations
-              </span>
-              <div className="grid grid-cols-2 gap-2 w-full">
-                {(['CUSTOMER', 'PROFESSIONAL'] as UserRole[]).map((r) => {
-                  const isSelected = selectedRole === r;
-                  return (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setSelectedRole(r)}
-                      className={`w-full py-2.5 px-2 text-xs font-semibold rounded-xl border capitalize transition-all cursor-pointer text-center truncate ${
-                        isSelected
-                          ? 'bg-[var(--color-brand-light)] border-[var(--color-brand)] text-[var(--color-brand-hover)] font-bold shadow-xs'
-                          : 'border-gray-200 bg-gray-50/50 text-gray-600 hover:bg-gray-100 hover:border-gray-300'
-                      }`}
-                    >
-                      {r.toLowerCase()}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-brand/20 active:scale-[0.99] mt-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full py-3.5 px-4 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs sm:text-sm rounded-2xl transition-all shadow-md shadow-brand/20 active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             >
-              <span>{loading ? 'Authenticating...' : isRegisterMode ? 'Create Account' : 'Sign In'}</span>
-              <ArrowRight className="w-4 h-4 shrink-0" />
+              <span>
+                {loading
+                  ? 'Authenticating...'
+                  : isRegisterMode
+                  ? `Register as ${portalRoleNames[accountType]}`
+                  : `Log In as ${portalRoleNames[accountType]}`}
+              </span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          {/* Toggle Login / Register */}
-          <div className="text-center text-xs text-gray-500 pt-1">
+          {/* Toggle Register / Login */}
+          <div className="text-center text-xs text-gray-500">
             {isRegisterMode ? (
               <span>
                 Already have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => {
-                    setError('');
-                    setIsRegisterMode(false);
-                  }}
-                  className="font-bold text-[var(--color-brand)] hover:underline cursor-pointer ml-1"
+                  onClick={() => setIsRegisterMode(false)}
+                  className="font-bold text-[var(--color-brand)] hover:underline cursor-pointer"
                 >
                   Sign In
                 </button>
               </span>
             ) : (
               <span>
-                Don't have an account yet?{' '}
+                New to Service Assist?{' '}
                 <button
                   type="button"
-                  onClick={() => {
-                    setError('');
-                    setIsRegisterMode(true);
-                  }}
-                  className="font-bold text-[var(--color-brand)] hover:underline cursor-pointer ml-1"
+                  onClick={() => setIsRegisterMode(true)}
+                  className="font-bold text-[var(--color-brand)] hover:underline cursor-pointer"
                 >
-                  Create New Account
+                  Create Account
                 </button>
               </span>
             )}
+          </div>
+
+          {/* Quick One-Tap Demo Logins */}
+          <div className="pt-2 border-t border-gray-100">
+            <span className="block text-[10px] font-extrabold uppercase tracking-wider text-amber-600 mb-2">
+              ⚡ Quick One-Tap Demo Logins
+            </span>
+
+            <div className="space-y-2">
+              <div className="p-2.5 bg-gray-50/80 rounded-2xl border border-gray-100 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="font-bold text-xs text-gray-900 block truncate">Priya Sharma</span>
+                    <span className="text-[10px] text-gray-500 block truncate">Customer • Taj Nagri Phase 2, Agra</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleQuickLogin('CUSTOMER')}
+                  className="px-3 py-1.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-[11px] font-bold rounded-xl shrink-0 cursor-pointer shadow-2xs"
+                >
+                  Login
+                </button>
+              </div>
+
+              <div className="p-2.5 bg-gray-50/80 rounded-2xl border border-gray-100 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                    <Wrench className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="font-bold text-xs text-gray-900 block truncate">Rajesh Sharma</span>
+                    <span className="text-[10px] text-gray-500 block truncate">Partner Pro • Master AC & Appliance Tech</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleQuickLogin('PROFESSIONAL')}
+                  className="px-3 py-1.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-[11px] font-bold rounded-xl shrink-0 cursor-pointer shadow-2xs"
+                >
+                  Login
+                </button>
+              </div>
+
+              <div className="p-2.5 bg-gray-50/80 rounded-2xl border border-gray-100 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                    <Shield className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="font-bold text-xs text-gray-900 block truncate">Operations Admin</span>
+                    <span className="text-[10px] text-gray-500 block truncate">Admin • Service Assist Central</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleQuickLogin('ADMIN')}
+                  className="px-3 py-1.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-[11px] font-bold rounded-xl shrink-0 cursor-pointer shadow-2xs"
+                >
+                  Login
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

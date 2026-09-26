@@ -19,6 +19,7 @@ import { useChat } from '../context/ChatContext';
 import { chatApi } from '../services/chat';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
 import { getProfessionalImage } from '../utils/professionalImages';
+import { LiveBookingTrackerModal } from '../components/checkout/LiveBookingTrackerModal';
 
 interface CustomerDashboardPageProps {
   services: Service[];
@@ -40,6 +41,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
   const [activeTab, setActiveTab] = useState<'bookings' | 'addresses' | 'favorites'>('bookings');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTrackingBooking, setSelectedTrackingBooking] = useState<Booking | null>(null);
 
   // New address modal state
   const [isAddingAddr, setIsAddingAddr] = useState(false);
@@ -338,8 +340,36 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                       </div>
                     </div>
 
-                    {booking.status === 'COMPLETED' && <button className="underline text-sm" onClick={async () => { const rating = Number(prompt('Rate your service from 1 to 5')); if (!rating) return; const comment = prompt('Describe your experience'); if (!comment) return; try { await api('/reviews', { method: 'POST', body: JSON.stringify({ bookingId: booking.id, rating, comment }) }); alert('Review saved.'); } catch (e) { setError(e.message); } }}>Leave a review</button>}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {booking.status === 'COMPLETED' && (
+                        <button
+                          className="underline text-sm"
+                          onClick={async () => {
+                            const rating = Number(prompt('Rate your service from 1 to 5'));
+                            if (!rating) return;
+                            const comment = prompt('Describe your experience');
+                            if (!comment) return;
+                            try {
+                              await api('/reviews', { method: 'POST', body: JSON.stringify({ bookingId: booking.id, rating, comment }) });
+                              alert('Review saved.');
+                            } catch (e: any) {
+                              setError(e.message);
+                            }
+                          }}
+                        >
+                          Leave a review
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedTrackingBooking(booking)}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                      >
+                        <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Track Live Status</span>
+                      </button>
+
                       <button
                         disabled={!booking.professionalId || ['COMPLETED', 'CANCELLED'].includes(booking.status)}
                         title={booking.professionalId ? 'Message your professional privately while the job is active' : 'Waiting for professional assignment'}
@@ -347,7 +377,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                         className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-semibold hover:bg-[var(--color-brand-soft)] flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <MessageSquare className="w-3.5 h-3.5 text-[var(--color-brand)]" />
-                        <span>Chat with Professional</span>
+                        <span>Chat</span>
                         {!!unreadByBooking[booking.id] && <span className="rounded-full bg-brand px-1.5 text-white">{unreadByBooking[booking.id]}</span>}
                       </button>
                       {!booking.professionalId && <span className="text-xs text-gray-500">Waiting for professional assignment</span>}
@@ -355,7 +385,12 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                       <button
                         onClick={() => {
                           const text = `Service Assist booking receipt\nBooking: ${booking.id}\nCustomer: ${booking.userName}\nTotal: INR ${booking.total}\nPayment: ${booking.paymentStatus}\nThis is a booking receipt, not a tax invoice.`;
-                          const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); const a = document.createElement('a'); a.href = url; a.download = `${booking.id}-receipt.txt`; a.click(); URL.revokeObjectURL(url);
+                          const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `${booking.id}-receipt.txt`;
+                          a.click();
+                          URL.revokeObjectURL(url);
                         }}
                         className="px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-semibold hover:bg-gray-50 flex items-center gap-1.5 cursor-pointer"
                       >
@@ -576,6 +611,18 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
           </div>
         )}
       </div>
+
+      {/* Live Booking Tracker Modal (Screenshot 2) */}
+      {selectedTrackingBooking && (
+        <LiveBookingTrackerModal
+          booking={selectedTrackingBooking}
+          onClose={() => setSelectedTrackingBooking(null)}
+          onMessage={(bId) => {
+            setSelectedTrackingBooking(null);
+            onNavigate(`/messages?booking=${bId}`);
+          }}
+        />
+      )}
     </div>
   );
 };
