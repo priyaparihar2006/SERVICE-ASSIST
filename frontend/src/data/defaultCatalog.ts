@@ -885,6 +885,19 @@ const EXPANDED_SERVICE_GROUPS: [string, string, string, number, number, string, 
 const inspectionRegex = /repair|replacement|refill|issue|diagnosis|troubleshooting|installation|upgrade|assembly|formatting|data backup|water leakage|drain cleaning|blockage/i;
 const slugify = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
+const CATEGORY_DEFAULT_IMAGE: Record<string, string> = {
+  'cat-laptop-computer': 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80',
+  'cat-electronics': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
+  'cat-ac-appliances': '/service-images/srv-ac-foamjet.png',
+  'cat-cleaning': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80',
+  'cat-beauty': 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80',
+  'cat-electrician': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=800&q=80',
+  'cat-plumber': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
+  'cat-carpenter': 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=800&q=80',
+  'cat-painting': 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80',
+  'cat-pest-control': 'https://images.unsplash.com/photo-1632733711679-529326f6db37?auto=format&fit=crop&w=800&q=80',
+};
+
 const EXPANDED_CATALOG_SERVICES: Service[] = EXPANDED_SERVICE_GROUPS.flatMap(([categoryId, categoryName, subcategory, basePrice, durationMin, , names]) =>
   names.split('|').map((name) => {
     const slug = slugify(name);
@@ -893,7 +906,7 @@ const EXPANDED_CATALOG_SERVICES: Service[] = EXPANDED_SERVICE_GROUPS.flatMap(([c
     const feeNote = isInspection ? 'The listed price covers an inspection visit. Parts and additional work are quoted after diagnosis and require approval.' : 'The listed price covers the standard package.';
     const shortDesc = `${name} at your doorstep with clear scope and upfront transparent visit pricing.`;
     const id = `srv-catalog-${categoryId.slice(4)}-${slug}`;
-    const image = (SERVICE_IMAGE_MAP as Record<string, string>)[id] || `https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80`;
+    const image = CATEGORY_DEFAULT_IMAGE[categoryId] || `https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80`;
 
     return {
       id,
