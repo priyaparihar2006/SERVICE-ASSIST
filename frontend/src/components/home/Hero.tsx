@@ -384,14 +384,7 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* Left Column: Typography & CTAs */}
-          <div className="lg:col-span-6 space-y-6 sm:space-y-8">
-            {/* Small Trust Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-brand-light)] border border-[var(--color-brand)]/30 text-[var(--color-brand-hover)] text-xs font-bold shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-[var(--color-brand)] animate-pulse" />
-              <ShieldCheck className="w-4 h-4 text-[var(--color-brand)]" />
-              <span>Trusted professionals. Right at your doorstep.</span>
-            </div>
-
+          <div className="lg:col-span-6 space-y-6 sm:space-y-7">
             {/* Headline */}
             <div className="space-y-2">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[var(--color-brand-dark)] tracking-tight leading-[1.08] font-['Outfit']">

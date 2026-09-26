@@ -84,8 +84,7 @@ export function AppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleBookingSuccess = (booking: Booking) => {
-    // Optionally redirect to customer dashboard
+  const handleBookingSuccess = (_booking: Booking) => {
     navigate('/dashboard');
   };
 
@@ -93,15 +92,22 @@ export function AppContent() {
 
   // Route parsing
   const renderRoute = () => {
-    if (loading || authLoading) return <p role="status" className="p-10 text-center">Loading Service Assist...</p>;
+    if (loading) return <div className="p-16 text-center text-sm font-semibold text-[var(--color-brand-hover)]">Loading Service Assist...</div>;
     if (error) return <div role="alert" className="p-10 text-center">{error}<button className="ml-4 underline" onClick={() => window.location.reload()}>Retry</button></div>;
+
     const requiredRole = currentPath.startsWith('/admin') ? 'ADMIN' : currentPath.startsWith('/professional') ? 'PROFESSIONAL' : currentPath.startsWith('/dashboard') ? 'CUSTOMER' : null;
-    if (requiredRole && !user) return <div className="p-10 text-center"><p>Please sign in to continue.</p><button onClick={openAuthModal} className="mt-4 text-brand-hover">Sign in or register</button></div>;
+
+    if (requiredRole && authLoading) {
+      return <div className="p-16 text-center text-sm font-semibold text-[var(--color-brand-hover)]">Authenticating account...</div>;
+    }
+
+    if (requiredRole && !user) return <div className="p-12 text-center max-w-md mx-auto my-8 bg-white rounded-3xl border border-gray-100 shadow-xs"><p className="font-bold text-gray-800 mb-2">Please sign in to continue</p><p className="text-xs text-gray-500 mb-4">You need an active session to access your dashboard.</p><button onClick={openAuthModal} className="px-5 py-2.5 bg-[var(--color-brand)] text-white rounded-xl text-xs font-bold shadow-xs">Sign In or Register</button></div>;
     if (requiredRole && user?.role !== requiredRole) return <p role="alert" className="p-10 text-center">This page requires a {requiredRole.toLowerCase()} account.</p>;
 
     // Private chat (customers and professionals only)
     if (currentPath === '/messages' || currentPath.startsWith('/messages?')) {
-      if (!user) return <div className="p-10 text-center"><p>Please sign in to view your messages.</p><button onClick={openAuthModal} className="mt-4 text-brand-hover">Sign in or register</button></div>;
+      if (authLoading) return <div className="p-16 text-center text-sm font-semibold text-[var(--color-brand-hover)]">Loading messages...</div>;
+      if (!user) return <div className="p-12 text-center max-w-md mx-auto my-8 bg-white rounded-3xl border border-gray-100 shadow-xs"><p className="font-bold text-gray-800 mb-2">Please sign in to view your messages</p><button onClick={openAuthModal} className="px-5 py-2.5 bg-[var(--color-brand)] text-white rounded-xl text-xs font-bold shadow-xs">Sign In or Register</button></div>;
       if (user.role === 'ADMIN') return <p role="alert" className="p-10 text-center">Chat is available to customers and professionals.</p>;
       return <MessagesPage currentPath={currentPath} onNavigate={navigate} />;
     }
@@ -124,12 +130,14 @@ export function AppContent() {
 
     // All Services or Search
     if (currentPath === '/services' || currentPath.startsWith('/services?') || currentPath.startsWith('/search')) {
-      const urlParams = new URLSearchParams(window.location.search);
+      const queryString = currentPath.includes('?') ? currentPath.substring(currentPath.indexOf('?')) : window.location.search;
+      const urlParams = new URLSearchParams(queryString);
       const categoryParam = urlParams.get('category') || undefined;
       const searchParam = urlParams.get('search') || urlParams.get('q') || undefined;
 
       return (
-        <ServicesPage key={currentPath}
+        <ServicesPage
+          key={currentPath}
           services={services}
           categories={categories}
           initialCategory={categoryParam}
@@ -200,7 +208,9 @@ export function AppContent() {
       />
 
       {/* Main Page Body */}
-      <main className={`flex-1 ${isChatRoute ? '' : 'pb-16 md:pb-0'}`}>{renderRoute()}</main>
+      <main className={`flex-1 flex flex-col w-full ${isChatRoute ? '' : 'pb-16 md:pb-0'}`}>
+        {renderRoute()}
+      </main>
 
       {/* Global Footer (the chat screen is a full-height app view, so it has none) */}
       {!isChatRoute && <Footer onNavigate={navigate} />}

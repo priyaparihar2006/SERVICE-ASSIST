@@ -1,6 +1,6 @@
 import { apiFetch } from '../../services/api';
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, X, Sparkles, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Bot, Send, X, Sparkles, ArrowRight } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -15,6 +15,72 @@ interface ChatMessage {
 
 interface HomeAIAssistantProps {
   onNavigate?: (path: string) => void;
+}
+
+// Local smart diagnostic helper for instant fallback
+function getLocalDiagnosis(query: string): { text: string; action: { title: string; link: string } } {
+  const q = query.toLowerCase();
+
+  if (q.includes('ac') || q.includes('air conditioner') || q.includes('cool') || q.includes('filter')) {
+    return {
+      text: "Based on your description, your AC likely needs deep jet cleaning or refrigerant gas level check. Regular servicing restores fast cooling and reduces power consumption.",
+      action: { title: "Explore AC & Appliance Services", link: "/services?category=cat-appliances" },
+    };
+  }
+
+  if (q.includes('leak') || q.includes('pipe') || q.includes('tap') || q.includes('faucet') || q.includes('drain') || q.includes('plumb') || q.includes('water')) {
+    return {
+      text: "Plumbing leaks or drain blocks should be addressed quickly to prevent water damage. Our verified doorstep plumbers carry standard replacement fittings for instant fix.",
+      action: { title: "Explore Plumbing Services", link: "/services?category=cat-plumbing" },
+    };
+  }
+
+  if (q.includes('clean') || q.includes('dust') || q.includes('bhk') || q.includes('sofa') || q.includes('bathroom') || q.includes('kitchen')) {
+    return {
+      text: "We offer professional deep cleaning using mechanized scrubbing, steam sanitization, and eco-friendly solutions for homes, kitchens, bathrooms, and upholstery.",
+      action: { title: "Explore Cleaning Packages", link: "/services?category=cat-cleaning" },
+    };
+  }
+
+  if (q.includes('salon') || q.includes('hair') || q.includes('facial') || q.includes('wax') || q.includes('makeup') || q.includes('spa') || q.includes('massage') || q.includes('pedicure') || q.includes('manicure')) {
+    return {
+      text: "Our certified beauticians bring single-use hygiene kits and premium salon products right to your home for a safe, pampering experience.",
+      action: { title: "Explore Salon & Spa Services", link: "/services?category=cat-salon-women" },
+    };
+  }
+
+  if (q.includes('laptop') || q.includes('computer') || q.includes('windows') || q.includes('mac') || q.includes('screen') || q.includes('keyboard') || q.includes('ram') || q.includes('ssd') || q.includes('slow')) {
+    return {
+      text: "Our certified hardware and software technicians provide doorstep diagnostics, SSD/RAM upgrades, screen replacements, and OS tune-ups with full data privacy.",
+      action: { title: "Explore Laptop & Computer Repair", link: "/services?category=cat-laptop-repair" },
+    };
+  }
+
+  if (q.includes('electric') || q.includes('switch') || q.includes('light') || q.includes('wire') || q.includes('fan') || q.includes('mcb') || q.includes('fuse') || q.includes('shock')) {
+    return {
+      text: "Our licensed electricians can safely fix tripping breakers, faulty switchboards, ceiling fans, and indoor wiring with standard warranty on parts.",
+      action: { title: "Explore Electrician Services", link: "/services?category=cat-electrician" },
+    };
+  }
+
+  if (q.includes('paint') || q.includes('wall') || q.includes('damp') || q.includes('waterproof')) {
+    return {
+      text: "We provide dust-free mechanical sanding, moisture meter assessment, and professional wall painting with top Asian Paints / Berger paints.",
+      action: { title: "Explore Painting Services", link: "/services?category=cat-painting" },
+    };
+  }
+
+  if (q.includes('pest') || q.includes('cockroach') || q.includes('termite') || q.includes('bedbug') || q.includes('ant') || q.includes('mosquito')) {
+    return {
+      text: "Our eco-safe pest control treatments use government-approved odorless gels and sprays that are 100% safe for pets and children.",
+      action: { title: "Explore Pest Control Services", link: "/services?category=cat-pest-control" },
+    };
+  }
+
+  return {
+    text: "I recommend scheduling a doorstep diagnostic inspection with our verified Service Assist professionals. We offer standard upfront pricing, verified specialists, and a 30-day rework warranty.",
+    action: { title: "Browse All Services", link: "/services" },
+  };
 }
 
 export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) => {
@@ -59,26 +125,34 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: textToSend }),
       });
+
+      if (!res.ok) {
+        throw new Error('API unavailable');
+      }
+
       const data = await res.json();
+      const local = getLocalDiagnosis(textToSend);
 
       const botMsg: ChatMessage = {
         id: `bot-${Date.now()}`,
         sender: 'bot',
-        text: data.reply?.replace(/\[ACTION:.*?\]/g, '').trim() || "Here's what I recommend for your home.",
+        text: data.reply?.replace(/\[ACTION:.*?\]/g, '').trim() || local.text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        action: data.action,
+        action: data.action || local.action,
       };
 
       setMessages((prev) => [...prev, botMsg]);
-    } catch (err) {
+    } catch {
+      // Graceful local diagnosis fallback
+      const local = getLocalDiagnosis(textToSend);
       setMessages((prev) => [
         ...prev,
         {
           id: `bot-${Date.now()}`,
           sender: 'bot',
-          text: err.message || "HomeAI is unavailable. Please browse our services.",
+          text: local.text,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          action: { title: 'View All Services', link: '/services' },
+          action: local.action,
         },
       ]);
     } finally {
@@ -174,7 +248,7 @@ export const HomeAIAssistant: React.FC<HomeAIAssistantProps> = ({ onNavigate }) 
                         if (onNavigate) onNavigate(msg.action!.link);
                         setIsOpen(false);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer transition-transform hover:scale-105"
                     >
                       <span>{msg.action.title}</span>
                       <ArrowRight className="w-3.5 h-3.5" />

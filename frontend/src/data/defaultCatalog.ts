@@ -13,7 +13,7 @@ export const CITIES = [
 
 export const CITY_NAMES = CITIES.map((c) => c.name);
 
-export const DEFAULT_CATEGORIES: Category[] = [
+const RAW_CATEGORIES: Category[] = [
   {
     id: 'cat-laptop-computer',
     slug: 'laptop-and-computer',
@@ -46,7 +46,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     bgPastel: '#FFF1E5',
     badge: 'Popular',
     image: '/service-images/srv-ac-foamjet.png',
-    servicesCount: 14,
+    servicesCount: 17,
   },
   {
     id: 'cat-cleaning',
@@ -70,7 +70,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     bgPastel: '#FCE7F3',
     badge: 'Best Rated',
     image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 22,
+    servicesCount: 34,
   },
   {
     id: 'cat-electrician',
@@ -92,7 +92,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     color: '#3B82F6',
     bgPastel: '#DBEAFE',
     image: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 12,
+    servicesCount: 14,
   },
   {
     id: 'cat-carpenter',
@@ -103,7 +103,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     color: '#8B5CF6',
     bgPastel: '#EDE9FE',
     image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 9,
+    servicesCount: 5,
   },
   {
     id: 'cat-pest-control',
@@ -115,7 +115,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     bgPastel: '#CCFBF1',
     badge: 'Warranty',
     image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 8,
+    servicesCount: 5,
   },
   {
     id: 'cat-painting',
@@ -126,7 +126,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     color: '#FF7A00',
     bgPastel: '#FFF1E5',
     image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 10,
+    servicesCount: 4,
   },
   {
     id: 'cat-moving',
@@ -137,7 +137,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     color: '#F97316',
     bgPastel: '#FFEDD5',
     image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 6,
+    servicesCount: 4,
   },
   {
     id: 'cat-appliance-repair',
@@ -149,7 +149,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     bgPastel: '#FFF1E5',
     badge: 'Same Day',
     image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 12,
+    servicesCount: 10,
   },
   {
     id: 'cat-bathroom-cleaning',
@@ -161,7 +161,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     bgPastel: '#DBEAFE',
     badge: 'Popular',
     image: '/service-images/srv-bathroom-deep.png',
-    servicesCount: 8,
+    servicesCount: 3,
   },
   {
     id: 'cat-sofa-cleaning',
@@ -172,7 +172,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     color: '#8B5CF6',
     bgPastel: '#EDE9FE',
     image: 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 7,
+    servicesCount: 3,
   },
   {
     id: 'cat-water-purifier',
@@ -183,7 +183,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     color: '#0EA5E9',
     bgPastel: '#E0F2FE',
     image: '/service-images/ro-purifier/servicing.png',
-    servicesCount: 6,
+    servicesCount: 4,
   },
   {
     id: 'cat-home-improvement',
@@ -195,11 +195,11 @@ export const DEFAULT_CATEGORIES: Category[] = [
     bgPastel: '#FFF1E5',
     badge: 'Premium',
     image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
-    servicesCount: 11,
+    servicesCount: 4,
   },
 ];
 
-export const DEFAULT_SERVICES: Service[] = [
+const FEATURED_PRIMARY_SERVICES: Service[] = [
   {
     id: 'srv-ac-foamjet',
     slug: 'ac-jet-service',
@@ -860,6 +860,101 @@ export const DEFAULT_SERVICES: Service[] = [
     ],
   },
 ];
+
+const EXPANDED_SERVICE_GROUPS: [string, string, string, number, number, string, string][] = [
+  ['cat-beauty', 'Beauty & Salon', 'Hair Services', 349, 60, 'hair', "Women's Haircut|Men's Haircut|Kids Haircut|Hair Styling|Hair Spa|Hair Wash & Blow Dry|Hair Coloring|Hair Smoothening|Hair Straightening|Beard Styling|Beard Trimming|Head Massage"],
+  ['cat-beauty', 'Beauty & Salon', 'Manicure & Pedicure', 399, 60, 'nails', 'Basic Manicure|Premium Manicure|Gel Manicure|Nail Art|Basic Pedicure|Spa Pedicure|Gel Pedicure|Foot Spa|Cuticle Care'],
+  ['cat-beauty', 'Beauty & Salon', 'Facial & Skincare', 499, 60, 'skincare', 'Basic Facial|Glow Facial|Deep Cleansing Facial|Cleanup|De-Tan Treatment|Skin Care Consultation'],
+  ['cat-beauty', 'Beauty & Salon', 'Beauty Services', 299, 45, 'beauty', 'Waxing|Full Body Waxing|Eyebrow Threading|Upper Lip Threading|Bridal Makeup|Party Makeup|Saree Draping'],
+  ['cat-laptop-computer', 'Laptop & Computer', 'Laptop Repair', 299, 60, 'laptop', 'Laptop Screen Replacement|Laptop Keyboard Replacement|Laptop Battery Replacement|Laptop Charging Port Repair|Laptop Overheating Fix|Laptop Fan Cleaning|Laptop Hinge Repair|Laptop Motherboard Diagnosis|Laptop Speaker Repair|Laptop Webcam Repair|Laptop Touchpad Repair'],
+  ['cat-laptop-computer', 'Laptop & Computer', 'Software Services', 399, 60, 'software', 'Windows Installation|Windows Activation Assistance|Driver Installation|Software Installation|Laptop Formatting|Virus & Malware Removal|Laptop Performance Optimization|Data Backup Assistance|Operating System Troubleshooting'],
+  ['cat-laptop-computer', 'Laptop & Computer', 'Hardware & Upgrades', 299, 60, 'laptop', 'RAM Upgrade|SSD Upgrade|HDD Replacement|Laptop Cleaning|Desktop Assembly|Computer Repair|Printer Setup|Wi-Fi & Network Troubleshooting'],
+  ['cat-electronics', 'Electronics', 'Mobile & Tablet', 299, 60, 'mobile', 'Mobile Screen Repair|Mobile Battery Replacement|Charging Port Repair|Software Troubleshooting|Tablet Repair'],
+  ['cat-electronics', 'Electronics', 'Home Electronics', 399, 75, 'electronics', 'TV Installation|TV Wall Mounting|TV Repair|Speaker Installation|Home Theatre Setup|CCTV Installation|CCTV Troubleshooting'],
+  ['cat-electronics', 'Electronics', 'Smart Home', 399, 60, 'smart-home', 'Smart Doorbell Installation|Smart Lock Installation|Smart Device Setup|Wi-Fi Router Installation|Smart TV Setup'],
+  ['cat-electronics', 'Electronics', 'Other Electronics', 299, 60, 'electronics', 'Printer Repair|Scanner Setup|Gaming Console Cleaning|Computer Peripheral Setup'],
+  ['cat-electrician', 'Electrician', 'Electrical Repairs', 299, 60, 'electrical', 'Switch & Socket Repair|Ceiling Fan Repair|Inverter Repair|Wiring Repair|Short Circuit Inspection|Geyser Electrical Repair'],
+  ['cat-electrician', 'Electrician', 'Electrical Installation', 349, 60, 'electrical', 'Fan Installation|Light Installation|LED Light Installation|Chandelier Installation|Inverter Installation|MCB Replacement|Doorbell Installation|Exhaust Fan Installation'],
+  ['cat-plumber', 'Plumbing', 'Plumbing Repairs', 299, 60, 'plumbing', 'Tap Repair|Wash Basin Repair|Toilet Repair|Water Leakage Repair|Pipe Repair|Drain Cleaning|Sink Blockage Removal'],
+  ['cat-plumber', 'Plumbing', 'Plumbing Installation', 399, 75, 'plumbing', 'Tap Installation|Basin Installation|Toilet Installation|Shower Installation|Bathroom Fitting Installation'],
+  ['cat-cleaning', 'Home Cleaning', 'Home Cleaning', 1499, 180, 'cleaning', 'Full Home Cleaning|Kitchen Deep Cleaning|Bathroom Deep Cleaning|Sofa Cleaning|Carpet Cleaning|Mattress Cleaning|Floor Cleaning|Window Cleaning|Water Tank Cleaning|Move-in Cleaning|Move-out Cleaning|Balcony Cleaning'],
+  ['cat-ac-appliances', 'AC & Appliances', 'AC Services', 499, 75, 'ac', 'AC General Servicing|AC Deep Cleaning|AC Gas Refill|AC Installation|AC Uninstallation|AC Repair|AC Cooling Issue|AC Water Leakage Repair'],
+  ['cat-ac-appliances', 'AC & Appliances', 'Appliances', 399, 75, 'appliances', 'Washing Machine Repair|Refrigerator Repair|Microwave Repair|Dishwasher Repair|Geyser Repair|Chimney Cleaning|RO Water Purifier Service|RO Installation|RO Repair'],
+];
+
+const inspectionRegex = /repair|replacement|refill|issue|diagnosis|troubleshooting|installation|upgrade|assembly|formatting|data backup|water leakage|drain cleaning|blockage/i;
+const slugify = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+const EXPANDED_CATALOG_SERVICES: Service[] = EXPANDED_SERVICE_GROUPS.flatMap(([categoryId, categoryName, subcategory, basePrice, durationMin, , names]) =>
+  names.split('|').map((name) => {
+    const slug = slugify(name);
+    const isInspection = inspectionRegex.test(name);
+    const priceType = isInspection ? ('INSPECTION' as const) : ('FIXED' as const);
+    const feeNote = isInspection ? 'The listed price covers an inspection visit. Parts and additional work are quoted after diagnosis and require approval.' : 'The listed price covers the standard package.';
+    const shortDesc = `${name} at your doorstep with clear scope and upfront transparent visit pricing.`;
+    const id = `srv-catalog-${categoryId.slice(4)}-${slug}`;
+    const image = (SERVICE_IMAGE_MAP as Record<string, string>)[id] || `https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80`;
+
+    return {
+      id,
+      slug: `${slug}-${categoryId.slice(4)}`,
+      name,
+      categoryId,
+      categoryName,
+      subcategory,
+      priceType,
+      serviceType: (categoryId === 'cat-laptop-computer' || categoryId === 'cat-electronics' ? 'PICKUP_OR_HOME_VISIT' : 'HOME_VISIT') as const,
+      rating: 4.85,
+      reviewsCount: 320,
+      startingPrice: basePrice,
+      originalPrice: Math.round(basePrice * 1.4),
+      durationMin,
+      image,
+      locations: CITY_NAMES,
+      shortDesc,
+      description: `${shortDesc} ${feeNote} Verified professionals assignation with satisfaction warranty.`,
+      whatIncluded: isInspection ? ['On-site diagnosis by verified specialist', 'Itemized transparent quote before additional work'] : ['Standard doorstep service execution', 'Scope confirmation & post-work verification'],
+      whatExcluded: isInspection ? ['Cost of replacement spare parts or extra hardware'] : ['Parts and optional add-ons'],
+      whyChoose: ['Verified professional assignment', 'Upfront pricing with 30-day service warranty', 'Timely doorstep arrival'],
+      faqs: [{ question: 'Are replacement parts included?', answer: isInspection ? 'No, spare parts are provided at genuine MRP with itemized approval before installation.' : 'Items explicitly listed in the package are included.' }],
+      variants: [{
+        id: `var-catalog-${categoryId.slice(4)}-${slug}`,
+        name: isInspection ? 'Inspection & Diagnostic Visit' : 'Standard Service Package',
+        price: basePrice,
+        originalPrice: Math.round(basePrice * 1.4),
+        durationMin,
+        description: feeNote,
+        included: isInspection ? ['Diagnosis and itemized quote'] : ['Standard doorstep service visit'],
+      }],
+      popular: false,
+      trending: false,
+    };
+  })
+);
+
+// Merge featured primary services with full expanded catalog without duplicates
+const existingSlugs = new Set(FEATURED_PRIMARY_SERVICES.map(s => s.slug));
+const combinedServices: Service[] = [
+  ...FEATURED_PRIMARY_SERVICES,
+  ...EXPANDED_CATALOG_SERVICES.filter(s => !existingSlugs.has(s.slug) && !FEATURED_PRIMARY_SERVICES.some(f => f.name.toLowerCase() === s.name.toLowerCase()))
+];
+
+export const DEFAULT_SERVICES: Service[] = combinedServices;
+
+// Dynamically compute exact servicesCount for every category from the exact same source of truth
+export const DEFAULT_CATEGORIES: Category[] = RAW_CATEGORIES.map((cat) => {
+  const matching = DEFAULT_SERVICES.filter((s) => {
+    if (s.categoryId === cat.id) return true;
+    if (cat.id === 'cat-cleaning' && ['cat-cleaning', 'cat-bathroom-cleaning', 'cat-sofa-cleaning', 'cat-pest-control'].includes(s.categoryId)) return true;
+    if (cat.id === 'cat-ac-appliances' && ['cat-ac-appliances', 'cat-water-purifier', 'cat-appliance-repair'].includes(s.categoryId)) return true;
+    return false;
+  });
+
+  return {
+    ...cat,
+    servicesCount: matching.length > 0 ? matching.length : 1,
+  };
+});
 
 export const DEFAULT_PROFESSIONALS: Professional[] = [
   {
