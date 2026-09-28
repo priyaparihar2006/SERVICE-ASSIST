@@ -123,7 +123,7 @@ fun ChatListScreen(
                         Text(
                             text = "Service Messages",
                             style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 18.sp
                             ),
                             color = colors.textPrimary
@@ -232,9 +232,9 @@ fun ChatListScreen(
                                 Text(
                                     text = tab.label,
                                     style = MaterialTheme.typography.labelMedium.copy(
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                        fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Medium,
                                         fontSize = 13.5.sp,
-                                        letterSpacing = (-0.2).sp
+                                        letterSpacing = 0.sp
                                     ),
                                     color = if (isSelected) Color.White /* theme-invariant */ else colors.textPrimary,
                                     maxLines = 1,
@@ -253,8 +253,8 @@ fun ChatListScreen(
                                         Text(
                                             text = activeUnreadCount.toString(),
                                             style = MaterialTheme.typography.labelSmall.copy(
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Medium
                                             ),
                                             color = if (isSelected) colors.success else Color.White /* theme-invariant */
                                         )
@@ -354,7 +354,7 @@ private fun ConversationItem(
                 Text(
                     text = initials,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 16.sp
                     ),
                     color = colors.success
@@ -373,7 +373,7 @@ private fun ConversationItem(
                     Text(
                         text = conversation.counterpartName,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = if (isUnread) FontWeight.Bold else FontWeight.SemiBold,
+                            fontWeight = if (isUnread) FontWeight.Medium else FontWeight.Medium,
                             fontSize = 15.sp
                         ),
                         color = colors.textPrimary,
@@ -389,7 +389,7 @@ private fun ConversationItem(
                             text = timeFormatted,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontSize = 11.sp,
-                                fontWeight = if (isUnread) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (isUnread) FontWeight.Medium else FontWeight.Normal
                             ),
                             color = if (isUnread) colors.success else colors.textSecondary
                         )
@@ -429,8 +429,8 @@ private fun ConversationItem(
                         Text(
                             text = if (isClosed) "Read-only" else "Active",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
                             ),
                             color = if (isClosed) colors.textSecondary else colors.onSuccessContainer
                         )
@@ -462,7 +462,7 @@ private fun ConversationItem(
                             text = conversation.lastMessagePreview,
                             style = MaterialTheme.typography.bodySmall.copy(
                                 fontSize = 12.sp,
-                                fontWeight = if (isUnread) FontWeight.SemiBold else FontWeight.Normal
+                                fontWeight = if (isUnread) FontWeight.Medium else FontWeight.Normal
                             ),
                             color = if (isUnread) colors.textPrimary else colors.textSecondary,
                             maxLines = 1,
@@ -482,8 +482,8 @@ private fun ConversationItem(
                             Text(
                                 text = conversation.unreadCount.toString(),
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium
                                 ),
                                 color = Color.White /* theme-invariant */
                             )
@@ -530,7 +530,7 @@ private fun EmptyChatsView(
             Text(
                 text = if (selectedTab == ChatFilterTab.ACTIVE) "No Active Chats" else "No Recent Chats",
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 18.sp
                 ),
                 color = colors.textPrimary

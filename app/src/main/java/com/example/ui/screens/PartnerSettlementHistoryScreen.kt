@@ -146,7 +146,7 @@ fun PartnerSettlementHistoryScreen(
                         text = "Job Settlement History",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontSize = 19.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Medium
                         ),
                         color = Color.White
                     )
@@ -191,7 +191,7 @@ fun PartnerSettlementHistoryScreen(
                                         text = "TOTAL SETTLED EARNINGS",
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             letterSpacing = 1.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Medium,
                                             fontSize = 11.sp
                                         ),
                                         color = Color.White.copy(alpha = 0.85f) /* theme-invariant */
@@ -200,7 +200,7 @@ fun PartnerSettlementHistoryScreen(
                                     Text(
                                         text = "₹$totalSettled",
                                         style = MaterialTheme.typography.headlineMedium.copy(
-                                            fontWeight = FontWeight.Black,
+                                            fontWeight = FontWeight.SemiBold,
                                             fontSize = 28.sp
                                         ),
                                         color = Color.White /* theme-invariant */
@@ -225,7 +225,7 @@ fun PartnerSettlementHistoryScreen(
                                         Text(
                                             text = "100% Settled",
                                             style = MaterialTheme.typography.labelSmall.copy(
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 11.sp
                                             ),
                                             color = Color.White /* theme-invariant */
@@ -251,7 +251,7 @@ fun PartnerSettlementHistoryScreen(
                                     Text(
                                         text = "₹$onlineTotal",
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         color = Color.White /* theme-invariant */
                                     )
                                 }
@@ -264,7 +264,7 @@ fun PartnerSettlementHistoryScreen(
                                     Text(
                                         text = "₹$cashTotal",
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         color = Color.White /* theme-invariant */
                                     )
                                 }
@@ -279,7 +279,7 @@ fun PartnerSettlementHistoryScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search by service, locality, or code...", fontSize = 13.sp, color = ServoraTheme.colors.textMuted) },
+                    placeholder = { Text("Search by service, locality, or code...", fontSize = 13.sp, color = ServoraTheme.colors.textSecondary) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -330,7 +330,7 @@ fun PartnerSettlementHistoryScreen(
                                 text = "${filter.title} ($count)",
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
                                 fontSize = 12.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Medium,
                                 color = if (isSelected) Color.White else ServoraTheme.colors.textSecondary
                             )
                         }
@@ -357,7 +357,7 @@ fun PartnerSettlementHistoryScreen(
                             Spacer(modifier = Modifier.height(10.dp))
                             Text(
                                 text = "No settlement records found",
-                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                                 color = ServoraTheme.colors.textSecondary
                             )
                         }
@@ -408,7 +408,7 @@ fun PartnerSettlementHistoryScreen(
                                         text = booking.serviceName,
                                         style = MaterialTheme.typography.titleMedium.copy(
                                             fontSize = 14.sp,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Medium
                                         ),
                                         color = ServoraTheme.colors.textPrimary
                                     )
@@ -421,8 +421,8 @@ fun PartnerSettlementHistoryScreen(
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
                                         text = "Code: ${booking.bookingCode} • ${booking.paymentMethod}",
-                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                                        color = ServoraTheme.colors.textMuted
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                        color = ServoraTheme.colors.textSecondary
                                     )
                                 }
 
@@ -433,7 +433,7 @@ fun PartnerSettlementHistoryScreen(
                                     Text(
                                         text = "+₹${booking.totalAmount}",
                                         style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.Black,
+                                            fontWeight = FontWeight.SemiBold,
                                             fontSize = 15.sp,
                                             color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen
                                         )
@@ -448,8 +448,8 @@ fun PartnerSettlementHistoryScreen(
                                         Text(
                                             text = "SETTLED",
                                             color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
-                                            fontSize = 9.sp,
-                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium,
                                             letterSpacing = 0.5.sp
                                         )
                                     }
@@ -476,7 +476,7 @@ fun PartnerSettlementHistoryScreen(
                                 ) {
                                     Text(
                                         text = "Settlement Breakdown",
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 12.sp,
                                         color = ServoraTheme.colors.textPrimary
                                     )
@@ -506,7 +506,7 @@ fun PartnerSettlementHistoryScreen(
                                     ) {
                                         Text("Payment Channel", fontSize = 11.sp, color = ServoraTheme.colors.textSecondary)
                                         val channelText = if (booking.paymentMethod.contains("UPI", ignoreCase = true)) "Online UPI (QR Paid)" else "Cash Collected at Doorstep"
-                                        Text(channelText, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = ServoraTheme.colors.textPrimary)
+                                        Text(channelText, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = ServoraTheme.colors.textPrimary)
                                     }
                                     if (!booking.paymentReference.isNullOrBlank()) {
                                         Spacer(modifier = Modifier.height(3.dp))
@@ -515,7 +515,7 @@ fun PartnerSettlementHistoryScreen(
                                             horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
                                             Text("UPI Ref (UTR)", fontSize = 11.sp, color = ServoraTheme.colors.textSecondary)
-                                            Text(booking.paymentReference, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = ServoraTheme.colors.textPrimary)
+                                            Text(booking.paymentReference, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = ServoraTheme.colors.textPrimary)
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(3.dp))
@@ -525,7 +525,7 @@ fun PartnerSettlementHistoryScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text("Payout Status", fontSize = 11.sp, color = ServoraTheme.colors.textSecondary)
-                                        Text("Instant Settled to Wallet", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen)
+                                        Text("Instant Settled to Wallet", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen)
                                     }
                                 }
                             }

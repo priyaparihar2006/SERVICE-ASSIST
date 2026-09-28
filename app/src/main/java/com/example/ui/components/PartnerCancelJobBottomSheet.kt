@@ -101,7 +101,7 @@ fun PartnerCancelJobBottomSheet(
                     Text(
                         text = "Cancel Accepted Job",
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 20.sp
                         ),
                         color = colors.textPrimary
@@ -181,7 +181,7 @@ fun PartnerCancelJobBottomSheet(
                         Text(
                             text = reason.label,
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
                                 fontSize = 14.sp
                             ),
                             color = if (isSelected) colors.textPrimary else colors.textSecondary
@@ -194,7 +194,7 @@ fun PartnerCancelJobBottomSheet(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = if (isOtherSelected) "Reason Details (Required, min 10 chars)" else "Additional Note (Optional)",
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                 color = if (isOtherSelected && reasonNote.trim().length < 10) (if (isDark) colors.danger else Color(0xFFDC2626)) else colors.textPrimary
             )
             Spacer(modifier = Modifier.height(6.dp))
@@ -204,7 +204,7 @@ fun PartnerCancelJobBottomSheet(
                 placeholder = {
                     Text(
                         text = if (isOtherSelected) "Please explain the reason in detail..." else "Any note for the dispatch team...",
-                        color = colors.textMuted
+                        color = colors.textSecondary
                     )
                 },
                 minLines = 3,
@@ -239,7 +239,7 @@ fun PartnerCancelJobBottomSheet(
                 Text(
                     text = "${reasonNote.length}/300",
                     style = MaterialTheme.typography.bodySmall,
-                    color = colors.textMuted
+                    color = colors.textSecondary
                 )
             }
 
@@ -273,7 +273,7 @@ fun PartnerCancelJobBottomSheet(
                     Text(
                         text = "Confirm Cancellation",
                         style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 15.sp,
                             color = Color.White /* theme-invariant */
                         )
@@ -295,7 +295,7 @@ fun PartnerCancelJobBottomSheet(
                 Text(
                     text = "Keep Job",
                     style = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 14.sp
                     ),
                     color = colors.textSecondary

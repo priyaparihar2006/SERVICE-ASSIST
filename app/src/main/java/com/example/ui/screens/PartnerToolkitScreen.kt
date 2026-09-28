@@ -136,7 +136,7 @@ fun PartnerToolkitScreen(
                 Text(
                     text = "Equipment & Pro Toolkit",
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 22.sp
                     ),
                     color = ServoraTheme.colors.textPrimary
@@ -176,7 +176,7 @@ fun PartnerToolkitScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "Toolkit Readiness Score",
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 13.5.sp,
                             color = ServoraTheme.colors.textPrimary
                         )
@@ -190,7 +190,7 @@ fun PartnerToolkitScreen(
                             text = "$completedCount / $totalItems Ready",
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
                             fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = if (isDark) ServoraTheme.colors.success else ServoraGreen
                         )
                     }
@@ -247,7 +247,7 @@ fun PartnerToolkitScreen(
                     Text(
                         text = "Agra Partner Dispatch SOS",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 15.sp
                         ),
                         color = ServoraTheme.colors.textPrimary
@@ -281,7 +281,7 @@ fun PartnerToolkitScreen(
                         Text(
                             text = "Call Dispatch Desk",
                             fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = Color.White /* theme-invariant */
                         )
                     }
@@ -428,7 +428,7 @@ fun PartnerToolkitScreen(
                         Text(
                             text = "Doorstep Quality Standards",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
                             ),
                             color = ServoraTheme.colors.textPrimary
@@ -476,7 +476,7 @@ private fun ToolkitSectionHeader(
             text = title,
             style = MaterialTheme.typography.labelSmall.copy(
                 letterSpacing = 0.8.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 fontSize = 11.5.sp
             ),
             color = ServoraTheme.colors.textSecondary
@@ -574,7 +574,7 @@ private fun ToolkitCheckRow(
             text = label,
             style = MaterialTheme.typography.bodySmall.copy(
                 fontSize = 12.5.sp,
-                fontWeight = if (isChecked) FontWeight.SemiBold else FontWeight.Normal,
+                fontWeight = if (isChecked) FontWeight.Medium else FontWeight.Normal,
                 lineHeight = 16.sp
             ),
             color = if (isChecked) ServoraTheme.colors.textPrimary else ServoraTheme.colors.textSecondary
@@ -601,7 +601,7 @@ private fun SopStepRow(
         ) {
             Text(
                 text = number.toString(),
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 fontSize = 11.sp,
                 color = if (isDark) ServoraTheme.colors.success else ServoraGreen
             )

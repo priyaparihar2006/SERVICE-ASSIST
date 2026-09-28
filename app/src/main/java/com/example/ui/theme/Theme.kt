@@ -189,7 +189,7 @@ val LightServoraColors = ServoraColors(
     onDangerContainer = Color(0xFF991B1B),
     textPrimary = Color(0xFF111827),
     textSecondary = Color(0xFF6B7280),
-    textMuted = Color(0xFF9CA3AF),
+    textMuted = Color(0xFF6B7280),
     textOnBrand = Color.White,
     cardBackground = Color(0xFFFFFFFF),
     cardBackgroundSubtle = Color(0xFFF9FAFB),
@@ -241,7 +241,7 @@ val DarkServoraColors = ServoraColors(
     onDangerContainer = Color(0xFFFECACA),
     textPrimary = Color(0xFFE8EEEA),
     textSecondary = Color(0xFFA9B7B0),
-    textMuted = Color(0xFF7D8B84),
+    textMuted = Color(0xFF8E9C95),
     textOnBrand = Color.White,
     cardBackground = Color(0xFF171D1A),
     cardBackgroundSubtle = Color(0xFF1F2723),
@@ -323,7 +323,13 @@ fun MyApplicationTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
-            content = content
+            content = {
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.material3.LocalTextStyle provides MaterialTheme.typography.bodyMedium
+                ) {
+                    content()
+                }
+            }
         )
     }
 }

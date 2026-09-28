@@ -94,7 +94,7 @@ fun CancelBookingBottomSheet(
                 Text(
                     text = "Cancel Booking",
                     style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 20.sp
                     ),
                     color = colors.textPrimary
@@ -151,7 +151,7 @@ fun CancelBookingBottomSheet(
                             Text(
                                 text = reason,
                                 style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                    fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
                                     fontSize = 14.sp
                                 ),
                                 color = if (isSelected) colors.danger else colors.textPrimary
@@ -166,7 +166,7 @@ fun CancelBookingBottomSheet(
             // Feedback Text Field
             Text(
                 text = if (isOtherSelected) "Tell us more *" else "Additional Feedback (Optional)",
-                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                 color = colors.textPrimary
             )
             Spacer(modifier = Modifier.height(6.dp))
@@ -180,7 +180,7 @@ fun CancelBookingBottomSheet(
                     Text(
                         "Share your experience or reasons to help us serve you better...",
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.textMuted
+                        color = colors.textSecondary
                     )
                 },
                 shape = RoundedCornerShape(12.dp),
@@ -196,7 +196,7 @@ fun CancelBookingBottomSheet(
                     Text(
                         text = "${feedbackText.length}/300",
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.textMuted,
+                        color = colors.textSecondary,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.End
                     )
@@ -249,7 +249,7 @@ fun CancelBookingBottomSheet(
             ) {
                 Text(
                     text = "Confirm Cancellation",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                     color = Color.White // theme-invariant
                 )
             }
@@ -267,7 +267,7 @@ fun CancelBookingBottomSheet(
             ) {
                 Text(
                     text = "Keep My Booking",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                     color = colors.textPrimary
                 )
             }

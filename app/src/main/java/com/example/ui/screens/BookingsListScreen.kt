@@ -165,7 +165,7 @@ fun BookingsListScreen(
                 Text(
                     text = "My Bookings",
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 24.sp
                     ),
                     color = textPrimary
@@ -244,9 +244,9 @@ fun BookingsListScreen(
                                     Text(
                                         text = tab.label,
                                         style = MaterialTheme.typography.labelMedium.copy(
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Medium,
                                             fontSize = 11.5.sp,
-                                            letterSpacing = (-0.2).sp
+                                            letterSpacing = 0.sp
                                         ),
                                         color = if (isSelected) Color.White /* theme-invariant */ else textPrimary,
                                         maxLines = 1,
@@ -297,7 +297,7 @@ fun BookingsListScreen(
                             CustomerBookingTab.COMPLETED -> "No completed bookings yet"
                             CustomerBookingTab.CANCELLED -> "No cancelled bookings"
                         },
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                         color = textPrimary
                     )
                     Spacer(modifier = Modifier.height(6.dp))
@@ -313,7 +313,7 @@ fun BookingsListScreen(
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = emeraldGreen)
                     ) {
-                        Text("Explore Services", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Bold)
+                        Text("Explore Services", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -381,7 +381,7 @@ fun BookingCardItem(
                 Text(
                     text = booking.bookingCode,
                     style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 11.5.sp
                     ),
                     color = textSecondary
@@ -410,7 +410,7 @@ fun BookingCardItem(
                         Text(
                             text = if (isCompleted) "Service Completed" else booking.status.label,
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 11.sp
                             ),
                             color = if (isCancelled) (if (isDark) ServoraTheme.colors.onDangerContainer else Color(0xFFEF4444)) else (if (isDark) ServoraTheme.colors.onSuccessContainer else emeraldGreen)
@@ -448,7 +448,7 @@ fun BookingCardItem(
                     Text(
                         text = booking.serviceName,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 15.sp
                         ),
                         color = textPrimary
@@ -505,12 +505,12 @@ fun BookingCardItem(
                                 Text(
                                     text = "Start OTP",
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (isDark) ServoraTheme.colors.textPrimary else darkEmerald
                                 )
                                 Text(
                                     text = "Tell this OTP to partner upon arrival",
-                                    fontSize = 10.5.sp,
+                                    fontSize = 11.sp,
                                     color = textSecondary
                                 )
                             }
@@ -525,7 +525,7 @@ fun BookingCardItem(
                             Text(
                                 text = otpDigits,
                                 fontSize = 13.5.sp,
-                                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 2.sp,
                                 color = if (isDark) emeraldGreen else darkEmerald,
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -576,7 +576,7 @@ fun BookingCardItem(
                 Text(
                     text = "₹${booking.totalAmount}",
                     style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 17.sp
                     ),
                     color = if (isCancelled) textSecondary else emeraldGreen,
@@ -600,7 +600,7 @@ fun BookingCardItem(
                         Text(
                             text = "View Details",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 12.sp
                             ),
                             color = emeraldGreen,
@@ -631,7 +631,7 @@ fun BookingCardItem(
                                 Text(
                                     text = "Book Again",
                                     style = MaterialTheme.typography.labelMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 12.sp
                                     ),
                                     color = if (isDark) Color(0xFF00210F) else Color.White, /* theme-invariant */
@@ -668,7 +668,7 @@ fun BookingCardItem(
                                 Text(
                                     text = if (unreadCount > 0) "Message ($unreadCount)" else "Message",
                                     style = MaterialTheme.typography.labelMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 12.sp
                                     ),
                                     color = Color.White, /* theme-invariant */

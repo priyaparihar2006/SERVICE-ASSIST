@@ -495,120 +495,7 @@ fun HomeScreen(
             )
 
             // =================================================================
-            // 2. MY ACTIVE JOB CARD (Live Tracking Card if active)
-            // =================================================================
-            activeBooking?.let { job ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(4.dp, RoundedCornerShape(16.dp), spotColor = Color(0x14009051) /* theme-invariant */)
-                        .clickable { onTrackBookingClick(job.id) }
-                        .testTag("my_active_job_card"),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.5.dp, if (isDark) borderColor else BrandLightGreen)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .clip(CircleShape)
-                                    .background(brandLightGreen),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Handyman,
-                                    contentDescription = "Active Job",
-                                    tint = brandGreen,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            Column(modifier = Modifier.weight(1f, fill = false)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(6.dp)
-                                            .clip(CircleShape)
-                                            .background(brandGreen)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = "LIVE ACTIVE JOB",
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 10.sp,
-                                            letterSpacing = 0.5.sp
-                                        ),
-                                        color = brandGreen
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = job.serviceName,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.5.sp
-                                    ),
-                                    color = textPrimary,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Spacer(modifier = Modifier.height(1.dp))
-                                Text(
-                                    text = job.addressText,
-                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                                    color = textSecondary,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(brandGreen)
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "Track",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 11.5.sp
-                                    ),
-                                    color = Color.White /* theme-invariant */
-                                )
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = null,
-                                    tint = Color.White, /* theme-invariant */
-                                    modifier = Modifier.size(13.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // =================================================================
-            // 3. CATEGORIES 2x4 GRID (Exact Match to Reference Screenshot)
+            // 2. CATEGORIES 2x4 GRID (Exact Match to Reference Screenshot)
             // =================================================================
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -632,7 +519,7 @@ fun HomeScreen(
                         Text(
                             text = "Categories",
                             style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 24.sp
                             ),
                             color = textPrimary
@@ -656,7 +543,7 @@ fun HomeScreen(
                         Text(
                             text = "See All",
                             style = MaterialTheme.typography.labelLarge.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             ),
                             color = brandGreen
@@ -784,7 +671,7 @@ fun HomeScreen(
                         Text(
                             text = "Popular Services",
                             style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 18.sp
                             ),
                             color = textPrimary
@@ -804,7 +691,7 @@ fun HomeScreen(
                         Text(
                             text = "View All",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 13.sp
                             ),
                             color = brandGreen
@@ -848,8 +735,8 @@ fun HomeScreen(
                         Text(
                             text = "SPECIAL WELCOME OFFER",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 11.sp,
                                 letterSpacing = 0.5.sp
                             ),
                             color = brandGreen
@@ -858,7 +745,7 @@ fun HomeScreen(
                         Text(
                             text = "Flat ₹150 OFF on 1st Service",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
                             ),
                             color = textPrimary
@@ -882,7 +769,7 @@ fun HomeScreen(
                         Text(
                             text = "SERVORA150",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 12.sp
                             ),
                             color = Color.White /* theme-invariant */
@@ -1047,7 +934,7 @@ private fun DynamicHeroCarousel(
                         Text(
                             text = currentSlide.ctaText,
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 12.sp
                             ),
                             color = Color.White /* theme-invariant */
@@ -1150,7 +1037,7 @@ private fun AiReelsSection(
                     Text(
                         text = "Reels & Shorts",
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
                         ),
                         color = textPrimary
@@ -1165,8 +1052,8 @@ private fun AiReelsSection(
                         Text(
                             text = "LIVE",
                             color = Color.White /* theme-invariant */,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.ExtraBold
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -1259,8 +1146,8 @@ private fun AiReelCard(
                     Text(
                         text = reel.tag,
                         color = Color.White /* theme-invariant */,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
@@ -1281,8 +1168,8 @@ private fun AiReelCard(
                     Text(
                         text = reel.views,
                         color = Color.White /* theme-invariant */,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -1316,7 +1203,7 @@ private fun AiReelCard(
                     text = reel.title,
                     color = Color.White /* theme-invariant */,
                     fontSize = 11.5.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     maxLines = 2,
                     lineHeight = 14.sp,
                     overflow = TextOverflow.Ellipsis
@@ -1332,7 +1219,7 @@ private fun AiReelCard(
                     Text(
                         text = reel.author,
                         color = Color(0xFFBCE7D3) /* theme-invariant */,
-                        fontSize = 9.5.sp,
+                        fontSize = 11.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -1342,7 +1229,7 @@ private fun AiReelCard(
                         text = reel.priceText,
                         color = Color(0xFF55E6A5) /* theme-invariant */,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.ExtraBold
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -1443,7 +1330,7 @@ private fun AiTransformationShowcaseSection(
                         Text(
                             text = "Works",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.SemiBold,
                                 fontSize = 17.sp,
                                 lineHeight = 21.sp
                             ),
@@ -1484,7 +1371,7 @@ private fun AiTransformationShowcaseSection(
                             text = currentItem.startingPrice,
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontSize = 19.sp,
-                                fontWeight = FontWeight.Black
+                                fontWeight = FontWeight.SemiBold
                             ),
                             color = brandGreen
                         )
@@ -1529,7 +1416,7 @@ private fun AiTransformationShowcaseSection(
                             text = currentItem.ratingText,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Medium
                             ),
                             color = pillText
                         )
@@ -1557,7 +1444,7 @@ private fun AiTransformationShowcaseSection(
                             text = currentItem.verificationText,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Medium
                             ),
                             color = pillText
                         )
@@ -1645,7 +1532,7 @@ private fun AiTransformationShowcaseSection(
                             Text(
                                 text = currentItem.badgeTitle,
                                 style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 12.5.sp
                                 ),
                                 color = textPrimary
@@ -1653,7 +1540,7 @@ private fun AiTransformationShowcaseSection(
                             Text(
                                 text = currentItem.badgeSubtitle,
                                 style = MaterialTheme.typography.bodySmall.copy(
-                                    fontSize = 10.5.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium
                                 ),
                                 color = textSecondary
@@ -1751,7 +1638,7 @@ private fun AiTransformationShowcaseSection(
                     Text(
                         text = "Book Service",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 15.sp
                         ),
                         color = Color.White /* theme-invariant */
@@ -1921,7 +1808,7 @@ private fun AiReelStoryPlayerDialog(
                             Text(
                                 text = reel.author.take(1),
                                 color = Color.White /* theme-invariant */,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             )
                         }
@@ -1933,7 +1820,7 @@ private fun AiReelStoryPlayerDialog(
                                 Text(
                                     text = reel.author,
                                     color = Color.White /* theme-invariant */,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -1947,7 +1834,7 @@ private fun AiReelStoryPlayerDialog(
                             Text(
                                 text = "${reel.authorRole} • ${reel.views} views",
                                 color = Color(0xFFCCCCCC) /* theme-invariant */,
-                                fontSize = 10.5.sp
+                                fontSize = 11.sp
                             )
                         }
                     }
@@ -2014,7 +1901,7 @@ private fun AiReelStoryPlayerDialog(
                         text = if (isLiked) "Liked!" else reel.likes,
                         color = Color.White /* theme-invariant */,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
@@ -2056,7 +1943,7 @@ private fun AiReelStoryPlayerDialog(
                         Text(
                             text = reel.serviceName,
                             color = Color.White /* theme-invariant */,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 14.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -2065,7 +1952,7 @@ private fun AiReelStoryPlayerDialog(
                         Text(
                             text = "Starting at ${reel.priceText} • Instant Slot",
                             color = Color(0xFF55E6A5) /* theme-invariant */,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 12.sp
                         )
                     }
@@ -2081,7 +1968,7 @@ private fun AiReelStoryPlayerDialog(
                     ) {
                         Text(
                             text = "Book Now ➔",
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 12.sp,
                             color = Color.White /* theme-invariant */
                         )
@@ -2200,7 +2087,7 @@ private fun CategoryGridTile(
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 12.sp,
                         lineHeight = 14.sp
                     ),
@@ -2266,7 +2153,7 @@ private fun PopularServiceCard(
                 Text(
                     text = service.name,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 15.5.sp,
                         lineHeight = 20.sp
                     ),
@@ -2289,7 +2176,7 @@ private fun PopularServiceCard(
                     Text(
                         text = "%.2f".format(service.rating),
                         style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 12.sp
                         ),
                         color = textPrimary
@@ -2311,7 +2198,7 @@ private fun PopularServiceCard(
                     Text(
                         text = "₹${service.startingPrice}",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 16.sp
                         ),
                         color = brandGreen
@@ -2367,7 +2254,7 @@ private fun PopularServiceCard(
                         Text(
                             text = "Add",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 11.5.sp
                             ),
                             color = Color.White /* theme-invariant */

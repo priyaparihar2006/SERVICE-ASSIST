@@ -127,7 +127,7 @@ fun OffersScreen(
                             Text(
                                 text = "Exclusive Offers",
                                 style = MaterialTheme.typography.headlineMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 24.sp
                                 ),
                                 color = ServoraTheme.colors.textPrimary
@@ -248,7 +248,7 @@ fun OfferCardItem(
                     Text(
                         text = offer.title,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 16.sp
                         ),
                         color = ServoraTheme.colors.textPrimary
@@ -280,7 +280,7 @@ fun OfferCardItem(
                         Text(
                             text = offer.code,
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 12.sp
                             ),
                             color = emeraldGreen

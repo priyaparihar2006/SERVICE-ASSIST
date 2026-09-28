@@ -219,7 +219,7 @@ fun ServiceDetailScreen(
                             text = service.duration.ifEmpty { "45 mins" },
                             color = Color.White, /* theme-invariant */
                             fontSize = 11.5.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -234,9 +234,9 @@ fun ServiceDetailScreen(
                 Text(
                     text = service.name,
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.ExtraBold,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = 22.sp,
-                        letterSpacing = (-0.3).sp
+                        letterSpacing = 0.sp
                     ),
                     color = ServoraTheme.colors.textPrimary
                 )
@@ -307,7 +307,7 @@ fun ServiceDetailScreen(
                         Text(
                             text = "Get free vibration test on orders above ₹500",
                             style = MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 12.5.sp
                             ),
                             color = ServoraTheme.colors.textPrimary,
@@ -336,7 +336,7 @@ fun ServiceDetailScreen(
                         Text(
                             text = "Choose a Package",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
                             ),
                             color = ServoraTheme.colors.textPrimary
@@ -345,7 +345,7 @@ fun ServiceDetailScreen(
                         Text(
                             text = "${service.packages.size} options available",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Medium,
                             color = primaryColor
                         )
                     }
@@ -434,7 +434,7 @@ fun ServiceDetailScreen(
                                         Text(
                                             text = pkg.name,
                                             style = MaterialTheme.typography.titleSmall.copy(
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 13.5.sp
                                             ),
                                             color = ServoraTheme.colors.textPrimary,
@@ -473,7 +473,7 @@ fun ServiceDetailScreen(
                                             Text(
                                                 text = "₹${pkg.price}",
                                                 style = MaterialTheme.typography.titleMedium.copy(
-                                                    fontWeight = FontWeight.ExtraBold,
+                                                    fontWeight = FontWeight.SemiBold,
                                                     fontSize = 15.5.sp
                                                 ),
                                                 color = primaryColor
@@ -489,8 +489,8 @@ fun ServiceDetailScreen(
                                                 Text(
                                                     text = "$discountPercent% OFF",
                                                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
-                                                    fontSize = 9.sp,
-                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Medium,
                                                     color = if (isDark) ServoraTheme.colors.success else brandDarkGreen
                                                 )
                                             }
@@ -518,7 +518,7 @@ fun ServiceDetailScreen(
                     Text(
                         text = "About This Service",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 14.5.sp
                         ),
                         color = ServoraTheme.colors.textPrimary
@@ -573,7 +573,7 @@ fun ServiceDetailScreen(
                                 Text(
                                     text = "What's Included",
                                     style = MaterialTheme.typography.titleSmall.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 13.5.sp
                                     ),
                                     color = if (isDark) ServoraTheme.colors.textPrimary else brandDarkGreen
@@ -636,7 +636,7 @@ fun ServiceDetailScreen(
                                 Text(
                                     text = "What's Not Included",
                                     style = MaterialTheme.typography.titleSmall.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 13.5.sp
                                     ),
                                     color = ServoraTheme.colors.textPrimary
@@ -689,7 +689,7 @@ fun ServiceDetailScreen(
                         Text(
                             text = "Verified Service Expert",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.5.sp
                             ),
                             color = ServoraTheme.colors.textPrimary
@@ -718,7 +718,7 @@ fun ServiceDetailScreen(
                                 Text(
                                     text = pro.avatarInitials,
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 16.sp
                                     ),
                                     color = primaryColor
@@ -732,7 +732,7 @@ fun ServiceDetailScreen(
                                     Text(
                                         text = pro.name,
                                         style = MaterialTheme.typography.titleSmall.copy(
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Medium,
                                             fontSize = 14.sp
                                         ),
                                         color = ServoraTheme.colors.textPrimary
@@ -763,7 +763,7 @@ fun ServiceDetailScreen(
                                         text = "${pro.rating} (${pro.completedJobs}+ jobs)",
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontWeight = FontWeight.Medium
                                         ),
                                         color = ServoraTheme.colors.textPrimary
                                     )
@@ -797,7 +797,7 @@ fun ServiceDetailScreen(
                         Text(
                             text = "Frequently Asked Questions",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.5.sp
                             ),
                             color = ServoraTheme.colors.textPrimary
@@ -892,7 +892,7 @@ fun ServiceDetailScreen(
                         Text(
                             text = "₹$currentPrice",
                             style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.SemiBold,
                                 fontSize = 20.sp
                             ),
                             color = primaryColor
@@ -940,7 +940,7 @@ fun ServiceDetailScreen(
                         Text(
                             text = "Book Now",
                             style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             )
                         )
@@ -978,7 +978,7 @@ private fun ValuePropItem(
         Text(
             text = title,
             style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Medium,
                 fontSize = 11.sp,
                 lineHeight = 13.sp
             ),

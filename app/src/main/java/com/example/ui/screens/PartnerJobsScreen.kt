@@ -164,7 +164,7 @@ fun PartnerJobsScreen(
                                 ) {
                                     Text(
                                         text = partnerProfile.name.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString("").ifBlank { "PR" },
-                                        fontWeight = FontWeight.Black,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 17.sp,
                                         color = Color.White /* theme-invariant */
                                     )
@@ -177,7 +177,7 @@ fun PartnerJobsScreen(
                                         Text(
                                             text = partnerProfile.name,
                                             style = MaterialTheme.typography.titleMedium.copy(
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 17.sp
                                             ),
                                             color = Color.White /* theme-invariant */
@@ -190,8 +190,8 @@ fun PartnerJobsScreen(
                                             Text(
                                                 text = "PRO",
                                                 modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Black,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.SemiBold,
                                                 color = Color(0xFF451A03) /* theme-invariant */
                                             )
                                         }
@@ -278,7 +278,7 @@ fun PartnerJobsScreen(
                                     ) {
                                         Text(
                                             text = if (isPartnerOnline) "On-Duty & Ready" else "Off-Duty (Standby)",
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Medium,
                                             fontSize = 14.5.sp,
                                             color = Color.White /* theme-invariant */
                                         )
@@ -323,7 +323,7 @@ fun PartnerJobsScreen(
                                         text = "${newJobs.size} New • ${ongoingJobs.size} In-Flight",
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                         fontSize = 11.5.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         color = Color.White /* theme-invariant */
                                     )
                                 }
@@ -354,7 +354,7 @@ fun PartnerJobsScreen(
                                     Text(
                                         text = "Sync",
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         color = Color.White /* theme-invariant */
                                     )
                                 }
@@ -392,7 +392,7 @@ fun PartnerJobsScreen(
                             Text(
                                 text = "No Active Duties Right Now",
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 17.sp
                                 ),
                                 color = ServoraTheme.colors.textPrimary
@@ -433,7 +433,7 @@ fun PartnerJobsScreen(
                         Text(
                             text = "New Jobs",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp
                             ),
                             color = ServoraTheme.colors.textPrimary
@@ -447,7 +447,7 @@ fun PartnerJobsScreen(
                                 text = "${newJobs.size} New",
                                 modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
                                 fontSize = 11.5.sp,
-                                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = if (isDark) ServoraTheme.colors.success else brandEmeraldPrimary
                             )
                         }
@@ -510,7 +510,7 @@ fun PartnerJobsScreen(
                         Text(
                             text = "Ongoing Jobs",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp
                             ),
                             color = ServoraTheme.colors.textPrimary
@@ -524,7 +524,7 @@ fun PartnerJobsScreen(
                                 text = "${ongoingJobs.size} In-Flight",
                                 modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
                                 fontSize = 11.5.sp,
-                                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.SemiBold,
                                 color = if (isDark) ServoraTheme.colors.info else Color(0xFF2563EB)
                             )
                         }
@@ -571,7 +571,7 @@ fun PartnerJobsScreen(
                         Text(
                             text = "View All Bookings & History",
                             style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             ),
                             color = ServoraTheme.colors.textPrimary

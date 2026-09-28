@@ -142,7 +142,7 @@ fun ChatThreadScreen(
                             text = if (isAdminView) "Audit: ${currentConv?.bookingCode ?: conversationId}"
                                    else currentConv?.counterpartName ?: "Support & Pro Chat",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp
                             ),
                             color = colors.textPrimary,
@@ -221,7 +221,7 @@ fun ChatThreadScreen(
                                 Text(
                                     text = "Active Booking: ${conv.bookingCode}",
                                     style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 11.sp
                                     ),
                                     color = colors.onSuccessContainer
@@ -247,8 +247,8 @@ fun ChatThreadScreen(
                             Text(
                                 text = if (conv.status == "ACTIVE") "ACTIVE" else conv.status,
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium
                                 ),
                                 color = colors.onSuccessContainer
                             )
@@ -285,7 +285,7 @@ fun ChatThreadScreen(
                         ) {
                             Text(
                                 text = "Retry",
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
                                 color = colors.onDangerContainer
                             )
                         }

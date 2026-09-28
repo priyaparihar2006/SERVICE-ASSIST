@@ -266,9 +266,9 @@ fun ProfileScreen(
                         Text(
                             text = userProfile.name,
                             style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 21.sp,
-                                letterSpacing = (-0.3).sp
+                                letterSpacing = 0.sp
                             ),
                             color = Color.White /* theme-invariant */
                         )
@@ -297,7 +297,7 @@ fun ProfileScreen(
                             Text(
                                 text = "Edit profile",
                                 style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp
                                 ),
                                 color = MintLinkText /* theme-invariant */
@@ -405,8 +405,8 @@ fun ProfileScreen(
                                     Text(
                                         text = "SERVICE ASSIST PASS",
                                         style = MaterialTheme.typography.labelSmall.copy(
-                                            fontWeight = FontWeight.ExtraBold,
-                                            fontSize = 9.5.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 11.sp,
                                             letterSpacing = 0.4.sp
                                         ),
                                         color = Color(0xFF15803D) /* theme-invariant */
@@ -420,7 +420,7 @@ fun ProfileScreen(
                                 Text(
                                     text = "Get 3 Visits for ₹99 only",
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 17.sp
                                     ),
                                     color = Color.White /* theme-invariant */
@@ -487,21 +487,21 @@ fun ProfileScreen(
                                     Text(
                                         text = "SERVICE ASSIST",
                                         fontSize = 5.5.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         color = Color.White.copy(alpha = 0.9f), /* theme-invariant */
                                         maxLines = 1
                                     )
                                     Text(
                                         text = "PASS",
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Black,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = Color.White, /* theme-invariant */
-                                        letterSpacing = (-0.5).sp
+                                        letterSpacing = 0.sp
                                     )
                                     Text(
                                         text = "60 MIN",
                                         fontSize = 6.sp,
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontWeight = FontWeight.Medium,
                                         color = Color(0xFFDCFCE7) /* theme-invariant */
                                     )
                                 }
@@ -567,7 +567,7 @@ fun ProfileScreen(
                             Text(
                                 text = "My\nBookings",
                                 style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 14.sp,
                                     lineHeight = 17.sp
                                 ),
@@ -623,7 +623,7 @@ fun ProfileScreen(
                                     text = "₹0",
                                     modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (isDark) ServoraTheme.colors.success else MintBadgeText
                                 )
                             }
@@ -637,7 +637,7 @@ fun ProfileScreen(
                             Text(
                                 text = "Service\nAssist Money",
                                 style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 12.5.sp,
                                     lineHeight = 15.sp
                                 ),
@@ -704,7 +704,7 @@ fun ProfileScreen(
                             Text(
                                 text = "Help &\nSupport",
                                 style = MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 14.sp,
                                     lineHeight = 17.sp
                                 ),
@@ -734,11 +734,11 @@ fun ProfileScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("PARTNER DUTY CONSOLE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                                Text("PARTNER DUTY CONSOLE", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
                                 Text(
                                     text = if (isPartnerOnline) "Status: Online (Accepting Jobs)" else "Status: Offline",
                                     fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     color = ServoraTheme.colors.textPrimary
                                 )
                             }
@@ -758,16 +758,16 @@ fun ProfileScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column {
-                                Text("COMPLETED", fontSize = 10.sp, color = ServoraTheme.colors.subtext)
-                                Text("$completedBookingsCount Jobs", fontSize = 16.sp, fontWeight = FontWeight.Black, color = ServoraTheme.colors.textPrimary)
+                                Text("COMPLETED", fontSize = 11.sp, color = ServoraTheme.colors.subtext)
+                                Text("$completedBookingsCount Jobs", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = ServoraTheme.colors.textPrimary)
                             }
                             Column {
-                                Text("ACTIVE IN-FLIGHT", fontSize = 10.sp, color = ServoraTheme.colors.subtext)
-                                Text("$activeBookingsCount Active", fontSize = 16.sp, fontWeight = FontWeight.Black, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                                Text("ACTIVE IN-FLIGHT", fontSize = 11.sp, color = ServoraTheme.colors.subtext)
+                                Text("$activeBookingsCount Active", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
                             }
                             Column {
-                                Text("RATING", fontSize = 10.sp, color = ServoraTheme.colors.subtext)
-                                Text("4.9 ★", fontSize = 16.sp, fontWeight = FontWeight.Black, color = if (isDark) ServoraTheme.colors.warning else Color(0xFFD97706))
+                                Text("RATING", fontSize = 11.sp, color = ServoraTheme.colors.subtext)
+                                Text("4.9 ★", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.warning else Color(0xFFD97706))
                             }
                         }
                     }
@@ -843,7 +843,7 @@ fun ProfileScreen(
                 Text(
                     text = "APP VERSION: 1.5.8 (8a48)",
                     style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         letterSpacing = 1.sp,
                         fontSize = 11.sp
                     ),
@@ -874,7 +874,7 @@ fun ProfileScreen(
             title = {
                 Text(
                     text = "Edit Profile",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                     color = ServoraTheme.colors.textPrimary
                 )
             },
@@ -973,7 +973,7 @@ fun ProfileScreen(
                 ) {
                     Text(
                         text = "Saved Addresses (${savedAddresses.size})",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                         color = ServoraTheme.colors.textPrimary
                     )
                     IconButton(onClick = { showAddAddressForm = !showAddAddressForm }) {
@@ -997,7 +997,7 @@ fun ProfileScreen(
                             modifier = Modifier.padding(14.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text("Add New Address", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ServoraTheme.colors.textPrimary)
+                            Text("Add New Address", fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ServoraTheme.colors.textPrimary)
                             OutlinedTextField(
                                 value = addrTitle,
                                 onValueChange = { addrTitle = it },
@@ -1099,7 +1099,7 @@ fun ProfileScreen(
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text(
                                                 text = addr.title,
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 14.sp,
                                                 color = ServoraTheme.colors.textPrimary
                                             )
@@ -1112,8 +1112,8 @@ fun ProfileScreen(
                                                     Text(
                                                         text = "DEFAULT",
                                                         modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
-                                                        fontSize = 9.sp,
-                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Medium,
                                                         color = if (isDark) ServoraTheme.colors.success else MintBadgeText
                                                     )
                                                 }
@@ -1175,7 +1175,7 @@ fun ProfileScreen(
 
                 Text(
                     text = "Service Assist Pass",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                     color = ServoraTheme.colors.textPrimary
                 )
 
@@ -1208,7 +1208,7 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text("Activate Service Assist Pass for ₹99", fontWeight = FontWeight.Bold, color = Color.White /* theme-invariant */)
+                    Text("Activate Service Assist Pass for ₹99", fontWeight = FontWeight.SemiBold, color = Color.White /* theme-invariant */)
                 }
             }
         }
@@ -1229,7 +1229,7 @@ fun ProfileScreen(
             ) {
                 Text(
                     text = "Service Assist Wallet",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                     color = ServoraTheme.colors.textPrimary
                 )
 
@@ -1245,9 +1245,9 @@ fun ProfileScreen(
                         modifier = Modifier.padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("AVAILABLE BALANCE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = ServoraTheme.colors.subtext)
+                        Text("AVAILABLE BALANCE", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = ServoraTheme.colors.subtext)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("₹0.00", fontSize = 32.sp, fontWeight = FontWeight.Black, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                        Text("₹0.00", fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
                         Spacer(modifier = Modifier.height(6.dp))
                         Text("Use wallet cash on any service in Agra", fontSize = 12.sp, color = ServoraTheme.colors.subtext)
                     }
@@ -1263,7 +1263,7 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text("Add Money to Wallet", fontWeight = FontWeight.Bold, color = Color.White /* theme-invariant */)
+                    Text("Add Money to Wallet", fontWeight = FontWeight.Medium, color = Color.White /* theme-invariant */)
                 }
             }
         }
@@ -1283,7 +1283,7 @@ fun ProfileScreen(
             ) {
                 Text(
                     text = "24x7 Customer Support",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                     color = ServoraTheme.colors.textPrimary
                 )
                 Text(
@@ -1347,7 +1347,7 @@ fun ProfileScreen(
 
                 Text(
                     text = "Refer Friends & Earn ₹100",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                     color = ServoraTheme.colors.textPrimary
                 )
 
@@ -1368,7 +1368,7 @@ fun ProfileScreen(
                     Text(
                         text = "YOUR CODE: SERVORA100",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        fontWeight = FontWeight.Black,
+                        fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.5.sp,
                         color = if (isDark) ServoraTheme.colors.success else DeepForestGreen
                     )
@@ -1386,7 +1386,7 @@ fun ProfileScreen(
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, tint = Color.White /* theme-invariant */, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Share Referral Link", fontWeight = FontWeight.Bold, color = Color.White /* theme-invariant */)
+                    Text("Share Referral Link", fontWeight = FontWeight.Medium, color = Color.White /* theme-invariant */)
                 }
             }
         }
@@ -1406,7 +1406,7 @@ fun ProfileScreen(
             ) {
                 Text(
                     text = "About ServiceAssist",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                     color = ServoraTheme.colors.textPrimary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -1434,7 +1434,7 @@ fun ProfileScreen(
             ) {
                 Text(
                     text = "Terms of Service",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                     color = ServoraTheme.colors.textPrimary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -1462,7 +1462,7 @@ fun ProfileScreen(
             ) {
                 Text(
                     text = "Privacy Policy",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                     color = ServoraTheme.colors.textPrimary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -1481,7 +1481,7 @@ fun ProfileScreen(
         AlertDialog(
             onDismissRequest = { showDeleteAccountDialog = false },
             title = {
-                Text("Request Account Deletion", fontWeight = FontWeight.Bold, color = ServoraTheme.colors.textPrimary)
+                Text("Request Account Deletion", fontWeight = FontWeight.Medium, color = ServoraTheme.colors.textPrimary)
             },
             text = {
                 Text(
@@ -1514,7 +1514,7 @@ fun ProfileScreen(
         AlertDialog(
             onDismissRequest = { showLogoutConfirmDialog = false },
             title = {
-                Text("Log Out", fontWeight = FontWeight.Bold, color = ServoraTheme.colors.textPrimary)
+                Text("Log Out", fontWeight = FontWeight.Medium, color = ServoraTheme.colors.textPrimary)
             },
             text = {
                 Text(
@@ -1603,7 +1603,7 @@ private fun GreenMenuItemCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 15.sp
                     ),
                     color = if (isDestructive) (if (isDark) Color(0xFFF87171) else Color(0xFFDC2626)) else ServoraTheme.colors.textPrimary
@@ -1620,7 +1620,7 @@ private fun GreenMenuItemCard(
                             text = badgeText,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = Color.White /* theme-invariant */
                         )
                     }
@@ -1690,7 +1690,7 @@ private fun SupportActionTile(
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text(text = title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ServoraTheme.colors.textPrimary)
+                Text(text = title, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = ServoraTheme.colors.textPrimary)
                 Text(text = subtitle, fontSize = 12.sp, color = ServoraTheme.colors.subtext)
             }
         }

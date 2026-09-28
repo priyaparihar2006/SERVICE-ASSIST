@@ -275,7 +275,7 @@ fun LocationPickerModal(
                                 Text(
                                     text = "Choose Your Service City",
                                     style = MaterialTheme.typography.headlineSmall.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 24.sp,
                                         letterSpacing = (-0.3).sp
                                     ),
@@ -350,7 +350,7 @@ fun LocationPickerModal(
                                 Text(
                                     text = if (isGpsActive) "Current Live Location" else "Use Current Location",
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     ),
                                     color = colors.textPrimary
@@ -388,7 +388,7 @@ fun LocationPickerModal(
                                         text = if (isGpsActive) "Active" else "Enable",
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         color = if (isGpsActive) Color.White else colors.textSecondary // theme-invariant
                                     )
                                 }
@@ -422,7 +422,7 @@ fun LocationPickerModal(
                     Text(
                         text = "AVAILABLE CITIES",
                         style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 11.5.sp,
                             letterSpacing = 0.8.sp
                         ),
@@ -473,7 +473,7 @@ fun LocationPickerModal(
                                     Text(
                                         text = city,
                                         style = MaterialTheme.typography.bodyMedium.copy(
-                                            fontWeight = if (isCitySelected) FontWeight.Bold else FontWeight.Medium,
+                                            fontWeight = if (isCitySelected) FontWeight.Medium else FontWeight.Medium,
                                             fontSize = 14.sp
                                         ),
                                         color = if (isCitySelected) MaterialTheme.colorScheme.onPrimaryContainer else colors.textPrimary
@@ -490,8 +490,8 @@ fun LocationPickerModal(
                                             Text(
                                                 text = "LIVE",
                                                 color = Color.White, // theme-invariant
-                                                fontSize = 9.sp,
-                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Medium,
                                                 letterSpacing = 0.5.sp
                                             )
                                         }
@@ -510,7 +510,7 @@ fun LocationPickerModal(
                         Text(
                             text = "SELECT AGRA LOCALITY",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 11.5.sp,
                                 letterSpacing = 0.8.sp
                             ),
@@ -571,7 +571,7 @@ fun LocationPickerModal(
                                     Text(
                                         text = locality,
                                         style = MaterialTheme.typography.bodyMedium.copy(
-                                            fontWeight = if (isLocalitySelected) FontWeight.Bold else FontWeight.Medium,
+                                            fontWeight = if (isLocalitySelected) FontWeight.Medium else FontWeight.Medium,
                                             fontSize = 14.5.sp
                                         ),
                                         color = if (isLocalitySelected) MaterialTheme.colorScheme.onPrimaryContainer else colors.textPrimary
@@ -611,7 +611,7 @@ fun LocationPickerModal(
                                 Text(
                                     text = "Expanding Soon to $selectedCity",
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 16.sp
                                     ),
                                     color = MaterialTheme.colorScheme.primary
@@ -670,7 +670,7 @@ fun LocationPickerModal(
                                 Text(
                                     text = "Confirm Location ($selectedCity • $selectedLocality)",
                                     style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     ),
                                     color = Color.White, // theme-invariant

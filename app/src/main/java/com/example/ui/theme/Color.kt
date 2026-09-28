@@ -56,7 +56,7 @@ val ServoraDarkDivider = Color(0xFF2A3430)
 
 val ServoraDarkTextPrimary = Color(0xFFE8EEEA)
 val ServoraDarkTextSecondary = Color(0xFFA9B7B0)
-val ServoraDarkTextMuted = Color(0xFF7D8B84)
+val ServoraDarkTextMuted = Color(0xFF8E9C95)
 
 val ServoraDarkPrimary = Color(0xFF34C27F)
 val ServoraDarkOnPrimary = Color(0xFF00210F)

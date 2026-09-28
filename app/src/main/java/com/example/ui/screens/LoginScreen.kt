@@ -162,7 +162,7 @@ fun LoginScreen(
         Text(
             text = "SERVICE ASSIST",
             style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Black,
+                fontWeight = FontWeight.SemiBold,
                 letterSpacing = 2.sp,
                 color = ServoraTheme.colors.textPrimary
             )
@@ -182,7 +182,7 @@ fun LoginScreen(
             Text(
                 text = "Doorstep Services • Agra, UP",
                 style = MaterialTheme.typography.bodySmall.copy(
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Medium,
                     color = ServoraTheme.colors.subtext
                 )
             )
@@ -194,7 +194,7 @@ fun LoginScreen(
         Text(
             text = "SELECT YOUR ACCOUNT TYPE",
             style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 letterSpacing = 1.sp
             ),
             color = ServoraTheme.colors.subtext,
@@ -257,7 +257,7 @@ fun LoginScreen(
                                 UserRole.ADMIN -> "Admin"
                             },
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Medium
                             ),
                             color = if (isSelected) Color.White /* theme-invariant */ else ServoraTheme.colors.textPrimary
                         )
@@ -310,7 +310,7 @@ fun LoginScreen(
                             UserRole.ADMIN -> "Agra Ops Management Console"
                         },
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = ServoraTheme.colors.textPrimary
                         )
                     )
@@ -350,7 +350,7 @@ fun LoginScreen(
                         UserRole.ADMIN -> "Admin Authentication"
                     },
                     style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = ServoraTheme.colors.textPrimary
                     )
                 )
@@ -487,7 +487,7 @@ fun LoginScreen(
                                 UserRole.ADMIN -> "Enter Operations Console"
                             },
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 color = Color.White /* theme-invariant */
                             )
                         )
@@ -509,7 +509,7 @@ fun LoginScreen(
         Text(
             text = "⚡ QUICK ONE-TAP DEMO LOGINS",
             style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 letterSpacing = 1.sp
             ),
             color = ServoraTheme.colors.subtext,
@@ -657,7 +657,7 @@ private fun DemoLoginChip(
                         text = name,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = ServoraTheme.colors.textPrimary
                         )
                     )
@@ -680,7 +680,7 @@ private fun DemoLoginChip(
                 Text(
                     text = "Login",
                     style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = Color.White /* theme-invariant */
                     )
                 )

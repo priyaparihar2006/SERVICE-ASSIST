@@ -157,7 +157,7 @@ fun AdminDashboardScreen(
                             Text(
                                 text = "Admin Operations Console",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 color = Color.White, /* theme-invariant */
                                 maxLines = 1,
                                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -336,7 +336,7 @@ fun AdminDashboardScreen(
                         Column(modifier = Modifier.padding(10.dp)) {
                             Text(
                                 text = target.name,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 color = ServoraTheme.colors.textPrimary
                             )
                             Text(
@@ -410,7 +410,7 @@ private fun AdminOverviewTab(
             Text(
                 text = "Key Operations Metrics",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = ServoraTheme.colors.textPrimary
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -466,7 +466,7 @@ private fun AdminOverviewTab(
             Text(
                 text = "Quick Account Switcher",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = ServoraTheme.colors.textPrimary
             )
             Text(
@@ -519,7 +519,7 @@ private fun AdminOverviewTab(
             Text(
                 text = "Live Active Dispatches (${activeBookings.size})",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = ServoraTheme.colors.textPrimary
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -548,7 +548,7 @@ private fun AdminOverviewTab(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "All caught up! No pending jobs.",
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Medium,
                             color = ServoraTheme.colors.textPrimary
                         )
                     }
@@ -592,7 +592,7 @@ private fun AdminCustomersTab(
             Text(
                 text = "Customer Accounts (${customers.size})",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = ServoraTheme.colors.textPrimary
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -643,7 +643,7 @@ private fun AdminCustomersTab(
                             ) {
                                 Text(
                                     text = customer.name.take(2).uppercase(),
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (isDark) ServoraTheme.colors.warning else Color(0xFFB45309)
                                 )
                             }
@@ -651,7 +651,7 @@ private fun AdminCustomersTab(
                             Column {
                                 Text(
                                     text = customer.name,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     style = MaterialTheme.typography.titleMedium,
                                     color = ServoraTheme.colors.textPrimary
                                 )
@@ -681,8 +681,8 @@ private fun AdminCustomersTab(
                                 Spacer(modifier = Modifier.width(3.dp))
                                 Text(
                                     text = "ACTIVE",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (isDark) ServoraTheme.colors.success else Color(0xFF166534)
                                 )
                             }
@@ -747,7 +747,7 @@ private fun AdminPartnersTab(
             Text(
                 text = "Partner Technicians (${partners.size})",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = ServoraTheme.colors.textPrimary
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -798,7 +798,7 @@ private fun AdminPartnersTab(
                             ) {
                                 Text(
                                     text = partner.avatarInitials,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (isDark) ServoraTheme.colors.success else Color(0xFF065F46)
                                 )
                             }
@@ -806,7 +806,7 @@ private fun AdminPartnersTab(
                             Column {
                                 Text(
                                     text = partner.name,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     style = MaterialTheme.typography.titleMedium,
                                     color = ServoraTheme.colors.textPrimary
                                 )
@@ -829,7 +829,7 @@ private fun AdminPartnersTab(
                             ) {
                                 Icon(Icons.Default.Star, contentDescription = "Rating", tint = if (isDark) ServoraTheme.colors.warning else AdminAmber, modifier = Modifier.size(13.dp))
                                 Spacer(modifier = Modifier.width(2.dp))
-                                Text(text = "${partner.rating}", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = if (isDark) ServoraTheme.colors.warning else Color(0xFF92400E))
+                                Text(text = "${partner.rating}", fontWeight = FontWeight.Medium, fontSize = 11.sp, color = if (isDark) ServoraTheme.colors.warning else Color(0xFF92400E))
                             }
                         }
                     }
@@ -861,8 +861,8 @@ private fun AdminPartnersTab(
                             Text(
                                 text = "ON DUTY (ONLINE)",
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
                                 color = if (isDark) ServoraTheme.colors.success else Color(0xFF166534)
                             )
                         }
@@ -901,7 +901,7 @@ private fun AdminBookingsTab(
             Text(
                 text = "All System Bookings (${bookings.size})",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = ServoraTheme.colors.textPrimary
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -994,7 +994,7 @@ private fun AdminProfileTab(
                 Text(
                     text = currentAdmin.name,
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     color = ServoraTheme.colors.textPrimary
                 )
                 Text(
@@ -1011,7 +1011,7 @@ private fun AdminProfileTab(
                         text = "SUPER ADMIN • FULL ACCESS",
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = if (isDark) ServoraTheme.colors.warning else Color(0xFFB45309)
                     )
                 }
@@ -1105,7 +1105,7 @@ private fun AdminKpiCard(
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = ServoraTheme.colors.textPrimary
             )
         }
@@ -1138,15 +1138,15 @@ private fun QuickUserSwitchCard(
                 Text(
                     text = role,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
                     color = textColor
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = name,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.titleSmall,
                 color = ServoraTheme.colors.textPrimary,
                 maxLines = 1
@@ -1166,7 +1166,7 @@ private fun QuickUserSwitchCard(
                 Text(
                     text = "Switch ➔",
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     color = AdminIndigo
                 )
             }
@@ -1196,7 +1196,7 @@ private fun AdminBookingCard(
                 Column {
                     Text(
                         text = booking.bookingCode,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         style = MaterialTheme.typography.titleMedium,
                         color = ServoraTheme.colors.textPrimary
                     )
@@ -1224,8 +1224,8 @@ private fun AdminBookingCard(
                     Text(
                         text = booking.status.name,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
                         color = if (isDark) {
                             when (booking.status) {
                                 BookingStatus.COMPLETED -> ServoraTheme.colors.success
@@ -1272,7 +1272,7 @@ private fun AdminBookingCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "Doorstep OTP: ${booking.startOtp}",
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 12.sp,
                         color = if (isDark) ServoraTheme.colors.warning else AdminAmber
                     )
@@ -1287,7 +1287,7 @@ private fun AdminBookingCard(
                 }
                 Text(
                     text = "₹${booking.totalAmount} ($payStatusText)",
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 12.sp,
                     color = ServoraTheme.colors.textPrimary
                 )

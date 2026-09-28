@@ -148,7 +148,7 @@ fun BookingConfirmationScreen(
                 Text(
                     text = "Booking Status",
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 17.sp
                     ),
                     color = textMain
@@ -178,7 +178,7 @@ fun BookingConfirmationScreen(
                                 Text(
                                     text = "Cancel Booking",
                                     color = if (isDark) ServoraTheme.colors.danger else Color(0xFFDC2626),
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Medium
                                 )
                             },
                             leadingIcon = {
@@ -240,7 +240,7 @@ fun BookingConfirmationScreen(
                             else -> "Booking Confirmed!"
                         },
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 20.sp
                         ),
                         color = if (isCancelled) (if (isDark) ServoraTheme.colors.onDangerContainer else Color(0xFFDC2626)) else textMain
@@ -251,7 +251,7 @@ fun BookingConfirmationScreen(
                     Text(
                         text = "Booking Reference: ${booking.bookingCode}",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 12.5.sp
                         ),
                         color = if (isCancelled) (if (isDark) ServoraTheme.colors.onDangerContainer else Color(0xFF991B1B)) else (if (isDark) brandGreen else brandDarkGreen)
@@ -289,7 +289,7 @@ fun BookingConfirmationScreen(
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = "Booking Cancelled",
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 12.sp,
                                         color = if (isDark) ServoraTheme.colors.danger else Color(0xFFDC2626)
                                     )
@@ -303,7 +303,7 @@ fun BookingConfirmationScreen(
                             Text(
                                 text = "$prefix${booking.cancellationReason}",
                                 style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 13.5.sp
                                 ),
                                 color = if (isDark) ServoraTheme.colors.onDangerContainer else Color(0xFF991B1B)
@@ -375,7 +375,7 @@ fun BookingConfirmationScreen(
                                 Text(
                                     text = "START SERVICE OTP",
                                     style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 11.sp,
                                         letterSpacing = 0.5.sp
                                     ),
@@ -409,7 +409,7 @@ fun BookingConfirmationScreen(
                             Text(
                                 text = formattedOtp,
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp,
                                     letterSpacing = 2.sp
                                 ),
@@ -443,7 +443,7 @@ fun BookingConfirmationScreen(
                                 Text(
                                     text = "Payment in Progress",
                                     style = MaterialTheme.typography.titleSmall.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     ),
                                     color = if (isDark) ServoraTheme.colors.warning else Color(0xFF92400E)
@@ -472,7 +472,7 @@ fun BookingConfirmationScreen(
                     Text(
                         text = "LIVE STATUS TRACKER",
                         style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 11.sp,
                             letterSpacing = 0.8.sp
                         ),
@@ -491,7 +491,7 @@ fun BookingConfirmationScreen(
                             )
                             Text(
                                 text = "Auto-updating",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
                                 color = brandGreen
                             )
                         }
@@ -554,7 +554,7 @@ fun BookingConfirmationScreen(
                                         text = desc,
                                         style = MaterialTheme.typography.bodyMedium.copy(
                                             fontSize = 14.sp,
-                                            fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal
+                                            fontWeight = if (isCurrent) FontWeight.Medium else FontWeight.Normal
                                         ),
                                         color = if (isCurrent) (if (isDark) brandGreen else brandDarkGreen) else if (isDone) textMain else textSub
                                     )
@@ -562,7 +562,7 @@ fun BookingConfirmationScreen(
                                         Text(
                                             text = "Current State",
                                             style = MaterialTheme.typography.labelSmall.copy(
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 11.sp
                                             ),
                                             color = brandGreen
@@ -617,7 +617,7 @@ fun BookingConfirmationScreen(
             Text(
                 text = if (booking.isAwaitingPartnerAcceptance) "PROFESSIONAL ALLOCATION" else "YOUR ASSIGNED PROFESSIONAL",
                 style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 11.sp,
                     letterSpacing = 0.8.sp
                 ),
@@ -657,7 +657,7 @@ fun BookingConfirmationScreen(
                         Text(
                             text = "Assigning Professional...",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
                             ),
                             color = textMain
@@ -696,7 +696,7 @@ fun BookingConfirmationScreen(
                             Text(
                                 text = pro.avatarInitials,
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     color = brandGreen,
                                     fontSize = 16.sp
                                 )
@@ -710,7 +710,7 @@ fun BookingConfirmationScreen(
                                 Text(
                                     text = pro.name,
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 14.5.sp
                                     ),
                                     color = textMain
@@ -758,7 +758,7 @@ fun BookingConfirmationScreen(
                             Text(
                                 text = "Message",
                                 style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 12.sp
                                 ),
                                 color = Color.White /* theme-invariant */
@@ -774,7 +774,7 @@ fun BookingConfirmationScreen(
             Text(
                 text = "SCHEDULE & ADDRESS",
                 style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 11.sp,
                     letterSpacing = 0.8.sp
                 ),
@@ -803,7 +803,7 @@ fun BookingConfirmationScreen(
                         Text(
                             text = "${booking.scheduledDate} at ${booking.scheduledTime}",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 13.5.sp
                             ),
                             color = textMain
@@ -842,7 +842,7 @@ fun BookingConfirmationScreen(
                         Text(
                             text = "Total Amount",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 13.5.sp
                             ),
                             color = textMain
@@ -850,7 +850,7 @@ fun BookingConfirmationScreen(
                         Text(
                             text = "₹${booking.totalAmount} (${booking.paymentMethod})",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             ),
                             color = brandGreen
@@ -874,7 +874,7 @@ fun BookingConfirmationScreen(
                         Text(
                             text = "Rate Your Experience with ${pro.name}",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.5.sp
                             ),
                             color = textMain
@@ -885,7 +885,7 @@ fun BookingConfirmationScreen(
                             Text(
                                 text = "Thank you for your rating! Your review is now published.",
                                 color = brandGreen,
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
                             )
                         } else {
                             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -938,7 +938,7 @@ fun BookingConfirmationScreen(
                                 colors = ButtonDefaults.buttonColors(containerColor = brandGreen),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Text("Submit Review", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Bold)
+                                Text("Submit Review", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -985,7 +985,7 @@ fun BookingConfirmationScreen(
                         Text(
                             text = "Back to Home",
                             style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
                             ),
                             color = Color.White /* theme-invariant */

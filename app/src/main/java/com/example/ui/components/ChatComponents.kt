@@ -171,7 +171,7 @@ fun AdminAuditBanner(modifier: Modifier = Modifier) {
                 text = "Read-only · Admin audit view · This access is logged for safety compliance.",
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Medium,
                     lineHeight = 15.sp
                 ),
                 color = colors.onWarningContainer
@@ -199,7 +199,7 @@ fun DayDivider(dateText: String, modifier: Modifier = Modifier) {
                 text = dateText,
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Medium
                 ),
                 color = colors.textSecondary
             )
@@ -293,8 +293,8 @@ fun BookingUpdateCard(
                             Text(
                                 text = "SERVICE BOOKING ACCEPTED",
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
                                     letterSpacing = 0.4.sp
                                 ),
                                 color = colors.onSuccessContainer
@@ -304,7 +304,7 @@ fun BookingUpdateCard(
 
                     Text(
                         text = formattedTime,
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
                         color = colors.textMuted
                     )
                 }
@@ -315,7 +315,7 @@ fun BookingUpdateCard(
                 Text(
                     text = serviceTitle,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 15.sp
                     ),
                     color = colors.textPrimary
@@ -346,7 +346,7 @@ fun BookingUpdateCard(
                                 text = bookingCode,
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Medium
                                 ),
                                 color = colors.textPrimary
                             )
@@ -369,7 +369,7 @@ fun BookingUpdateCard(
                                 text = scheduleText,
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.Medium
                                 ),
                                 color = colors.success
                             )
@@ -485,8 +485,8 @@ fun ChatBubble(
                             Text(
                                 text = "⏱ ETA UPDATE",
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium
                                 ),
                                 color = colors.onSuccessContainer
                             )
@@ -513,7 +513,7 @@ fun ChatBubble(
                     ) {
                         Text(
                             text = formattedTime,
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
                             color = subTextColor
                         )
 
@@ -596,7 +596,7 @@ fun IncomingMessageBanner(
                 Text(
                     text = bannerData.title,
                     style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 13.sp
                     ),
                     color = MaterialTheme.colorScheme.inverseOnSurface,

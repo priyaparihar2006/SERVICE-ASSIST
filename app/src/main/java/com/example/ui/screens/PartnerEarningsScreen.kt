@@ -128,7 +128,7 @@ fun PartnerEarningsScreen(
                         text = "Partner Earnings & Ledger",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontSize = 19.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Medium
                         ),
                         color = Color.White /* theme-invariant */
                     )
@@ -173,7 +173,7 @@ fun PartnerEarningsScreen(
                                     text = "TOTAL COMPLETED REVENUE",
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         letterSpacing = 0.8.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 11.sp
                                     ),
                                     color = Color(0xEEFFFFFF) /* theme-invariant */
@@ -197,8 +197,8 @@ fun PartnerEarningsScreen(
                                     Text(
                                         text = "LIVE LEDGER",
                                         color = Color.White, /* theme-invariant */
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium,
                                         letterSpacing = 0.5.sp
                                     )
                                 }
@@ -211,7 +211,7 @@ fun PartnerEarningsScreen(
                                 text = "₹$totalEarnings",
                                 style = MaterialTheme.typography.headlineLarge.copy(
                                     fontSize = 38.sp,
-                                    fontWeight = FontWeight.Black,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White /* theme-invariant */
                                 )
                             )
@@ -231,8 +231,8 @@ fun PartnerEarningsScreen(
                                     Text(
                                         text = "JOBS DONE",
                                         style = MaterialTheme.typography.labelSmall.copy(
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium
                                         ),
                                         color = Color(0xCCFFFFFF) /* theme-invariant */
                                     )
@@ -241,7 +241,7 @@ fun PartnerEarningsScreen(
                                         Text(
                                             text = "$completedCount",
                                             style = MaterialTheme.typography.titleLarge.copy(
-                                                fontWeight = FontWeight.Black,
+                                                fontWeight = FontWeight.SemiBold,
                                                 fontSize = 20.sp,
                                                 color = Color.White /* theme-invariant */
                                             )
@@ -268,8 +268,8 @@ fun PartnerEarningsScreen(
                                     Text(
                                         text = "CLIENT RATING",
                                         style = MaterialTheme.typography.labelSmall.copy(
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium
                                         ),
                                         color = Color(0xCCFFFFFF) /* theme-invariant */
                                     )
@@ -278,7 +278,7 @@ fun PartnerEarningsScreen(
                                         Text(
                                             text = avgRating,
                                             style = MaterialTheme.typography.titleLarge.copy(
-                                                fontWeight = FontWeight.Black,
+                                                fontWeight = FontWeight.SemiBold,
                                                 fontSize = 20.sp,
                                                 color = Color.White /* theme-invariant */
                                             )
@@ -305,8 +305,8 @@ fun PartnerEarningsScreen(
                                     Text(
                                         text = "ONLINE PAYOUT",
                                         style = MaterialTheme.typography.labelSmall.copy(
-                                            fontSize = 10.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium
                                         ),
                                         color = Color(0xCCFFFFFF) /* theme-invariant */
                                     )
@@ -315,7 +315,7 @@ fun PartnerEarningsScreen(
                                         Text(
                                             text = "₹$onlinePrepaid",
                                             style = MaterialTheme.typography.titleLarge.copy(
-                                                fontWeight = FontWeight.Black,
+                                                fontWeight = FontWeight.SemiBold,
                                                 fontSize = 20.sp,
                                                 color = Color.White /* theme-invariant */
                                             )
@@ -379,7 +379,7 @@ fun PartnerEarningsScreen(
                                         text = "Cash in Hand",
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontWeight = FontWeight.Medium
                                         ),
                                         color = ServoraTheme.colors.textPrimary,
                                         maxLines = 1
@@ -387,14 +387,14 @@ fun PartnerEarningsScreen(
                                     Text(
                                         text = "₹$cashCollected",
                                         style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.Black,
+                                            fontWeight = FontWeight.SemiBold,
                                             fontSize = 16.sp
                                         ),
                                         color = ServoraTheme.colors.textPrimary
                                     )
                                     Text(
                                         text = "Direct client cash",
-                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                                         color = ServoraTheme.colors.textSecondary,
                                         maxLines = 1
                                     )
@@ -447,7 +447,7 @@ fun PartnerEarningsScreen(
                                         text = "Bank Transfer",
                                         style = MaterialTheme.typography.labelSmall.copy(
                                             fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontWeight = FontWeight.Medium
                                         ),
                                         color = ServoraTheme.colors.textPrimary,
                                         maxLines = 1
@@ -455,14 +455,14 @@ fun PartnerEarningsScreen(
                                     Text(
                                         text = "₹$onlinePrepaid",
                                         style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.Black,
+                                            fontWeight = FontWeight.SemiBold,
                                             fontSize = 16.sp
                                         ),
                                         color = ServoraTheme.colors.textPrimary
                                     )
                                     Text(
                                         text = "Instant UPI settlement",
-                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                                         color = ServoraTheme.colors.textSecondary,
                                         maxLines = 1
                                     )
@@ -485,7 +485,7 @@ fun PartnerEarningsScreen(
                     text = "JOB SETTLEMENT HISTORY (${completedBookings.size})",
                     style = MaterialTheme.typography.labelSmall.copy(
                         letterSpacing = 0.8.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 11.sp
                     ),
                     color = ServoraTheme.colors.textSecondary
@@ -551,7 +551,7 @@ fun PartnerEarningsScreen(
                                     text = booking.serviceName,
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Medium
                                     ),
                                     color = ServoraTheme.colors.textPrimary
                                 )
@@ -564,7 +564,7 @@ fun PartnerEarningsScreen(
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = "Code: ${booking.bookingCode} • ${booking.paymentMethod}",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
                                     color = ServoraTheme.colors.textMuted
                                 )
                             }
@@ -576,7 +576,7 @@ fun PartnerEarningsScreen(
                                 Text(
                                     text = "+₹${booking.totalAmount}",
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Black,
+                                        fontWeight = FontWeight.SemiBold,
                                         fontSize = 15.sp,
                                         color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen
                                     )
@@ -591,8 +591,8 @@ fun PartnerEarningsScreen(
                                     Text(
                                         text = "SETTLED",
                                         color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium,
                                         letterSpacing = 0.5.sp
                                     )
                                 }
@@ -630,7 +630,7 @@ fun PartnerEarningsScreen(
                                 Text(
                                     text = "View All (${completedBookings.size}) Settlement Jobs",
                                     style = MaterialTheme.typography.labelLarge.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 13.sp
                                     ),
                                     color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen

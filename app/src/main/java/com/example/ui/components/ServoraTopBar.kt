@@ -99,9 +99,9 @@ fun ServoraTopBar(
                             Text(
                                 text = selectedCity.ifBlank { "Agra" },
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 17.sp,
-                                    letterSpacing = (-0.2).sp
+                                    letterSpacing = 0.sp
                                 ),
                                 color = Color.White // theme-invariant
                             )
@@ -150,7 +150,7 @@ fun ServoraTopBar(
                             Text(
                                 text = "Admin Mode ➔",
                                 style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 color = ServoraTheme.colors.success
                             )
                         }
@@ -196,8 +196,8 @@ fun ServoraTopBar(
                             Text(
                                 text = "Service Assist",
                                 style = MaterialTheme.typography.headlineMedium.copy(
-                                    fontWeight = FontWeight.Black,
-                                    letterSpacing = (-0.5).sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    letterSpacing = 0.sp,
                                     fontSize = 20.sp
                                 ),
                                 color = MaterialTheme.colorScheme.primary
@@ -303,7 +303,7 @@ fun ServoraTopBar(
                                     UserRole.ADMIN -> "Admin Console"
                                 },
                                 style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Medium,
                                 color = when (userRole) {
                                     UserRole.CUSTOMER -> MaterialTheme.colorScheme.onSurfaceVariant
                                     UserRole.PROFESSIONAL -> ServoraTheme.colors.onSuccessContainer

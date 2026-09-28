@@ -225,9 +225,9 @@ fun NotificationsScreen(
                                 Text(
                                     text = "Notifications",
                                     style = MaterialTheme.typography.titleLarge.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 20.sp,
-                                        letterSpacing = (-0.3).sp
+                                        letterSpacing = 0.sp
                                     ),
                                     color = Color.White, /* theme-invariant */
                                     maxLines = 1,
@@ -392,7 +392,7 @@ fun NotificationsScreen(
                                 Text(
                                     text = filterLabel,
                                     style = MaterialTheme.typography.labelMedium.copy(
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Medium,
                                         fontSize = 13.sp
                                     ),
                                     color = if (isSelected) (if (isDark) ServoraTheme.colors.onPrimary else Color.White /* theme-invariant */) else ServoraTheme.colors.textPrimary
@@ -407,8 +407,8 @@ fun NotificationsScreen(
                                             text = "$filterCount",
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp),
                                             style = MaterialTheme.typography.labelSmall.copy(
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 10.sp
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = 11.sp
                                             ),
                                             color = if (isSelected) (if (isDark) ServoraTheme.colors.onPrimary else Color.White /* theme-invariant */) else ServoraTheme.colors.subtext
                                         )
@@ -452,7 +452,7 @@ fun NotificationsScreen(
                         Text(
                             text = "No Notifications",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 18.sp
                             ),
                             color = ServoraTheme.colors.textPrimary
@@ -494,7 +494,7 @@ fun NotificationsScreen(
                                 Text(
                                     text = sectionHeader.uppercase(Locale.getDefault()),
                                     style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 11.sp,
                                         letterSpacing = 0.8.sp
                                     ),
@@ -533,7 +533,7 @@ fun NotificationsScreen(
             title = {
                 Text(
                     text = "Clear all notifications?",
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     color = ServoraTheme.colors.textPrimary
                 )
             },
@@ -553,7 +553,7 @@ fun NotificationsScreen(
                 ) {
                     Text(
                         text = "Clear All",
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = ServoraTheme.colors.danger
                     )
                 }
@@ -643,9 +643,9 @@ private fun NotificationCard(
                         Text(
                             text = notification.title,
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = if (!notification.isRead) FontWeight.Bold else FontWeight.SemiBold,
+                                fontWeight = if (!notification.isRead) FontWeight.Medium else FontWeight.Medium,
                                 fontSize = 14.5.sp,
-                                letterSpacing = (-0.1).sp
+                                letterSpacing = 0.sp
                             ),
                             color = ServoraTheme.colors.textPrimary,
                             maxLines = 1,
@@ -707,7 +707,7 @@ private fun NotificationCard(
                         Text(
                             text = "Ref: ${notification.bookingCode}",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 11.5.sp
                             ),
                             color = if (isDark) ServoraTheme.colors.primary else BrandGreenDark
@@ -740,7 +740,7 @@ private fun NotificationCard(
                         Text(
                             text = "View Offers ➔",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 11.5.sp
                             ),
                             color = if (isDark) Color(0xFFC084FC) else Color(0xFF7E22CE)

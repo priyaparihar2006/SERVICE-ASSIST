@@ -183,7 +183,7 @@ fun JobHeroDetailCard(
                     Text(
                         text = booking.serviceName,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 16.sp,
                             lineHeight = 21.sp
                         ),
@@ -201,7 +201,7 @@ fun JobHeroDetailCard(
                                 text = booking.packageName,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.5.dp),
                                 fontSize = 11.5.sp,
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Medium,
                                 color = if (isDark) colors.onSuccessContainer else brandEmeraldDark,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -268,7 +268,7 @@ fun JobHeroDetailCard(
                         Text(
                             text = booking.bookingCode.ifBlank { "SRV-${booking.id}" },
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = colors.textPrimary,
                             maxLines = 1,
                             softWrap = false
@@ -303,7 +303,7 @@ fun JobHeroDetailCard(
                         Text(
                             text = "₹${booking.totalAmount}",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Black,
+                                fontWeight = FontWeight.SemiBold,
                                 fontSize = 15.5.sp
                             ),
                             color = if (isCompleted) {
@@ -322,8 +322,8 @@ fun JobHeroDetailCard(
                             ) {
                                 Text(
                                     text = "PAID",
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Black,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = Color.White, /* theme-invariant */
                                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.5.dp),
                                     maxLines = 1,
@@ -338,8 +338,8 @@ fun JobHeroDetailCard(
                             ) {
                                 Text(
                                     text = if (booking.paymentMethod.contains("Cash", ignoreCase = true)) "Cash" else "UPI",
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
                                     color = colors.textSecondary,
                                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.5.dp),
                                     maxLines = 1,
@@ -407,7 +407,7 @@ fun JobCustomerCard(
                         Text(
                             text = if (isAccepted) booking.customerName.ifBlank { "Customer" } else customerFirstName,
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
                             ),
                             color = colors.textPrimary
@@ -512,8 +512,8 @@ fun JobCustomerCard(
                     Text(
                         text = if (isAccepted) "Destination Address" else "Service Locality",
                         fontSize = 11.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colors.textMuted
+                        fontWeight = FontWeight.Medium,
+                        color = colors.textSecondary
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -559,7 +559,7 @@ fun JobCustomerCard(
                         Text(
                             text = "Start Navigation in Google Maps",
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = if (isDark) colors.onSuccessContainer else brandEmeraldDark
                         )
                     }
@@ -589,8 +589,8 @@ fun JobCustomerCard(
                         Column {
                             Text(
                                 text = "Customer Instruction",
-                                fontSize = 10.5.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
                                 color = if (isDark) colors.warning else Color(0xFFB45309)
                             )
                             Text(
@@ -635,7 +635,7 @@ fun JobTrackerSection(currentStatus: BookingStatus) {
                 Text(
                     text = "Duty Progress",
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 15.sp
                     ),
                     color = colors.textPrimary
@@ -653,7 +653,7 @@ fun JobTrackerSection(currentStatus: BookingStatus) {
                     Text(
                         text = getBookingStatusLabel(currentStatus),
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = when (currentStatus) {
                             BookingStatus.COMPLETED -> if (isDark) colors.onSuccessContainer else brandEmeraldDark
                             BookingStatus.CANCELLED -> if (isDark) colors.danger else Color(0xFFDC2626)
@@ -724,21 +724,21 @@ fun JobTrackerSection(currentStatus: BookingStatus) {
                             } else {
                                 Text(
                                     text = "${index + 1}",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = colors.textMuted
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = colors.textSecondary
                                 )
                             }
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = step.first,
-                            fontSize = 10.sp,
-                            fontWeight = if (isCurrent || step.second) FontWeight.Bold else FontWeight.Medium,
+                            fontSize = 11.sp,
+                            fontWeight = if (isCurrent || step.second) FontWeight.Medium else FontWeight.Medium,
                             color = if (isCurrent || step.second) {
                                 if (isDark) colors.success else brandEmeraldDark
                             } else {
-                                colors.textMuted
+                                colors.textSecondary
                             },
                             maxLines = 1,
                             softWrap = false
@@ -824,7 +824,7 @@ fun JobOtpBanner(startOtp: String = "") {
             Text(
                 text = "Ask customer for the 4-digit start OTP to begin work.",
                 fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Medium,
                 color = if (isDark) ServoraTheme.colors.onWarningContainer else Color(0xFF92400E)
             )
         }
@@ -893,7 +893,7 @@ fun JobPrimaryActionButton(
                         else -> "Job Complete"
                     },
                     style = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
                         color = Color.White /* theme-invariant */
                     ),
@@ -938,7 +938,7 @@ fun JobPayoutBreakdown(booking: Booking) {
                         Text(
                             text = "Earnings Settled: ₹${booking.totalAmount}",
                             fontSize = 13.5.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = if (isDark) ServoraTheme.colors.onSuccessContainer else brandEmeraldDark
                         )
                     }
@@ -948,8 +948,8 @@ fun JobPayoutBreakdown(booking: Booking) {
                     ) {
                         Text(
                             text = booking.paymentMethod.uppercase(),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = if (isDark) ServoraTheme.colors.success else brandEmeraldPrimary,
                             modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
                         )
@@ -976,7 +976,7 @@ fun JobPayoutBreakdown(booking: Booking) {
                 Text(
                     text = "Completed on $dateFormatted",
                     fontSize = 11.sp,
-                    color = ServoraTheme.colors.textMuted
+                    color = ServoraTheme.colors.textSecondary
                 )
             }
         }
@@ -1007,7 +1007,7 @@ fun JobPayoutBreakdown(booking: Booking) {
                     Text(
                         text = "5.0",
                         fontSize = 12.5.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = if (isDark) ServoraTheme.colors.onWarningContainer else Color(0xFF92400E)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -1020,8 +1020,8 @@ fun JobPayoutBreakdown(booking: Booking) {
 
                 Text(
                     text = "100% On-Time",
-                    fontSize = 10.5.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
                     color = if (isDark) ServoraTheme.colors.onWarningContainer else Color(0xFF92400E)
                 )
             }
@@ -1054,7 +1054,7 @@ fun JobPayoutBreakdown(booking: Booking) {
                         Text(
                             text = "View Cost & Payout Breakdown",
                             fontSize = 12.5.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Medium,
                             color = ServoraTheme.colors.textPrimary
                         )
                     }
@@ -1103,8 +1103,8 @@ fun JobPayoutBreakdown(booking: Booking) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Total Settled", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isDark) ServoraTheme.colors.success else brandEmeraldDark)
-                        Text("₹${booking.totalAmount}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isDark) ServoraTheme.colors.success else brandEmeraldDark)
+                        Text("Total Settled", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else brandEmeraldDark)
+                        Text("₹${booking.totalAmount}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else brandEmeraldDark)
                     }
                 }
             }
@@ -1204,7 +1204,7 @@ fun PartnerJobSummaryCard(
                             Text(
                                 text = "Accept Job",
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp,
                                     color = Color.White /* theme-invariant */
                                 )
@@ -1238,7 +1238,7 @@ fun PartnerJobSummaryCard(
                         Text(
                             text = "Continue Job",
                             style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 14.5.sp,
                                 color = if (isDark) ServoraTheme.colors.success else brandEmeraldPrimary
                             )

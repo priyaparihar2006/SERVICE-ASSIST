@@ -213,7 +213,7 @@ fun SearchOverlay(
                     text = "TRENDING IN AGRA",
                     style = MaterialTheme.typography.labelSmall,
                     color = colors.textSecondary,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Medium
                 )
             }
 
@@ -249,7 +249,7 @@ fun SearchOverlay(
                 style = MaterialTheme.typography.labelSmall,
                 color = colors.textSecondary,
                 letterSpacing = 0.5.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Medium
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -265,7 +265,7 @@ fun SearchOverlay(
                         text = "No services matched \"$query\"",
                         style = MaterialTheme.typography.titleMedium,
                         color = colors.textPrimary,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Medium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -307,7 +307,7 @@ fun SearchOverlay(
                                     text = service.name,
                                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp),
                                     color = colors.textPrimary,
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.Medium,
                                     maxLines = 1
                                 )
                                 Text(
@@ -336,7 +336,7 @@ fun SearchOverlay(
                                         text = "₹${service.startingPrice} onwards",
                                         style = MaterialTheme.typography.labelMedium.copy(
                                             color = MaterialTheme.colorScheme.primary,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Medium
                                         )
                                     )
                                 }
@@ -354,7 +354,7 @@ fun SearchOverlay(
                                     text = "Book",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Color.White, // theme-invariant
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }

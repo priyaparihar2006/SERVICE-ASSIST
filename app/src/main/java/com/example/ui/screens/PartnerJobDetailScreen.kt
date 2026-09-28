@@ -169,7 +169,7 @@ fun PartnerJobDetailScreen(
                             Text(
                                 text = "Job Details",
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 16.sp
                                 ),
                                 color = colors.textPrimary
@@ -203,7 +203,7 @@ fun PartnerJobDetailScreen(
                                 text = statusLabel,
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                                 style = MaterialTheme.typography.bodySmall.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 11.5.sp
                                 ),
                                 color = when (booking.status) {
@@ -280,7 +280,7 @@ fun PartnerJobDetailScreen(
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
                                             text = "Accept Job",
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Medium,
                                             fontSize = 15.sp,
                                             color = Color.White /* theme-invariant */
                                         )
@@ -349,7 +349,7 @@ fun PartnerJobDetailScreen(
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
                                             text = "Cancel Job",
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Medium,
                                             fontSize = 14.sp
                                         )
                                     }
@@ -358,7 +358,7 @@ fun PartnerJobDetailScreen(
                                     Text(
                                         text = "Work has started. Contact support to cancel.",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = colors.textMuted,
+                                        color = colors.textSecondary,
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier.fillMaxWidth()
                                     )
@@ -379,7 +379,7 @@ fun PartnerJobDetailScreen(
                                 Text(
                                     "Back to Duties",
                                     color = if (isCompleted) Color.White /* theme-invariant */ else colors.textPrimary,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -407,7 +407,7 @@ fun PartnerJobDetailScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "Booking not found",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                         color = colors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -505,7 +505,7 @@ fun PartnerJobDetailScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "This job was cancelled",
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp,
                                     color = if (isDark) colors.danger else Color(0xFFDC2626)
                                 )
@@ -551,7 +551,7 @@ fun PartnerJobDetailScreen(
             title = {
                 Text(
                     text = "Customer Start OTP",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                     color = colors.textPrimary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -577,7 +577,7 @@ fun PartnerJobDetailScreen(
                                 otpError = null
                             }
                         },
-                        placeholder = { Text("4-digit OTP", color = colors.textMuted) },
+                        placeholder = { Text("4-digit OTP", color = colors.textSecondary) },
                         singleLine = true,
                         isError = otpError != null,
                         modifier = Modifier
@@ -640,7 +640,7 @@ fun PartnerJobDetailScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("Verify & Start", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Bold)
+                        Text("Verify & Start", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Medium)
                     }
                 }
             },

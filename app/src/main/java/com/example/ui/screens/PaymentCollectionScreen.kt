@@ -134,7 +134,7 @@ fun PaymentCollectionScreen(
 
                     Text(
                         text = "Couldn't Prepare Payment",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
                         color = ServoraTheme.colors.textPrimary
                     )
 
@@ -162,7 +162,7 @@ fun PaymentCollectionScreen(
                             shape = RoundedCornerShape(12.dp),
                             border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
                         ) {
-                            Text("Go Back", color = ServoraTheme.colors.textSecondary, fontWeight = FontWeight.SemiBold)
+                            Text("Go Back", color = ServoraTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
                         }
 
                         Button(
@@ -180,7 +180,7 @@ fun PaymentCollectionScreen(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Retry", fontWeight = FontWeight.Bold, color = Color.White /* theme-invariant */)
+                            Text("Retry", fontWeight = FontWeight.Medium, color = Color.White /* theme-invariant */)
                         }
                     }
                 }
@@ -219,7 +219,7 @@ fun PaymentCollectionScreen(
 
                     Text(
                         text = "Payment Collected!",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Medium),
                         color = ServoraTheme.colors.textPrimary
                     )
 
@@ -230,7 +230,7 @@ fun PaymentCollectionScreen(
 
                     Text(
                         text = "$amountText $methodLabel".trim(),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                         color = if (isDark) ServoraTheme.colors.success else BrandGreen,
                         textAlign = TextAlign.Center
                     )
@@ -256,7 +256,7 @@ fun PaymentCollectionScreen(
                     ) {
                         Text(
                             text = "Done",
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             color = Color.White /* theme-invariant */
                         )
                     }
@@ -299,7 +299,7 @@ fun PaymentCollectionScreen(
                             Text(
                                 text = "Collect Payment",
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 18.sp
                                 ),
                                 color = ServoraTheme.colors.textPrimary
@@ -328,7 +328,7 @@ fun PaymentCollectionScreen(
                             Text(
                                 text = "FINAL AMOUNT DUE",
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     letterSpacing = 1.sp
                                 ),
                                 color = if (isDark) ServoraTheme.colors.onSuccessContainer else BrandDarkGreen
@@ -337,7 +337,7 @@ fun PaymentCollectionScreen(
                             Text(
                                 text = "₹${booking.totalAmount}",
                                 style = MaterialTheme.typography.headlineLarge.copy(
-                                    fontWeight = FontWeight.ExtraBold,
+                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 38.sp
                                 ),
                                 color = if (isDark) ServoraTheme.colors.onSuccessContainer else BrandDarkGreen
@@ -385,7 +385,7 @@ fun PaymentCollectionScreen(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Retry",
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (isDark) ServoraTheme.colors.danger else BrandDarkGreen,
                                     fontSize = 12.sp,
                                     modifier = Modifier
@@ -435,7 +435,7 @@ fun PaymentCollectionScreen(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "Cash at Door",
-                                    fontWeight = if (isCash) FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = if (isCash) FontWeight.Medium else FontWeight.Medium,
                                     fontSize = 13.5.sp,
                                     color = if (isCash) ServoraTheme.colors.textPrimary else ServoraTheme.colors.textSecondary
                                 )
@@ -468,7 +468,7 @@ fun PaymentCollectionScreen(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "UPI QR Code",
-                                    fontWeight = if (isUpi) FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = if (isUpi) FontWeight.Medium else FontWeight.Medium,
                                     fontSize = 13.5.sp,
                                     color = if (isUpi) ServoraTheme.colors.textPrimary else ServoraTheme.colors.textSecondary
                                 )
@@ -510,7 +510,7 @@ fun PaymentCollectionScreen(
 
                                     Text(
                                         text = "Collect Cash from Customer",
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                                         color = ServoraTheme.colors.textPrimary
                                     )
 
@@ -549,7 +549,7 @@ fun PaymentCollectionScreen(
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Text(
                                                 text = "Cash Received — ₹${booking.totalAmount}",
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 15.sp,
                                                 color = Color.White /* theme-invariant */
                                             )
@@ -572,13 +572,13 @@ fun PaymentCollectionScreen(
                                 ) {
                                     Text(
                                         text = "Scan to Pay ₹${booking.totalAmount}",
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                                         color = ServoraTheme.colors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = "Payee: ${state.upiPayeeName} (${state.upiPayeeVpa})",
-                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                                         color = if (isDark) ServoraTheme.colors.success else BrandDarkGreen
                                     )
 
@@ -630,7 +630,7 @@ fun PaymentCollectionScreen(
                                             } else {
                                                 Text(
                                                     "Ask the customer for the 12-digit UTR on their payment receipt",
-                                                    color = ServoraTheme.colors.textMuted,
+                                                    color = ServoraTheme.colors.textSecondary,
                                                     fontSize = 11.sp
                                                 )
                                             }
@@ -639,10 +639,10 @@ fun PaymentCollectionScreen(
                                             Text(
                                                 text = "${state.utr.length}/12",
                                                 style = MaterialTheme.typography.bodySmall.copy(
-                                                    fontWeight = FontWeight.Bold,
+                                                    fontWeight = FontWeight.Medium,
                                                     fontFamily = FontFamily.Monospace
                                                 ),
-                                                color = if (state.utr.length == 12) (if (isDark) ServoraTheme.colors.success else BrandGreen) else ServoraTheme.colors.textMuted,
+                                                color = if (state.utr.length == 12) (if (isDark) ServoraTheme.colors.success else BrandGreen) else ServoraTheme.colors.textSecondary,
                                                 modifier = Modifier.padding(end = 12.dp)
                                             )
                                         },
@@ -694,7 +694,7 @@ fun PaymentCollectionScreen(
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Text(
                                                 text = "Confirm UPI Payment Received",
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Medium,
                                                 fontSize = 14.5.sp,
                                                 color = Color.White /* theme-invariant */
                                             )

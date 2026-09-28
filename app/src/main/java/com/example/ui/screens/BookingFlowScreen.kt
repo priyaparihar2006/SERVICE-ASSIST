@@ -256,7 +256,7 @@ fun BookingFlowScreen(
                     Text(
                         text = "My Cart",
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 20.sp
                         ),
                         color = textPrimary
@@ -298,7 +298,7 @@ fun BookingFlowScreen(
                             Text(
                                 text = mode.label,
                                 style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Medium,
                                     fontSize = 14.sp
                                 ),
                                 color = if (isSelected) (if (isDark) Color(0xFF00210F) else Color.White /* theme-invariant */) else textSecondary
@@ -330,7 +330,7 @@ fun BookingFlowScreen(
                                 Text(
                                     text = "Set up recurring service.",
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 17.sp
                                     ),
                                     color = textPrimary
@@ -438,9 +438,9 @@ fun BookingFlowScreen(
                                     Text(
                                         text = title,
                                         style = MaterialTheme.typography.labelMedium.copy(
-                                            fontWeight = if (isVSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                            fontWeight = if (isVSelected) FontWeight.Medium else FontWeight.Medium,
                                             fontSize = 12.sp,
-                                            letterSpacing = (-0.1).sp
+                                            letterSpacing = 0.sp
                                         ),
                                         color = if (isVSelected) emeraldGreen else textPrimary,
                                         textAlign = TextAlign.Center,
@@ -451,7 +451,7 @@ fun BookingFlowScreen(
                                         text = subtitle,
                                         style = MaterialTheme.typography.bodySmall.copy(
                                             fontWeight = FontWeight.Medium,
-                                            fontSize = 10.5.sp
+                                            fontSize = 11.sp
                                         ),
                                         color = if (isVSelected) (if (isDark) emeraldGreen else Color(0xFF065F46)) else textSecondary,
                                         textAlign = TextAlign.Center,
@@ -476,7 +476,7 @@ fun BookingFlowScreen(
                 Text(
                     text = "Review booking",
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 16.sp
                     ),
                     color = textPrimary
@@ -529,7 +529,7 @@ fun BookingFlowScreen(
                                 Text(
                                     text = service.name,
                                     style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontWeight = FontWeight.Medium,
                                         fontSize = 15.sp
                                     ),
                                     color = textPrimary
@@ -548,7 +548,7 @@ fun BookingFlowScreen(
                         Text(
                             text = "₹$unitPrice",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp
                             ),
                             color = textPrimary
@@ -580,7 +580,7 @@ fun BookingFlowScreen(
                                     Text(
                                         text = "$stepperDisplayNumber",
                                         style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Medium,
                                             fontSize = 15.sp
                                         ),
                                         color = emeraldGreen
@@ -597,7 +597,7 @@ fun BookingFlowScreen(
                                 Text(
                                     text = stepperUnitLabel,
                                     style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 9.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Medium
                                     ),
                                     color = emeraldGreen
@@ -658,13 +658,13 @@ fun BookingFlowScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "Slot: $selectedDate at $selectedTimeSlot",
-                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                                     color = textPrimary
                                 )
                             }
                             Text(
                                 text = "Change >",
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
                                 color = emeraldGreen
                             )
                         }
@@ -687,7 +687,7 @@ fun BookingFlowScreen(
                         )
                         Text(
                             text = "Add more services.",
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                             color = emeraldGreen,
                             modifier = Modifier.clickable { onAddMoreServices() }
                         )
@@ -726,7 +726,7 @@ fun BookingFlowScreen(
                             Column {
                                 Text(
                                     text = "Coupon Applied: ${appliedOffer.code}",
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                                     color = emeraldGreen
                                 )
                                 Text(
@@ -738,7 +738,7 @@ fun BookingFlowScreen(
                         }
                         Text(
                             text = "Remove",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                             color = if (isDark) ServoraTheme.colors.danger else Color.Red /* theme-invariant */,
                             modifier = Modifier.clickable { onRemovePromo() }
                         )
@@ -746,7 +746,7 @@ fun BookingFlowScreen(
                         Text(
                             text = "View all coupons",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.SemiBold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
                             ),
                             color = textPrimary
@@ -767,7 +767,7 @@ fun BookingFlowScreen(
             Text(
                 text = "Booking details",
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 16.sp
                 ),
                 color = textPrimary,
@@ -803,7 +803,7 @@ fun BookingFlowScreen(
                             Text(
                                 text = "Location",
                                 style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 14.sp
                                 ),
                                 color = textPrimary
@@ -846,7 +846,7 @@ fun BookingFlowScreen(
                             Text(
                                 text = contactName,
                                 style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Medium,
                                     fontSize = 14.sp
                                 ),
                                 color = textPrimary
@@ -874,7 +874,7 @@ fun BookingFlowScreen(
             Text(
                 text = "Bill details",
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     fontSize = 16.sp
                 ),
                 color = textPrimary,
@@ -903,7 +903,7 @@ fun BookingFlowScreen(
                         Text(
                             text = "To pay ₹$finalTotalFormatted",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 16.sp
                             ),
                             color = textPrimary
@@ -982,7 +982,7 @@ fun BookingFlowScreen(
                                 }
                                 Text(
                                     text = "₹$gstFormatted",
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                                     color = textPrimary
                                 )
                             }
@@ -1068,7 +1068,7 @@ fun BookingFlowScreen(
                     Text(
                         text = buttonText,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 16.sp
                         ),
                         color = Color.White /* theme-invariant */
@@ -1100,7 +1100,7 @@ fun BookingFlowScreen(
                     ) {
                         Text(
                             text = "Apply Coupon Code",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                             color = textPrimary
                         )
                         IconButton(onClick = { showCouponsSheet = false }) {
@@ -1150,7 +1150,7 @@ fun BookingFlowScreen(
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(52.dp)
                         ) {
-                            Text("Apply", fontWeight = FontWeight.Bold, color = Color.White /* theme-invariant */)
+                            Text("Apply", fontWeight = FontWeight.Medium, color = Color.White /* theme-invariant */)
                         }
                     }
 
@@ -1166,7 +1166,7 @@ fun BookingFlowScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Available Offers",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
                         color = textPrimary
                     )
                     Spacer(modifier = Modifier.height(10.dp))
@@ -1194,7 +1194,7 @@ fun BookingFlowScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = offer.code,
-                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
                                         color = emeraldGreen
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
@@ -1256,7 +1256,7 @@ fun BookingFlowScreen(
                     ) {
                         Text(
                             text = "Select Delivery Address",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                             color = textPrimary
                         )
                         IconButton(onClick = { showAddressSheet = false }) {
@@ -1304,7 +1304,7 @@ fun BookingFlowScreen(
                                 Column {
                                     Text(
                                         text = addr.title,
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                                         color = textPrimary
                                     )
                                     Text(
@@ -1330,7 +1330,7 @@ fun BookingFlowScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null, tint = emeraldGreen)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("+ Add New Address", color = emeraldGreen, fontWeight = FontWeight.Bold)
+                        Text("+ Add New Address", color = emeraldGreen, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -1351,7 +1351,7 @@ fun BookingFlowScreen(
             AlertDialog(
                 onDismissRequest = { showAddAddressDialog = false },
                 containerColor = MaterialTheme.colorScheme.surface,
-                title = { Text("Add New Address", fontWeight = FontWeight.Bold, color = textPrimary) },
+                title = { Text("Add New Address", fontWeight = FontWeight.Medium, color = textPrimary) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(
@@ -1422,7 +1422,7 @@ fun BookingFlowScreen(
             AlertDialog(
                 onDismissRequest = { showContactDialog = false },
                 containerColor = MaterialTheme.colorScheme.surface,
-                title = { Text("Recipient Contact Details", fontWeight = FontWeight.Bold, color = textPrimary) },
+                title = { Text("Recipient Contact Details", fontWeight = FontWeight.Medium, color = textPrimary) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         OutlinedTextField(
@@ -1473,7 +1473,7 @@ fun BookingFlowScreen(
                     ) {
                         Text(
                             text = "Select Service Date & Slot",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                             color = textPrimary
                         )
                         IconButton(onClick = { showSlotSheet = false }) {
@@ -1513,7 +1513,7 @@ fun BookingFlowScreen(
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = dateOpt.dateNumber,
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                                         color = if (isSelected) emeraldGreen else textPrimary
                                     )
                                 }
@@ -1525,7 +1525,7 @@ fun BookingFlowScreen(
 
                     Text(
                         text = "Select start time of service",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
                         color = textPrimary
                     )
 
@@ -1560,7 +1560,7 @@ fun BookingFlowScreen(
                             ) {
                                 Text(
                                     text = slot,
-                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                                     color = if (isSlotSelected) emeraldGreen else textPrimary
                                 )
                             }
@@ -1575,7 +1575,7 @@ fun BookingFlowScreen(
             AlertDialog(
                 onDismissRequest = { showGstInfoDialog = false },
                 containerColor = MaterialTheme.colorScheme.surface,
-                title = { Text("GST & Service Fees Breakdown", fontWeight = FontWeight.Bold, color = textPrimary) },
+                title = { Text("GST & Service Fees Breakdown", fontWeight = FontWeight.Medium, color = textPrimary) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
@@ -1620,14 +1620,14 @@ fun CartBillRow(
     ) {
         Text(
             text = label,
-            style = if (isBold) MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+            style = if (isBold) MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium)
             else MaterialTheme.typography.bodyMedium,
             color = if (isBold) textPrimary else textSecondary
         )
         Text(
             text = value,
-            style = if (isBold) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-            else MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = if (isBold) MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
+            else MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
             color = if (isBold) textPrimary else valueColor
         )
     }

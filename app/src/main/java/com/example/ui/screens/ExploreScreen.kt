@@ -198,7 +198,7 @@ fun ExploreScreen(
                         Text(
                             text = categoryTitle,
                             style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 22.sp
                             ),
                             color = darkTextPrimary,
@@ -335,7 +335,7 @@ fun ExploreScreen(
                         Text(
                             text = "All Services",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = if (isAllSelected) FontWeight.Bold else FontWeight.Medium,
+                                fontWeight = if (isAllSelected) FontWeight.Medium else FontWeight.Medium,
                                 fontSize = 12.5.sp
                             ),
                             color = if (isAllSelected) (if (isDark) ServoraTheme.colors.onPrimary else Color.White /* theme-invariant */) else darkTextPrimary,
@@ -361,7 +361,7 @@ fun ExploreScreen(
                         Text(
                             text = category.name,
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Medium,
                                 fontSize = 12.5.sp
                             ),
                             color = if (isSelected) (if (isDark) ServoraTheme.colors.onPrimary else Color.White /* theme-invariant */) else darkTextPrimary,
@@ -384,7 +384,7 @@ fun ExploreScreen(
                 ) {
                     Text(
                         text = "No services matched your filter.",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
                         color = darkTextPrimary
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -397,7 +397,7 @@ fun ExploreScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = emeraldGreen),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Reset Filters", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Bold)
+                        Text("Reset Filters", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -460,7 +460,7 @@ fun VisualServiceExploreCard(
                 Text(
                     text = service.name,
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         fontSize = 17.sp,
                         lineHeight = 22.sp
                     ),
@@ -485,7 +485,7 @@ fun VisualServiceExploreCard(
                     Text(
                         text = "%.2f".format(service.rating),
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 13.sp
                         ),
                         color = darkTextPrimary
@@ -509,7 +509,7 @@ fun VisualServiceExploreCard(
                     Text(
                         text = "₹${service.startingPrice}",
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
                         ),
                         color = emeraldGreen
@@ -560,7 +560,7 @@ fun VisualServiceExploreCard(
                         Text(
                             text = "View details",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 13.sp
                             ),
                             color = emeraldGreen
@@ -622,7 +622,7 @@ fun VisualServiceExploreCard(
                         Text(
                             text = "Add",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 13.sp
                             ),
                             color = Color.White /* theme-invariant */
