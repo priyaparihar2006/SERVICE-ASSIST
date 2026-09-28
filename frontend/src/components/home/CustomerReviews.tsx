@@ -1,10 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Review } from '../../types';
 import { Star, CheckCircle2 } from 'lucide-react';
 
 interface CustomerReviewsProps {
   reviews: Review[];
 }
+
+const ReviewAvatar: React.FC<{ name: string; avatar?: string }> = ({ name, avatar }) => {
+  const [imgError, setImgError] = useState(false);
+
+  const initials = name
+    .split(' ')
+    .map((n) => n[0])
+    .filter(Boolean)
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
+
+  const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'Customer')}&background=008060&color=ffffff&bold=true&size=120`;
+
+  if (imgError) {
+    return (
+      <div className="w-10 h-10 rounded-full bg-[var(--color-brand)] text-white font-bold text-xs flex items-center justify-center border border-[var(--color-brand-light)] shadow-2xs shrink-0 font-['Outfit']">
+        {initials || 'SA'}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={avatar || fallbackUrl}
+      alt={name}
+      onError={() => setImgError(true)}
+      className="w-10 h-10 rounded-full object-cover border border-[var(--color-brand-light)] shadow-2xs shrink-0"
+      referrerPolicy="no-referrer"
+      loading="lazy"
+    />
+  );
+};
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch {
+    return dateStr;
+  }
+};
 
 export const CustomerReviews: React.FC<CustomerReviewsProps> = ({ reviews }) => {
   return (
@@ -42,7 +86,7 @@ export const CustomerReviews: React.FC<CustomerReviewsProps> = ({ reviews }) => 
                       />
                     ))}
                   </div>
-                  <span className="text-[11px] text-gray-400 font-medium">{review.date}</span>
+                  <span className="text-[11px] text-gray-400 font-medium">{formatDate(review.date)}</span>
                 </div>
 
                 <p className="text-xs sm:text-sm text-gray-700 leading-relaxed italic mb-6">
@@ -52,20 +96,15 @@ export const CustomerReviews: React.FC<CustomerReviewsProps> = ({ reviews }) => 
 
               <div className="pt-4 border-t border-gray-200/60 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <img
-                    src={review.customerAvatar}
-                    alt={review.customerName}
-                    className="w-10 h-10 rounded-full object-cover border border-brand-light"
-                    referrerPolicy="no-referrer"
-                  />
+                  <ReviewAvatar name={review.customerName} avatar={review.customerAvatar} />
                   <div>
                     <h4 className="font-bold text-xs text-gray-900 font-['Outfit']">{review.customerName}</h4>
                     <p className="text-[10px] text-gray-400">{review.serviceName}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 text-[10px] font-bold text-brand-hover bg-brand-soft px-2 py-1 rounded-md">
-                  <CheckCircle2 className="w-3 h-3 text-brand" />
+                <div className="flex items-center gap-1 text-[10px] font-bold text-[var(--color-brand-hover)] bg-[var(--color-brand-light)] px-2 py-1 rounded-md">
+                  <CheckCircle2 className="w-3 h-3 text-[var(--color-brand)]" />
                   <span>Verified</span>
                 </div>
               </div>
