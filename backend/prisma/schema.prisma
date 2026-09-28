@@ -1,0 +1,464 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+enum Role {
+  CUSTOMER
+  PROFESSIONAL
+  ADMIN
+}
+enum BookingStatus {
+  PENDING
+  ASSIGNED
+  CONFIRMED
+  ON_THE_WAY
+  ARRIVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+model User {
+  id String @id @default(cuid())
+  name String
+  email String @unique
+  phone String @default("")
+  passwordHash String
+  role Role @default(CUSTOMER)
+  profileImage String?
+  isDemo Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  professional Professional?
+  addresses Address[]
+  bookings Booking[]
+  reviews Review[]
+  notifications Notification[]
+  tickets SupportTicket[]
+  sessions Session[]
+  chatParticipations ConversationParticipant[]
+  chatMessages Message[]
+  chatReceipts MessageReceipt[]
+  blocksMade BlockedUser[] @relation("Blocker")
+  blocksReceived BlockedUser[] @relation("Blocked")
+  chatReports ChatReport[] @relation("ReportReporter")
+  chatReportsResolved ChatReport[] @relation("ReportResolver")
+  chatAccessLogs ChatAccessLog[]
+}
+model Session {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@index([userId])
+  @@index([expiresAt])
+}
+model Category {
+  id String @id @default(cuid())
+  name String
+  slug String @unique
+  description String
+  image String
+  icon String @default("Sparkles")
+  color String @default("#0B9F6E")
+  bgPastel String @default("#DDF7EC")
+  badge String?
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  services Service[]
+}
+model Service {
+  id String @id @default(cuid())
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  name String
+  slug String @unique
+  description String
+  shortDesc String
+  subcategory String @default("General")
+  priceType String @default("FIXED")
+  serviceType String @default("HOME_VISIT")
+  warrantyPolicy String?
+  requiredTools String[] @default([])
+  isDemo Boolean @default(false)
+  image String
+  galleryImages String[] @default([])
+  startingPrice Decimal @db.Decimal(12, 2)
+  duration Int
+  rating Float @default(0)
+  popular Boolean @default(false)
+  trending Boolean @default(false)
+  isActive Boolean @default(true)
+  locations String[]
+  whatIncluded String[]
+  whatExcluded String[]
+  whyChoose String[]
+  steps String[] @default([])
+  faqs Json @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  variants ServiceVariant[]
+  professionals Professional[]
+  bookings Booking[]
+  items BookingItem[]
+  @@index([categoryId, isActive])
+}
+model ServiceVariant {
+  id String @id @default(cuid())
+  serviceId String
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  name String
+  price Decimal @db.Decimal(12, 2)
+  originalPrice Decimal? @db.Decimal(12, 2)
+  durationMin Int
+  description String
+  included String[]
+  items BookingItem[]
+  @@index([serviceId])
+}
+model Professional {
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  businessName String @default("")
+  description String @default("")
+  experience Int @default(0)
+  verificationStatus VerificationStatus @default(PENDING)
+  serviceArea String[]
+  rating Float @default(0)
+  isAvailableToday Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  services Service[]
+  availability Availability[]
+  bookings Booking[]
+  assignments BookingAssignment[]
+  reviews Review[]
+}
+model Availability {
+  id String @id @default(cuid())
+  professionalId String
+  professional Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startMinute Int
+  endMinute Int
+  @@unique([professionalId, dayOfWeek, startMinute])
+}
+model Address {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  type String @default("Home")
+  addressLine String
+  house String @default("")
+  street String @default("")
+  area String @default("")
+  city String
+  state String
+  pincode String
+  landmark String?
+  latitude Float?
+  longitude Float?
+  isDefault Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bookings Booking[]
+  @@index([userId])
+}
+model Booking {
+  id String @id @default(cuid())
+  customerId String
+  customer User @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  professionalId String?
+  professional Professional? @relation(fields: [professionalId], references: [id], onDelete: Restrict)
+  serviceId String
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  addressId String
+  address Address @relation(fields: [addressId], references: [id], onDelete: Restrict)
+  addressSnapshot Json
+  bookingDate DateTime @db.Date
+  bookingTime String
+  startAt DateTime
+  endAt DateTime
+  status BookingStatus @default(PENDING)
+  totalAmount Decimal @db.Decimal(12, 2)
+  subtotal Decimal @db.Decimal(12, 2)
+  discount Decimal @db.Decimal(12, 2) @default(0)
+  taxes Decimal @db.Decimal(12, 2) @default(0)
+  couponCode String?
+  notes String @default("")
+  verificationOtp String
+  otpAttempts Int @default(0)
+  requestKey String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  items BookingItem[]
+  payment Payment?
+  review Review?
+  history BookingHistory[]
+  assignments BookingAssignment[]
+  conversations Conversation[]
+  @@unique([customerId, requestKey])
+  @@index([customerId, createdAt])
+  @@index([professionalId, startAt, endAt])
+  @@index([status, createdAt])
+}
+model BookingAssignment {
+  id String @id @default(cuid())
+  bookingId String
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  professionalId String
+  professional Professional @relation(fields: [professionalId], references: [id], onDelete: Restrict)
+  activeKey String? @unique
+  assignedAt DateTime @default(now())
+  acceptedAt DateTime?
+  rejectedAt DateTime?
+  closedAt DateTime?
+  @@index([professionalId, assignedAt])
+  @@index([bookingId, assignedAt])
+}
+model BookingItem {
+  id String @id @default(cuid())
+  bookingId String
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  serviceId String
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  variantId String
+  variant ServiceVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  name String
+  quantity Int
+  unitPrice Decimal @db.Decimal(12, 2)
+  @@index([bookingId])
+}
+model BookingHistory {
+  id String @id @default(cuid())
+  bookingId String
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  status BookingStatus
+  note String @default("")
+  timestamp DateTime @default(now())
+  @@index([bookingId])
+}
+model Payment {
+  id String @id @default(cuid())
+  bookingId String @unique
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  amount Decimal @db.Decimal(12, 2)
+  status PaymentStatus @default(PENDING)
+  paymentMethod String
+  transactionId String? @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Review {
+  id String @id @default(cuid())
+  bookingId String @unique
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  customerId String
+  customer User @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  professionalId String
+  professional Professional @relation(fields: [professionalId], references: [id], onDelete: Restrict)
+  rating Int
+  comment String
+  createdAt DateTime @default(now())
+  @@index([professionalId])
+}
+model Notification {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title String
+  message String
+  isRead Boolean @default(false)
+  type String @default("BOOKING")
+  createdAt DateTime @default(now())
+  @@index([userId, createdAt])
+}
+model Offer {
+  id String @id @default(cuid())
+  code String @unique
+  description String
+  discountType String
+  value Decimal @db.Decimal(12, 2)
+  minBookingAmount Decimal @db.Decimal(12, 2)
+  maxDiscount Decimal? @db.Decimal(12, 2)
+  expiry DateTime
+  isActive Boolean @default(true)
+  // Category ids the coupon applies to; empty means every category.
+  categoryIds String[] @default([])
+  // How many non-cancelled bookings one customer may use it on (NULL = unlimited).
+  maxUsesPerCustomer Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model SupportTicket {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  subject String
+  category String @default("GENERAL")
+  message String
+  status String @default("OPEN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([userId, createdAt])
+}
+enum ConversationStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum MessageType {
+  TEXT
+}
+
+enum ChatReportReason {
+  HARASSMENT
+  SPAM
+  OFF_PLATFORM_CONTACT
+  SAFETY
+  OTHER
+}
+
+enum ChatReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+// One private thread per booking and assigned professional. Message bodies are stored only as
+// AES-256-GCM ciphertext under a per-conversation data key, which is itself wrapped by a
+// versioned master key held outside the database (see src/services/chatCrypto.js).
+model Conversation {
+  id String @id @default(uuid())
+  bookingId String
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  status ConversationStatus @default(ACTIVE)
+  // Equals bookingId while ACTIVE and NULL once CLOSED, so at most one active thread exists per booking.
+  activeKey String? @unique
+  wrappedKey Bytes
+  keyVersion Int
+  lastMessageAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  participants ConversationParticipant[]
+  messages Message[]
+  reports ChatReport[]
+  accessLogs ChatAccessLog[]
+
+  @@index([bookingId])
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id String @id @default(uuid())
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  role Role
+  joinedAt DateTime @default(now())
+  // Set when the user's booking relationship ends (e.g. professional reassigned); revokes access.
+  leftAt DateTime?
+  lastReadAt DateTime?
+
+  @@unique([conversationId, userId])
+  @@index([userId, leftAt])
+}
+
+model Message {
+  id String @id @default(uuid())
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId String
+  sender User @relation(fields: [senderId], references: [id], onDelete: Restrict)
+  // Client-generated UUID that makes a retried send idempotent.
+  clientMessageId String?
+  // iv (12) || auth tag (16) || ciphertext. NULL once the sender deletes the message.
+  encryptedContent Bytes?
+  encryptionVersion Int @default(1)
+  messageType MessageType @default(TEXT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  receipts MessageReceipt[]
+
+  @@unique([conversationId, senderId, clientMessageId])
+  @@index([conversationId, createdAt, id])
+}
+
+model MessageReceipt {
+  id String @id @default(uuid())
+  messageId String
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  deliveredAt DateTime?
+  readAt DateTime?
+
+  @@unique([messageId, userId])
+  @@index([userId, readAt])
+}
+
+model BlockedUser {
+  id String @id @default(uuid())
+  blockerId String
+  blocker User @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked User @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+}
+
+model ChatReport {
+  id String @id @default(uuid())
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Restrict)
+  reporterId String
+  reporter User @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Restrict)
+  reason ChatReportReason
+  details String @default("")
+  status ChatReportStatus @default(OPEN)
+  // conversationId:reporterId while OPEN, NULL afterwards: one open report per reporter and thread.
+  openKey String? @unique
+  resolvedById String?
+  resolvedBy User? @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: Restrict)
+  resolutionNote String @default("")
+  createdAt DateTime @default(now())
+  resolvedAt DateTime?
+
+  @@index([status, createdAt])
+  @@index([conversationId])
+}
+
+// Append-only audit trail of every administrator read of conversation content.
+model ChatAccessLog {
+  id String @id @default(uuid())
+  adminId String
+  admin User @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Restrict)
+  reportId String
+  justification String
+  messageCount Int
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([adminId, createdAt])
+}

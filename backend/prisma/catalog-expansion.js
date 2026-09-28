@@ -1,0 +1,258 @@
+// Demo catalog definitions. These are intentionally separate from live bookings and reviews.
+// A quoted inspection visit covers diagnosis only; parts and further work need customer approval.
+const groups = [
+  ['cat-beauty', 'Hair Services', 349, 60, 'hair', `Women's Haircut|Men's Haircut|Kids Haircut|Hair Styling|Hair Spa|Hair Wash & Blow Dry|Hair Coloring|Hair Smoothening|Hair Straightening|Beard Styling|Beard Trimming|Head Massage`],
+  ['cat-beauty', 'Manicure & Pedicure', 399, 60, 'nails', `Basic Manicure|Premium Manicure|Gel Manicure|Nail Art|Basic Pedicure|Spa Pedicure|Gel Pedicure|Foot Spa|Cuticle Care`],
+  ['cat-beauty', 'Facial & Skincare', 499, 60, 'skincare', `Basic Facial|Glow Facial|Deep Cleansing Facial|Cleanup|De-Tan Treatment|Skin Care Consultation`],
+  ['cat-beauty', 'Beauty Services', 299, 45, 'beauty', `Waxing|Full Body Waxing|Eyebrow Threading|Upper Lip Threading|Bridal Makeup|Party Makeup|Saree Draping`],
+  ['cat-laptop-computer', 'Laptop Repair', 299, 60, 'laptop', `Laptop Screen Replacement|Laptop Keyboard Replacement|Laptop Battery Replacement|Laptop Charging Port Repair|Laptop Overheating Fix|Laptop Fan Cleaning|Laptop Hinge Repair|Laptop Motherboard Diagnosis|Laptop Speaker Repair|Laptop Webcam Repair|Laptop Touchpad Repair`],
+  ['cat-laptop-computer', 'Software Services', 399, 60, 'software', `Windows Installation|Windows Activation Assistance|Driver Installation|Software Installation|Laptop Formatting|Virus & Malware Removal|Laptop Performance Optimization|Data Backup Assistance|Operating System Troubleshooting`],
+  ['cat-laptop-computer', 'Hardware & Upgrades', 299, 60, 'laptop', `RAM Upgrade|SSD Upgrade|HDD Replacement|Laptop Cleaning|Desktop Assembly|Computer Repair|Printer Setup|Wi-Fi & Network Troubleshooting`],
+  ['cat-electronics', 'Mobile & Tablet', 299, 60, 'mobile', `Mobile Screen Repair|Mobile Battery Replacement|Charging Port Repair|Software Troubleshooting|Tablet Repair`],
+  ['cat-electronics', 'Home Electronics', 399, 75, 'electronics', `TV Installation|TV Wall Mounting|TV Repair|Speaker Installation|Home Theatre Setup|CCTV Installation|CCTV Troubleshooting`],
+  ['cat-electronics', 'Smart Home', 399, 60, 'smart-home', `Smart Doorbell Installation|Smart Lock Installation|Smart Device Setup|Wi-Fi Router Installation|Smart TV Setup`],
+  ['cat-electronics', 'Other Electronics', 299, 60, 'electronics', `Printer Repair|Scanner Setup|Gaming Console Cleaning|Computer Peripheral Setup`],
+  ['cat-electrician', 'Electrical Repairs', 299, 60, 'electrical', `Switch & Socket Repair|Ceiling Fan Repair|Inverter Repair|Wiring Repair|Short Circuit Inspection|Geyser Electrical Repair`],
+  ['cat-electrician', 'Electrical Installation', 349, 60, 'electrical', `Fan Installation|Light Installation|LED Light Installation|Chandelier Installation|Inverter Installation|MCB Replacement|Doorbell Installation|Exhaust Fan Installation`],
+  ['cat-plumber', 'Plumbing Repairs', 299, 60, 'plumbing', `Tap Repair|Wash Basin Repair|Toilet Repair|Water Leakage Repair|Pipe Repair|Drain Cleaning|Sink Blockage Removal`],
+  ['cat-plumber', 'Plumbing Installation', 399, 75, 'plumbing', `Tap Installation|Basin Installation|Toilet Installation|Shower Installation|Bathroom Fitting Installation`],
+  ['cat-cleaning', 'Home Cleaning', 1499, 180, 'cleaning', `Full Home Cleaning|Kitchen Deep Cleaning|Bathroom Deep Cleaning|Sofa Cleaning|Carpet Cleaning|Mattress Cleaning|Floor Cleaning|Window Cleaning|Water Tank Cleaning|Move-in Cleaning|Move-out Cleaning|Balcony Cleaning`],
+  ['cat-ac-appliances', 'AC Services', 499, 75, 'ac', `AC General Servicing|AC Deep Cleaning|AC Gas Refill|AC Installation|AC Uninstallation|AC Repair|AC Cooling Issue|AC Water Leakage Repair`],
+  ['cat-ac-appliances', 'Appliances', 399, 75, 'appliances', `Washing Machine Repair|Refrigerator Repair|Microwave Repair|Dishwasher Repair|Geyser Repair|Chimney Cleaning|RO Water Purifier Service|RO Installation|RO Repair`],
+];
+
+const inspection = /repair|replacement|refill|issue|diagnosis|troubleshooting|installation|upgrade|assembly|formatting|data backup|water leakage|drain cleaning|blockage/i;
+const slugify = (name) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const safety = (category) => category === 'cat-electrician'
+  ? 'Work must be performed by a qualified electrician with the circuit isolated before inspection.'
+  : '';
+const serviceDetails = {
+  'Hair Services': 'A stylist confirms the requested look, prepares the work area and completes the selected hair or beard treatment.',
+  'Manicure & Pedicure': 'A nail technician prepares and treats the hands or feet using the method selected, then checks the finish with you.',
+  'Facial & Skincare': 'A skincare professional discusses skin concerns before the selected cleansing or treatment steps.',
+  'Beauty Services': 'A beauty professional confirms the area, style or look requested before beginning the selected treatment.',
+  'Laptop Repair': 'A laptop technician checks the reported fault, tests the affected component and explains the repair options.',
+  'Software Services': 'A computer technician checks the software issue, confirms data and license requirements, then performs the agreed setup or troubleshooting.',
+  'Hardware & Upgrades': 'A computer technician checks compatibility and device condition before fitting, cleaning or configuring hardware.',
+  'Mobile & Tablet': 'An electronics technician inspects the device and confirms the affected component before proposing repair work.',
+  'Home Electronics': 'An electronics technician checks the equipment, installation point and power or signal connections before the agreed work.',
+  'Smart Home': 'A technician checks device compatibility, network access and placement before setup and pairing.',
+  'Other Electronics': 'A technician inspects the device, connections and fault symptoms before repair or setup.',
+  'Electrical Repairs': 'A qualified electrician isolates the circuit, checks the reported fault and explains the safe repair scope.',
+  'Electrical Installation': 'A qualified electrician checks the supply, mounting location and load before installing or replacing the fitting.',
+  'Plumbing Repairs': 'A plumber inspects the affected fixture or line, identifies the leak or blockage and explains the repair scope.',
+  'Plumbing Installation': 'A plumber checks fixture dimensions, water connections and drainage before installing the selected fitting.',
+  'Home Cleaning': 'A cleaning professional checks the space and surfaces, then works through the selected cleaning area and confirms completion.',
+  'AC Services': 'An AC technician checks the unit, access and cooling symptoms before the agreed service or inspection.',
+  Appliances: 'An appliance technician checks the unit, fault symptoms and safe access before the agreed service or inspection.',
+};
+const toolsBySubcategory = {
+  'Laptop Repair': ['Diagnostic toolkit', 'Precision screwdrivers'],
+  'Hardware & Upgrades': ['Diagnostic toolkit', 'Precision screwdrivers'],
+  'Software Services': ['Diagnostic laptop', 'Authorized installation media where required'],
+  'Electrical Repairs': ['Insulated tools', 'Voltage tester'],
+  'Electrical Installation': ['Insulated tools', 'Voltage tester'],
+  'Plumbing Repairs': ['Plumbing toolkit'],
+  'Plumbing Installation': ['Plumbing toolkit'],
+  'AC Services': ['AC service toolkit'],
+};
+
+export const SERVICE_IMAGE_MAP = {
+  // AC & Appliances
+  'srv-catalog-ac-appliances-ac-cooling-issue': '/service-images/srv-catalog-ac-appliances-ac-cooling-issue.png',
+  'srv-catalog-ac-appliances-ac-general-servicing': 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-ac-deep-cleaning': 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-ac-gas-refill': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-ac-installation': 'https://images.unsplash.com/photo-1590756254933-2873d72a83b6?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-ac-uninstallation': 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-ac-repair': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-ac-water-leakage-repair': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-washing-machine-repair': 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-refrigerator-repair': 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-microwave-repair': 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-dishwasher-repair': 'https://images.unsplash.com/photo-1585837575652-267c041d77d4?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-geyser-repair': 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-chimney-cleaning': 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-ac-appliances-ro-water-purifier-service': '/service-images/ro-purifier/servicing.png',
+  'srv-catalog-ac-appliances-ro-installation': '/service-images/ro-purifier/installation.png',
+  'srv-catalog-ac-appliances-ro-repair': '/service-images/ro-purifier/filter-replacement.png',
+
+  // Beauty & Salon
+  'srv-catalog-beauty-women-s-haircut': 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-men-s-haircut': 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-kids-haircut': 'https://images.unsplash.com/photo-1595867818082-083862f3d630?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-hair-styling': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-hair-spa': 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-hair-wash-and-blow-dry': 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-hair-coloring': 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-hair-smoothening': 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-hair-straightening': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-beard-styling': 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-beard-trimming': 'https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-head-massage': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-basic-manicure': 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-premium-manicure': 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-gel-manicure': 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-nail-art': 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-basic-pedicure': 'https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-spa-pedicure': 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-gel-pedicure': 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-foot-spa': 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-cuticle-care': 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-basic-facial': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-glow-facial': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-deep-cleansing-facial': 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-cleanup': 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-de-tan-treatment': 'https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-skin-care-consultation': 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-waxing': 'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-full-body-waxing': 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-eyebrow-threading': 'https://images.unsplash.com/photo-1588516903720-8ceb67f9ef84?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-upper-lip-threading': 'https://images.unsplash.com/photo-1526045612212-70caf35c14df?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-bridal-makeup': 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-party-makeup': 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-beauty-saree-draping': 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+
+  // Electrician
+  'srv-catalog-electrician-switch-and-socket-repair': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-ceiling-fan-repair': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-inverter-repair': 'https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-wiring-repair': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-short-circuit-inspection': 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-geyser-electrical-repair': 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-fan-installation': 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-light-installation': 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-led-light-installation': 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-chandelier-installation': 'https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-inverter-installation': 'https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-mcb-replacement': 'https://images.unsplash.com/photo-1555963966-b7ae5404b6ed?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-doorbell-installation': 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electrician-exhaust-fan-installation': 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
+
+  // Electronics
+  'srv-catalog-electronics-mobile-screen-repair': 'https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-mobile-battery-replacement': 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-charging-port-repair': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-software-troubleshooting': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-tablet-repair': 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-tv-installation': 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-tv-wall-mounting': 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-tv-repair': 'https://images.unsplash.com/photo-1461151304267-38535e780c79?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-speaker-installation': 'https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-home-theatre-setup': 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-cctv-installation': 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-cctv-troubleshooting': 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-smart-doorbell-installation': 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-smart-lock-installation': 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-smart-device-setup': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-wi-fi-router-installation': 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-smart-tv-setup': 'https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-printer-repair': 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-scanner-setup': 'https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-gaming-console-cleaning': 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-electronics-computer-peripheral-setup': 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80',
+
+  // Home Cleaning
+  'srv-catalog-cleaning-full-home-cleaning': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-kitchen-deep-cleaning': 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-bathroom-deep-cleaning': 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-sofa-cleaning': 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-carpet-cleaning': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-mattress-cleaning': 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-floor-cleaning': 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-window-cleaning': 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-water-tank-cleaning': 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-move-in-cleaning': 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-move-out-cleaning': 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-cleaning-balcony-cleaning': 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
+
+  // Laptop & Computer
+  'srv-catalog-laptop-computer-laptop-screen-replacement': 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-keyboard-replacement': 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-battery-replacement': 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-charging-port-repair': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-overheating-fix': 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-fan-cleaning': 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-hinge-repair': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-motherboard-diagnosis': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-speaker-repair': 'https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-webcam-repair': 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-touchpad-repair': 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-windows-installation': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-windows-activation-assistance': 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-driver-installation': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-software-installation': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-formatting': 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-virus-and-malware-removal': 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-performance-optimization': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-data-backup-assistance': 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-operating-system-troubleshooting': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-ram-upgrade': 'https://images.unsplash.com/photo-1541029071515-84cc54f84dc5?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-ssd-upgrade': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-hdd-replacement': 'https://images.unsplash.com/photo-1531492746076-161ca9bcad58?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-laptop-cleaning': 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-desktop-assembly': 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-computer-repair': 'https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-printer-setup': 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-laptop-computer-wi-fi-and-network-troubleshooting': 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80',
+
+  // Plumbing
+  'srv-catalog-plumber-tap-repair': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-wash-basin-repair': 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-toilet-repair': 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-water-leakage-repair': 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-pipe-repair': 'https://images.unsplash.com/photo-1542013936693-884638332954?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-drain-cleaning': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-sink-blockage-removal': 'https://images.unsplash.com/photo-1521207418485-99c705420785?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-tap-installation': 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-basin-installation': 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-toilet-installation': 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-shower-installation': 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=800&q=80',
+  'srv-catalog-plumber-bathroom-fitting-installation': 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80',
+};
+
+export const EXPANDED_SERVICES = groups.flatMap(([categoryId, subcategory, basePrice, durationMin, imageKey, names]) =>
+  names.split('|').map((name) => {
+    const slug = slugify(name);
+    const isInspection = inspection.test(name);
+    const priceType = isInspection ? 'INSPECTION' : 'FIXED';
+    const feeNote = isInspection ? 'The listed price covers an inspection visit. Parts and additional work are quoted after diagnosis and require approval.' : 'The listed price covers the standard package. Any optional additions require approval.';
+    const safetyNote = safety(categoryId);
+    const shortDesc = `${name} at your doorstep with a clear scope and upfront visit price.`;
+    const licenseNote = name === 'Windows Activation Assistance' ? 'A valid Windows license is required; license purchase is not included.' : '';
+    const description = `${shortDesc} ${serviceDetails[subcategory]} ${feeNote}${safetyNote ? ` ${safetyNote}` : ''}${licenseNote ? ` ${licenseNote}` : ''}`;
+    const id = `srv-catalog-${categoryId.slice(4)}-${slug}`;
+    const image = SERVICE_IMAGE_MAP[id] || (name === 'AC Cooling Issue' ? '/service-images/srv-catalog-ac-appliances-ac-cooling-issue.png' : `/service-images/${imageKey}.svg`);
+    return {
+      id,
+      slug: `${slug}-${categoryId.slice(4)}`,
+      name, categoryId, subcategory, priceType,
+      serviceType: categoryId === 'cat-laptop-computer' || categoryId === 'cat-electronics' ? 'PICKUP_OR_HOME_VISIT' : 'HOME_VISIT',
+      warrantyPolicy: null,
+      requiredTools: toolsBySubcategory[subcategory] || [],
+      isDemo: true,
+      startingPrice: basePrice,
+      durationMin,
+      image,
+      shortDesc, description,
+      whatIncluded: isInspection ? ['On-site diagnosis', 'Itemized quote before additional work'] : ['Standard service visit', 'Scope confirmation before work'],
+      whatExcluded: [...(isInspection ? ['Replacement parts', 'Repair work beyond diagnosis'] : ['Parts and optional add-ons']), ...(licenseNote ? ['Windows license purchase'] : [])],
+      whyChoose: ['Upfront visit price', 'Qualified professional assignment'],
+      faqs: [{ question: 'Are parts included?', answer: isInspection ? 'No. Any parts or extra work are quoted after inspection.' : 'Only items listed in the selected package are included.' }],
+      variants: [{
+        id: `var-catalog-${categoryId.slice(4)}-${slug}`,
+        name: isInspection ? 'Inspection visit' : 'Standard service',
+        price: basePrice, durationMin,
+        description: feeNote,
+        included: isInspection ? ['Diagnosis and itemized quote'] : ['Standard service visit'],
+      }],
+    };
+  }),
+);
+
+export const EXPANDED_PROFESSIONALS = [
+  { id: 'pro-demo-nails', name: 'Neha Singh', profession: 'Nail Technician', categoryId: 'cat-beauty', specialtySubcategories: ['Manicure & Pedicure'], experienceYears: 5, avatar: '/images/professionals/nail-tech-1.jpg', bio: 'Demo nail technician for manicure, pedicure and nail care requests.' },
+  { id: 'pro-demo-computers', name: 'Arjun Mehta', profession: 'Laptop Technician', categoryId: 'cat-laptop-computer', experienceYears: 6, avatar: '/images/professionals/laptop-tech-1.jpg', bio: 'Demo laptop technician for computer repair, upgrades and software assistance.' },
+  { id: 'pro-demo-electronics', name: 'Rohan Kapoor', profession: 'Electronics Technician', categoryId: 'cat-electronics', experienceYears: 6, avatar: '/images/professionals/electronics-1.jpg', bio: 'Demo electronics technician for mobile, TV, CCTV and smart home assistance.' },
+  { id: 'pro-demo-appliances', name: 'Sanjay Verma', profession: 'Appliance Technician', categoryId: 'cat-ac-appliances', specialtySubcategories: ['Appliances'], experienceYears: 7, avatar: '/images/professionals/appliance-1.jpg', bio: 'Demo appliance technician for washing machines, refrigerators and home appliances.' },
+];

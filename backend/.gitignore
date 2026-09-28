@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+.vercel/
+.env
+.env.*
+!.env.example
+.pgdata/
+*.pgdata
+.pglog
+*.pglog
+.local-postgres/
+.local/
+*.log
+coverage/
+test-results/
+playwright-report/

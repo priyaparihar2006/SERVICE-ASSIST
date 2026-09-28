@@ -1,0 +1,658 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Star,
+  ShieldCheck,
+  CheckCircle2,
+  Clock,
+  Users,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Briefcase,
+  Award,
+  MapPin,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ImageWithFallback } from '../common/ImageWithFallback';
+
+interface HeroProps {
+  onExplore: () => void;
+  onBook: () => void;
+  onNavigate?: (path: string) => void;
+  onSelectService?: (slug: string) => void;
+  onSelectCategory?: (categoryId: string) => void;
+}
+
+export interface HeroServiceItem {
+  id: string;
+  serviceName: string;
+  category: string;
+  image: string;
+  alt: string;
+  professional: string;
+  role: string;
+  rating: string;
+  reviewsCount: string;
+  avatar: string;
+  eta: string;
+  startingPrice: string;
+  targetSlug?: string;
+  targetCategory?: string;
+}
+
+// Exact 15-service sequence requested in prompt:
+// 1. AC Repair, 2. Home Cleaning, 3. Salon & Beauty, 4. Electrician, 5. Plumber,
+// 6. Carpenter, 7. Pest Control, 8. Painting, 9. Appliance Repair, 10. Bathroom Cleaning,
+// 11. Sofa Cleaning, 12. Packers & Movers, 13. Home Improvement, 14. Water Purifier, 15. Electronics Repair
+export const HERO_SERVICES: HeroServiceItem[] = [
+  {
+    id: 'ac-repair',
+    serviceName: 'AC Repair & Jet Servicing',
+    category: 'AC & Appliances',
+    image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80',
+    alt: 'AC technician servicing an indoor air conditioner unit',
+    professional: 'Rahul S.',
+    role: 'HVAC Specialist',
+    rating: '4.9',
+    reviewsCount: '14,200+',
+    avatar: '/images/professionals/ac-technician-1.jpg',
+    eta: '15 mins',
+    startingPrice: '₹499',
+    targetSlug: 'ac-jet-service',
+    targetCategory: 'cat-ac-appliances',
+  },
+  {
+    id: 'home-cleaning',
+    serviceName: 'Home Cleaning',
+    category: 'Home Cleaning',
+    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional cleaner providing home cleaning service in living room',
+    professional: 'Anjali M.',
+    role: 'Cleaning Specialist',
+    rating: '4.9',
+    reviewsCount: '11,450+',
+    avatar: '/images/professionals/cleaner-1.jpg',
+    eta: '20 mins',
+    startingPrice: '₹999',
+    targetSlug: 'bathroom-deep-cleaning',
+    targetCategory: 'cat-cleaning',
+  },
+  {
+    id: 'salon-beauty',
+    serviceName: 'Salon & Beauty at Home',
+    category: 'Salon & Beauty',
+    image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional salon stylist providing beauty care at home',
+    professional: 'Neha S.',
+    role: 'Beauty Specialist',
+    rating: '4.9',
+    reviewsCount: '18,800+',
+    avatar: '/images/professionals/beauty-1.jpg',
+    eta: '25 mins',
+    startingPrice: '₹799',
+    targetSlug: 'salon-at-home-women',
+    targetCategory: 'cat-beauty',
+  },
+  {
+    id: 'electrician',
+    serviceName: 'Electrician & Wiring',
+    category: 'Electrician',
+    image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional electrician repairing home electrical system',
+    professional: 'Amit P.',
+    role: 'Electrical Specialist',
+    rating: '4.9',
+    reviewsCount: '16,700+',
+    avatar: '/images/professionals/electrician-1.jpg',
+    eta: '12 mins',
+    startingPrice: '₹199',
+    targetSlug: 'electrician-on-demand',
+    targetCategory: 'cat-electrician',
+  },
+  {
+    id: 'plumber',
+    serviceName: 'Plumber & Leak Fix',
+    category: 'Plumber',
+    image: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional plumber repairing pipe and tap fittings',
+    professional: 'Suresh Y.',
+    role: 'Plumbing Specialist',
+    rating: '4.8',
+    reviewsCount: '13,100+',
+    avatar: '/images/professionals/plumber-1.jpg',
+    eta: '15 mins',
+    startingPrice: '₹149',
+    targetSlug: 'plumbing-tap-leakage-fix',
+    targetCategory: 'cat-plumber',
+  },
+  {
+    id: 'carpenter',
+    serviceName: 'Carpenter & Woodwork',
+    category: 'Carpenter',
+    image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional carpenter working on wooden furniture',
+    professional: 'Dinesh L.',
+    role: 'Carpentry Specialist',
+    rating: '4.9',
+    reviewsCount: '8,600+',
+    avatar: '/images/professionals/carpenter-1.jpg',
+    eta: '30 mins',
+    startingPrice: '₹249',
+    targetCategory: 'cat-carpenter',
+  },
+  {
+    id: 'pest-control',
+    serviceName: 'Pest Control Treatment',
+    category: 'Pest Control',
+    image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional pest-control technician inspecting residential home',
+    professional: 'Manish T.',
+    role: 'Pest Control Specialist',
+    rating: '4.8',
+    reviewsCount: '7,400+',
+    avatar: '/images/professionals/pest-control-1.jpg',
+    eta: '22 mins',
+    startingPrice: '₹699',
+    targetSlug: 'cockroach-pest-control',
+    targetCategory: 'cat-pest-control',
+  },
+  {
+    id: 'painting',
+    serviceName: 'Wall Painting & Waterproofing',
+    category: 'Painting',
+    image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional painter applying fresh coat on interior wall',
+    professional: 'Karan V.',
+    role: 'Master Painter',
+    rating: '4.9',
+    reviewsCount: '6,900+',
+    avatar: '/images/professionals/painter-1.jpg',
+    eta: '45 mins',
+    startingPrice: '₹1,499',
+    targetCategory: 'cat-painting',
+  },
+  {
+    id: 'appliance-repair',
+    serviceName: 'Appliance Repair',
+    category: 'Appliance Repair',
+    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Technician repairing washing machine and refrigerator appliance',
+    professional: 'Vikram J.',
+    role: 'Appliance Engineer',
+    rating: '4.8',
+    reviewsCount: '9,100+',
+    avatar: '/images/professionals/appliance-1.jpg',
+    eta: '20 mins',
+    startingPrice: '₹299',
+    targetSlug: 'washing-machine-refrigerator-repair',
+    targetCategory: 'cat-appliance-repair',
+  },
+  {
+    id: 'bathroom-cleaning',
+    serviceName: 'Bathroom Deep Cleaning',
+    category: 'Bathroom Cleaning',
+    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional cleaning technician descaling bathroom tiles',
+    professional: 'Pooja R.',
+    role: 'Sanitization Expert',
+    rating: '4.9',
+    reviewsCount: '15,300+',
+    avatar: '/images/professionals/cleaner-2.jpg',
+    eta: '18 mins',
+    startingPrice: '₹449',
+    targetSlug: 'bathroom-deep-cleaning',
+    targetCategory: 'cat-bathroom-cleaning',
+  },
+  {
+    id: 'sofa-cleaning',
+    serviceName: 'Sofa & Fabric Cleaning',
+    category: 'Sofa Cleaning',
+    image: 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Professional deep shampooing fabric sofa upholstery',
+    professional: 'Sameer K.',
+    role: 'Upholstery Specialist',
+    rating: '4.8',
+    reviewsCount: '8,400+',
+    avatar: '/images/professionals/cleaner-3.jpg',
+    eta: '25 mins',
+    startingPrice: '₹599',
+    targetSlug: 'sofa-carpet-shampooing',
+    targetCategory: 'cat-sofa-cleaning',
+  },
+  {
+    id: 'packers-movers',
+    serviceName: 'Packers & Movers',
+    category: 'Packers & Movers',
+    image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Household packers and movers shifting furniture safely',
+    professional: 'Harish N.',
+    role: 'Relocation Lead',
+    rating: '4.9',
+    reviewsCount: '5,200+',
+    avatar: '/images/professionals/movers-1.jpg',
+    eta: '60 mins',
+    startingPrice: '₹1,899',
+    targetCategory: 'cat-moving',
+  },
+  {
+    id: 'home-improvement',
+    serviceName: 'Home Improvement & Lighting',
+    category: 'Home Improvement',
+    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Modern living room renovation and architectural lighting',
+    professional: 'Arjun B.',
+    role: 'Interior Craftsman',
+    rating: '4.9',
+    reviewsCount: '4,280+',
+    avatar: '/images/professionals/carpenter-2.jpg',
+    eta: '30 mins',
+    startingPrice: '₹499',
+    targetSlug: 'home-improvement-fixtures',
+    targetCategory: 'cat-home-improvement',
+  },
+  {
+    id: 'water-purifier',
+    serviceName: 'Water Purifier & RO Service',
+    category: 'Water Purifier',
+    image: '/service-images/ro-purifier/servicing.png',
+    alt: 'Technician inspecting and replacing filters on a water purifier',
+    professional: 'Deepak G.',
+    role: 'Water Quality Tech',
+    rating: '4.9',
+    reviewsCount: '8,200+',
+    avatar: '/images/professionals/water-purifier-1.jpg',
+    eta: '20 mins',
+    startingPrice: '₹399',
+    targetSlug: 'ro-water-purifier-service',
+    targetCategory: 'cat-water-purifier',
+  },
+  {
+    id: 'electronics-repair',
+    serviceName: 'Electronics & Laptop Repair',
+    category: 'Electronics Repair',
+    image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Technician testing motherboard and laptop hardware diagnostics',
+    professional: 'Prashant M.',
+    role: 'Hardware Engineer',
+    rating: '4.8',
+    reviewsCount: '5,120+',
+    avatar: '/images/professionals/laptop-tech-1.jpg',
+    eta: '35 mins',
+    startingPrice: '₹349',
+    targetCategory: 'cat-laptop-computer',
+  },
+];
+
+const AUTO_SLIDE_INTERVAL = 5000; // 5 seconds per slide
+
+export const Hero: React.FC<HeroProps> = ({
+  onExplore,
+  onBook,
+  onNavigate,
+  onSelectService,
+  onSelectCategory,
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Preload next images to prevent flickering
+  useEffect(() => {
+    const nextIdx = (currentIndex + 1) % HERO_SERVICES.length;
+    const img = new Image();
+    img.src = HERO_SERVICES[nextIdx].image;
+  }, [currentIndex]);
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (!isPaused) {
+      timerRef.current = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % HERO_SERVICES.length);
+      }, AUTO_SLIDE_INTERVAL);
+    }
+  }, [isPaused]);
+
+  useEffect(() => {
+    resetTimer();
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [resetTimer]);
+
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % HERO_SERVICES.length);
+    resetTimer();
+  }, [resetTimer]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + HERO_SERVICES.length) % HERO_SERVICES.length);
+    resetTimer();
+  }, [resetTimer]);
+
+  const handleIndicatorClick = (idx: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex(idx);
+    resetTimer();
+  };
+
+  const handlePrevClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    prevSlide();
+  };
+
+  const handleNextClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    nextSlide();
+  };
+
+  const handleCardClick = () => {
+    const current = HERO_SERVICES[currentIndex];
+    if (current.targetSlug && onSelectService) {
+      onSelectService(current.targetSlug);
+    } else if (current.targetSlug && onNavigate) {
+      onNavigate(`/services/${current.targetSlug}`);
+    } else if (current.targetCategory && onSelectCategory) {
+      onSelectCategory(current.targetCategory);
+    } else if (current.targetCategory && onNavigate) {
+      onNavigate(`/services?category=${current.targetCategory}`);
+    } else if (onExplore) {
+      onExplore();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCardClick();
+    }
+  };
+
+  const current = HERO_SERVICES[currentIndex];
+
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-b from-[var(--color-brand-soft)] via-white to-[var(--color-brand-soft)]/40 pt-10 sm:pt-16 pb-14 sm:pb-20 border-b border-[var(--color-brand-light)]">
+      {/* Subtle organic green ambient glow in background */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[var(--color-brand-light)]/70 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-10 left-10 w-80 h-80 bg-[var(--color-brand-bright)]/10 rounded-full blur-3xl pointer-events-none -z-10" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          {/* Left Column: Typography & CTAs */}
+          <div className="lg:col-span-6 space-y-6 sm:space-y-7">
+            {/* Headline */}
+            <div className="space-y-2">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[var(--color-brand-dark)] tracking-tight leading-[1.08] font-['Outfit']">
+                Your home, <br />
+                <span className="text-[var(--color-brand)] relative inline-block">
+                  taken care of.
+                  <svg
+                    className="absolute -bottom-2 left-0 w-full text-[var(--color-brand-bright)]/40 -z-10"
+                    height="8"
+                    viewBox="0 0 100 8"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M0 6 Q 50 0, 100 6"
+                      stroke="currentColor"
+                      strokeWidth="5"
+                      fill="none"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </span>
+              </h1>
+
+              <p className="text-sm sm:text-base text-[var(--color-muted)] leading-relaxed max-w-xl pt-2 font-normal">
+                From cleaning and repairs to beauty and home improvement, book trusted professionals whenever you need them.
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                id="hero-book-btn"
+                onClick={onBook}
+                className="flex items-center justify-center gap-2 px-7 py-3.5 bg-[var(--color-brand-hover)] hover:bg-[var(--color-brand)] text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-[var(--color-brand-hover)]/20 hover:shadow-[var(--color-brand)]/35 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+              >
+                <span>Book a Service</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                id="hero-explore-btn"
+                onClick={onExplore}
+                className="px-6 py-3.5 rounded-2xl border-2 border-[var(--color-brand)] bg-white hover:bg-[var(--color-brand-soft)] text-[var(--color-brand-hover)] hover:text-[var(--color-brand)] font-bold text-sm transition-all shadow-2xs cursor-pointer"
+              >
+                Explore All Services
+              </button>
+            </div>
+
+            {/* Trust Metrics Bar: 4 Metrics below Hero */}
+            <div className="pt-6 border-t border-[var(--color-brand-light)] grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <div className="flex items-center gap-1.5 text-[var(--color-brand-hover)] font-black text-xl font-['Outfit']">
+                  <Star className="w-4.5 h-4.5 fill-[var(--color-brand)] text-[var(--color-brand)]" />
+                  <span>4.8+</span>
+                </div>
+                <p className="text-xs text-[var(--color-muted)] font-medium mt-0.5">Average Rating</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-1.5 text-[var(--color-brand-dark)] font-black text-xl font-['Outfit']">
+                  <Users className="w-4.5 h-4.5 text-[var(--color-brand)]" />
+                  <span>50,000+</span>
+                </div>
+                <p className="text-xs text-[var(--color-muted)] font-medium mt-0.5">Verified Professionals</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-1.5 text-[var(--color-brand-dark)] font-black text-xl font-['Outfit']">
+                  <Briefcase className="w-4.5 h-4.5 text-[var(--color-brand)]" />
+                  <span>1.2M+</span>
+                </div>
+                <p className="text-xs text-[var(--color-muted)] font-medium mt-0.5">Services Completed</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-1.5 text-[var(--color-brand-hover)] font-black text-xl font-['Outfit']">
+                  <ShieldCheck className="w-4.5 h-4.5 text-[var(--color-brand)]" />
+                  <span>30 Days</span>
+                </div>
+                <p className="text-xs text-[var(--color-muted)] font-medium mt-0.5">Service Warranty</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: 5-Second Synchronized Image & Text Carousel */}
+          <div className="lg:col-span-6 relative">
+            <div
+              className="relative mx-auto max-w-lg lg:max-w-none group/carousel cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] rounded-[2.5rem]"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+              onClick={handleCardClick}
+              onKeyDown={handleKeyDown}
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${current.serviceName} service details`}
+            >
+              {/* Soft green ambient background glow */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[var(--color-brand)]/20 via-[var(--color-brand-bright)]/15 to-transparent rounded-[3rem] blur-2xl -z-10" />
+
+              {/* Main Image Frame (object-cover, 500-700ms smooth transition) */}
+              <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-[var(--color-brand-light)]/50 aspect-4/3 sm:aspect-5/4">
+                <AnimatePresence mode="popLayout">
+                  <motion.div
+                    key={current.id}
+                    initial={{ opacity: 0, scale: 1.03, x: 6 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.98, x: -6 }}
+                    transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+                    className="absolute inset-0 w-full h-full"
+                  >
+                    <ImageWithFallback
+                      src={current.image}
+                      alt={current.alt}
+                      fallbackTitle={current.serviceName}
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Subtle gradient overlay for contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent pointer-events-none" />
+
+                {/* Top Badge: Category Pill */}
+                <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10 pointer-events-none">
+                  <div className="bg-[var(--color-brand-dark)]/90 backdrop-blur-md text-white rounded-full px-3.5 py-1.5 shadow-lg flex items-center gap-1.5 text-xs font-bold border border-[var(--color-brand-bright)]/30">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-brand-bright)]" />
+                    <span>Verified Professional ✓</span>
+                  </div>
+
+                  <span className="bg-[var(--color-brand)] text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-md">
+                    {current.category}
+                  </span>
+                </div>
+
+                {/* Navigation Arrows: Left & Right buttons directly on image */}
+                <button
+                  onClick={handlePrevClick}
+                  aria-label="Previous Slide"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[var(--color-brand-hover)] text-white backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover/carousel:opacity-100 cursor-pointer hover:scale-105 active:scale-95 border border-white/20"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                <button
+                  onClick={handleNextClick}
+                  aria-label="Next Slide"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 hover:bg-[var(--color-brand-hover)] text-white backdrop-blur-md flex items-center justify-center transition-all opacity-80 group-hover/carousel:opacity-100 cursor-pointer hover:scale-105 active:scale-95 border border-white/20"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+
+                {/* Bottom Service Title on Image */}
+                <div className="absolute bottom-4 left-4 right-4 z-10 text-white pointer-events-none">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={current.id}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-end justify-between"
+                    >
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-brand-light)] block">
+                          Service Assist Doorstep
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-black text-white drop-shadow-sm font-['Outfit']">
+                          {current.serviceName}
+                        </h3>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-gray-200 block font-medium">Starts from</span>
+                        <span className="text-lg font-black text-[var(--color-brand-bright)] drop-shadow-sm">
+                          {current.startingPrice}
+                        </span>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {/* Synchronized Floating Information Card (as requested in Section 8) */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={current.id}
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                  transition={{ duration: 0.35 }}
+                  className="absolute -bottom-6 -left-2 sm:left-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-3.5 z-20 pointer-events-none"
+                >
+                  <div className="relative shrink-0">
+                    <ImageWithFallback
+                      src={current.avatar}
+                      fallbackProfession={current.category}
+                      fallbackSrc={current.avatar}
+                      alt={current.professional}
+                      className="w-12 h-12 rounded-xl object-cover object-top border-2 border-[var(--color-brand)]"
+                      referrerPolicy="no-referrer"
+                    />
+                    <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[var(--color-brand)] rounded-full border-2 border-white ring-1 ring-[var(--color-brand-bright)]" />
+                  </div>
+                  <div>
+                    {/* Synchronized Card details */}
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--color-brand-hover)] uppercase tracking-wider">
+                      <span className="text-brand-hover">Verified Professional ✓</span>
+                      <span>•</span>
+                      <span className="text-[var(--color-brand)]">{current.category}</span>
+                    </div>
+
+                    <h4 className="font-extrabold text-xs sm:text-sm text-[var(--color-brand-dark)]">
+                      {current.professional}
+                      <span className="font-normal text-[var(--color-muted)] text-xs ml-1">
+                        — {current.role}
+                      </span>
+                    </h4>
+
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex items-center gap-0.5 text-[var(--color-brand-hover)] font-bold text-xs">
+                        <Star className="w-3.5 h-3.5 fill-[var(--color-brand)] text-[var(--color-brand)]" />
+                        <span>★★★★★ {current.rating}</span>
+                      </div>
+                      <span className="text-[10px] text-[var(--color-brand)] font-bold flex items-center gap-0.5 bg-[var(--color-brand-light)] px-1.5 py-0.5 rounded-md">
+                        <Clock className="w-2.5 h-2.5" />
+                        Available Near You
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Synchronized Floating Card 2: Rating Pill (Top-right) */}
+              <div className="absolute top-6 -right-2 sm:right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-[var(--color-brand-light)] flex items-center gap-2.5 z-20 pointer-events-none">
+                <div className="w-9 h-9 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand-hover)]">
+                  <Award className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <div>
+                  <div className="font-extrabold text-xs sm:text-sm text-[var(--color-brand-dark)] flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-[var(--color-brand)] text-[var(--color-brand)]" />
+                    <span>{current.rating} / 5.0</span>
+                  </div>
+                  <div className="text-[10px] text-[var(--color-muted)] font-medium">{current.reviewsCount} Reviews</div>
+                </div>
+              </div>
+
+              {/* Carousel Indicators below hero image (● ○ ○ ○ ○) */}
+              <div className="mt-8 sm:mt-10 flex items-center justify-center gap-1.5 flex-wrap px-4">
+                {HERO_SERVICES.map((s, idx) => {
+                  const isActive = idx === currentIndex;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={(e) => handleIndicatorClick(idx, e)}
+                      title={`${s.serviceName} - ${s.professional}`}
+                      className={`transition-all duration-300 rounded-full cursor-pointer ${
+                        isActive
+                          ? 'w-7 h-2 bg-[var(--color-brand)] shadow-xs'
+                          : 'w-2 h-2 bg-[var(--color-brand-light)] hover:bg-[var(--color-brand)]/60'
+                      }`}
+                      aria-label={`Slide to ${s.serviceName}`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};

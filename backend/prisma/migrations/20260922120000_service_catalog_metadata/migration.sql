@@ -1,0 +1,8 @@
+ALTER TABLE "Service" ADD COLUMN "subcategory" TEXT NOT NULL DEFAULT 'General';
+ALTER TABLE "Service" ADD COLUMN "priceType" TEXT NOT NULL DEFAULT 'FIXED';
+ALTER TABLE "Service" ADD COLUMN "serviceType" TEXT NOT NULL DEFAULT 'HOME_VISIT';
+ALTER TABLE "Service" ADD COLUMN "warrantyPolicy" TEXT;
+ALTER TABLE "Service" ADD COLUMN "requiredTools" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "Service" ADD COLUMN "isDemo" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Service" ADD CONSTRAINT "Service_priceType_check" CHECK ("priceType" IN ('FIXED', 'INSPECTION'));
+ALTER TABLE "Service" ADD CONSTRAINT "Service_serviceType_check" CHECK ("serviceType" IN ('HOME_VISIT', 'PICKUP_OR_HOME_VISIT'));
