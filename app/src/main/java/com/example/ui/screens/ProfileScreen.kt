@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import com.example.ui.components.stableStatusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
@@ -37,14 +39,17 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Handyman
 import androidx.compose.material.icons.filled.HeadsetMic
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonRemove
 import androidx.compose.material.icons.filled.Redeem
@@ -54,14 +59,18 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
-import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CardGiftcard
+import androidx.compose.material.icons.outlined.ColorLens
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material.icons.outlined.HeadsetMic
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonRemove
 import androidx.compose.material.icons.outlined.Policy
@@ -110,23 +119,13 @@ import com.example.data.model.CustomerReview
 import com.example.data.model.SavedAddress
 import com.example.data.model.UserProfile
 import com.example.data.model.UserRole
+import com.example.data.prefs.AppTheme
+import com.example.data.prefs.RainbowColor
 import com.example.data.remote.supabase.SupabaseSyncState
 import com.example.ui.components.ThemeToggleButton
 import com.example.ui.components.hideStatusBarOnScroll
+import com.example.ui.components.stableStatusBarsPadding
 import com.example.ui.theme.ServoraTheme
-
-// Primary Green Palette matching #009051 brand theme
-private val DeepForestGreen = Color(0xFF009051) // theme-invariant
-private val ForestGreenGradient = listOf(
-    Color(0xFF009051),
-    Color(0xFF008249),
-    Color(0xFF007542)
-) // theme-invariant
-private val MintLightBg = Color(0xFFE6F5EE)
-private val MintBadgeBg = Color(0xFFDCF4E9)
-private val MintBadgeText = Color(0xFF00703E)
-private val VibrantMint = Color(0xFF009051) // theme-invariant
-private val MintLinkText = Color(0xFF86EFAC) // theme-invariant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,7 +144,11 @@ fun ProfileScreen(
     onAddNewAddress: (String, String, String, String) -> Unit = { _, _, _, _ -> },
     onLogout: () -> Unit = {},
     isDarkTheme: Boolean = false,
+    selectedColor: RainbowColor = RainbowColor.GREEN,
+    appTheme: AppTheme = AppTheme.LIGHT,
     onToggleTheme: () -> Unit = {},
+    onSetTheme: (AppTheme) -> Unit = {},
+    onSetColor: (RainbowColor) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
@@ -160,6 +163,7 @@ fun ProfileScreen(
     var showAboutUsSheet by remember { mutableStateOf(false) }
     var showTermsSheet by remember { mutableStateOf(false) }
     var showPrivacySheet by remember { mutableStateOf(false) }
+    var showAppearanceSheet by remember { mutableStateOf(false) }
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
     var showLogoutConfirmDialog by remember { mutableStateOf(false) }
 
@@ -191,13 +195,18 @@ fun ProfileScreen(
             .hideStatusBarOnScroll()
     ) {
         // =========================================================================
-        // 1. TOP GREEN WAVE PROFILE HEADER
+        // 1. TOP DYNAMIC THEME PROFILE HEADER
         // =========================================================================
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    brush = Brush.verticalGradient(ForestGreenGradient),
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            ServoraTheme.colors.headerBackgroundStart,
+                            ServoraTheme.colors.headerBackgroundEnd
+                        )
+                    ),
                     shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
                 )
                 .stableStatusBarsPadding()
@@ -222,19 +231,19 @@ fun ProfileScreen(
                         Surface(
                             modifier = Modifier.size(68.dp),
                             shape = CircleShape,
-                            color = Color.White, /* theme-invariant */
+                            color = Color.White,
                             shadowElevation = 4.dp
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(Color(0xFFE2F5EC)), /* theme-invariant */
+                                    .background(ServoraTheme.colors.primaryContainer.copy(alpha = 0.5f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = "Avatar",
-                                    tint = DeepForestGreen,
+                                    tint = ServoraTheme.colors.primary,
                                     modifier = Modifier.size(44.dp)
                                 )
                             }
@@ -246,14 +255,14 @@ fun ProfileScreen(
                                 .align(Alignment.BottomEnd)
                                 .size(24.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF1E293B)) /* theme-invariant */
-                                .border(1.5.dp, Color.White, CircleShape), /* theme-invariant */
+                                .background(Color(0xFF1E293B))
+                                .border(1.5.dp, Color.White, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.CameraAlt,
                                 contentDescription = "Change Photo",
-                                tint = Color.White, /* theme-invariant */
+                                tint = Color.White,
                                 modifier = Modifier.size(12.dp)
                             )
                         }
@@ -270,7 +279,7 @@ fun ProfileScreen(
                                 fontSize = 21.sp,
                                 letterSpacing = 0.sp
                             ),
-                            color = Color.White /* theme-invariant */
+                            color = Color.White
                         )
 
                         Spacer(modifier = Modifier.height(2.dp))
@@ -278,7 +287,7 @@ fun ProfileScreen(
                         Text(
                             text = userProfile.phone,
                             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                            color = Color.White.copy(alpha = 0.88f) /* theme-invariant */
+                            color = Color.White.copy(alpha = 0.88f)
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -300,28 +309,42 @@ fun ProfileScreen(
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 13.sp
                                 ),
-                                color = MintLinkText /* theme-invariant */
+                                color = Color.White.copy(alpha = 0.95f)
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                                 contentDescription = null,
-                                tint = MintLinkText, /* theme-invariant */
+                                tint = Color.White.copy(alpha = 0.95f),
                                 modifier = Modifier.size(11.dp)
                             )
                         }
                     }
                 }
 
-                // Right: Theme Toggle Button + Circular Pencil Edit Button
+                // Right: Appearance & Palette Button + Pencil Edit Button
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ThemeToggleButton(
-                        isDarkTheme = isDarkTheme,
-                        onToggle = onToggleTheme
-                    )
+                    // Quick Appearance Palette Button
+                    Surface(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .clickable { showAppearanceSheet = true },
+                        shape = CircleShape,
+                        color = Color.White.copy(alpha = 0.22f)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Outlined.Palette,
+                                contentDescription = "Appearance & Theme",
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
 
                     Surface(
                         modifier = Modifier
@@ -334,13 +357,13 @@ fun ProfileScreen(
                                 showEditProfileDialog = true
                             },
                         shape = CircleShape,
-                        color = Color.White.copy(alpha = 0.18f) /* theme-invariant */
+                        color = Color.White.copy(alpha = 0.22f)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit Profile",
-                                tint = Color.White, /* theme-invariant */
+                                tint = Color.White,
                                 modifier = Modifier.size(19.dp)
                             )
                         }
@@ -359,14 +382,14 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // =====================================================================
-            // 2. SERVICE ASSIST PASS PROMO BANNER
+            // 2. SERVICE ASSIST PASS PROMO BANNER (Theme-Adaptive)
             // =====================================================================
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { showPassDetailsSheet = true },
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF00A45C)), /* theme-invariant */
+                colors = CardDefaults.cardColors(containerColor = ServoraTheme.colors.brandGradientStart),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Box(
@@ -374,7 +397,10 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .background(
                             brush = Brush.horizontalGradient(
-                                listOf(Color(0xFF00A45C), Color(0xFF008E50))
+                                listOf(
+                                    ServoraTheme.colors.brandGradientStart,
+                                    ServoraTheme.colors.brandGradientEnd
+                                )
                             )
                         )
                         .padding(horizontal = 18.dp, vertical = 16.dp)
@@ -389,7 +415,7 @@ fun ProfileScreen(
                             // Pill Badge
                             Surface(
                                 shape = RoundedCornerShape(20.dp),
-                                color = Color(0xFFDCFCE7).copy(alpha = 0.95f) /* theme-invariant */
+                                color = Color.White.copy(alpha = 0.9f)
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -398,7 +424,7 @@ fun ProfileScreen(
                                     Icon(
                                         imageVector = Icons.Default.Star,
                                         contentDescription = null,
-                                        tint = Color(0xFF15803D), /* theme-invariant */
+                                        tint = ServoraTheme.colors.brandGradientEnd,
                                         modifier = Modifier.size(11.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -409,7 +435,7 @@ fun ProfileScreen(
                                             fontSize = 11.sp,
                                             letterSpacing = 0.4.sp
                                         ),
-                                        color = Color(0xFF15803D) /* theme-invariant */
+                                        color = ServoraTheme.colors.onPrimaryContainer
                                     )
                                 }
                             }
@@ -423,20 +449,20 @@ fun ProfileScreen(
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 17.sp
                                     ),
-                                    color = Color.White /* theme-invariant */
+                                    color = Color.White
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Box(
                                     modifier = Modifier
                                         .size(22.dp)
                                         .clip(CircleShape)
-                                        .background(Color.White.copy(alpha = 0.2f)), /* theme-invariant */
+                                        .background(Color.White.copy(alpha = 0.2f)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                                         contentDescription = null,
-                                        tint = Color.White, /* theme-invariant */
+                                        tint = Color.White,
                                         modifier = Modifier.size(10.dp)
                                     )
                                 }
@@ -447,35 +473,33 @@ fun ProfileScreen(
                             Text(
                                 text = "More visits. More value.",
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                                color = Color.White.copy(alpha = 0.8f) /* theme-invariant */
+                                color = Color.White.copy(alpha = 0.85f)
                             )
                         }
 
-                        // Right 3D Green Pass Stack Mockup
+                        // Right 3D Pass Stack Mockup
                         Box(
                             modifier = Modifier
                                 .size(width = 86.dp, height = 70.dp)
                                 .padding(start = 6.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            // Back card
                             Surface(
                                 modifier = Modifier
                                     .size(width = 54.dp, height = 58.dp)
                                     .offset(x = (-12).dp, y = 4.dp),
                                 shape = RoundedCornerShape(10.dp),
-                                color = Color(0xFF22C55E).copy(alpha = 0.5f) /* theme-invariant */
+                                color = Color.White.copy(alpha = 0.25f)
                             ) {}
 
-                            // Front Pass Card
                             Surface(
                                 modifier = Modifier
                                     .size(width = 62.dp, height = 64.dp)
                                     .offset(x = 6.dp, y = (-2).dp),
                                 shape = RoundedCornerShape(10.dp),
-                                color = Color(0xFF16A34A), /* theme-invariant */
+                                color = ServoraTheme.colors.brandGradientEnd,
                                 shadowElevation = 4.dp,
-                                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)) /* theme-invariant */
+                                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f))
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -488,21 +512,21 @@ fun ProfileScreen(
                                         text = "SERVICE ASSIST",
                                         fontSize = 5.5.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = Color.White.copy(alpha = 0.9f), /* theme-invariant */
+                                        color = Color.White.copy(alpha = 0.9f),
                                         maxLines = 1
                                     )
                                     Text(
                                         text = "PASS",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color.White, /* theme-invariant */
+                                        color = Color.White,
                                         letterSpacing = 0.sp
                                     )
                                     Text(
                                         text = "60 MIN",
                                         fontSize = 6.sp,
                                         fontWeight = FontWeight.Medium,
-                                        color = Color(0xFFDCFCE7) /* theme-invariant */
+                                        color = Color.White.copy(alpha = 0.85f)
                                     )
                                 }
                             }
@@ -512,7 +536,7 @@ fun ProfileScreen(
             }
 
             // =====================================================================
-            // 3. THREE QUICK ACTION CARDS (My Bookings, Service Assist Money, Help & Support)
+            // 3. THREE QUICK ACTION CARDS (My Bookings, Wallet, Help & Support)
             // =====================================================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -544,13 +568,13 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.EventAvailable,
                                     contentDescription = "My Bookings",
-                                    tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                                    tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -577,7 +601,7 @@ fun ProfileScreen(
                     }
                 }
 
-                // Card 2: Service Assist Money (Wallet)
+                // Card 2: Wallet
                 Card(
                     modifier = Modifier
                         .weight(1f)
@@ -603,13 +627,13 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.AccountBalanceWallet,
                                     contentDescription = "Service Assist Money",
-                                    tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                                    tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -617,14 +641,14 @@ fun ProfileScreen(
                             // ₹0 Balance Pill
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = if (isDark) ServoraTheme.colors.surfaceVariant else MintBadgeBg
+                                color = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer
                             ) {
                                 Text(
                                     text = "₹0",
                                     modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (isDark) ServoraTheme.colors.success else MintBadgeText
+                                    color = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer
                                 )
                             }
                         }
@@ -681,13 +705,13 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.HeadsetMic,
                                     contentDescription = "Help & Support",
-                                    tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                                    tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -715,12 +739,10 @@ fun ProfileScreen(
                 }
             }
 
-
             // =====================================================================
-            // 5. ROLE & PARTNER / ADMIN CONSOLE (Conditional for Partner / Admin)
+            // 4. ROLE & PARTNER / ADMIN CONSOLE (Conditional for Partner)
             // =====================================================================
             if (userProfile.role == UserRole.PROFESSIONAL) {
-                // Partner Dashboard Quick Widget
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(18.dp),
@@ -734,7 +756,12 @@ fun ProfileScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("PARTNER DUTY CONSOLE", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                                Text(
+                                    "PARTNER DUTY CONSOLE",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer
+                                )
                                 Text(
                                     text = if (isPartnerOnline) "Status: Online (Accepting Jobs)" else "Status: Offline",
                                     fontSize = 14.sp,
@@ -747,8 +774,8 @@ fun ProfileScreen(
                                 checked = isPartnerOnline,
                                 onCheckedChange = { isPartnerOnline = it },
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = VibrantMint,
-                                    checkedTrackColor = if (isDark) ServoraTheme.colors.surfaceVariant else MintBadgeBg
+                                    checkedThumbColor = ServoraTheme.colors.primary,
+                                    checkedTrackColor = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer
                                 )
                             )
                         }
@@ -763,7 +790,12 @@ fun ProfileScreen(
                             }
                             Column {
                                 Text("ACTIVE IN-FLIGHT", fontSize = 11.sp, color = ServoraTheme.colors.subtext)
-                                Text("$activeBookingsCount Active", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                                Text(
+                                    "$activeBookingsCount Active",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer
+                                )
                             }
                             Column {
                                 Text("RATING", fontSize = 11.sp, color = ServoraTheme.colors.subtext)
@@ -775,10 +807,18 @@ fun ProfileScreen(
             }
 
             // =====================================================================
-            // 6. MENU ITEMS LIST
+            // 5. MENU ITEMS LIST (Including new Appearance Menu)
             // =====================================================================
 
-            // Item 1: Refer & earn (with ₹100 badge)
+            // Item 1: Appearance & Theme (New Rainbow + Dark Mode Menu)
+            GreenMenuItemCard(
+                icon = Icons.Outlined.Palette,
+                title = "Appearance & Theme",
+                badgeText = selectedColor.displayName,
+                onClick = { showAppearanceSheet = true }
+            )
+
+            // Item 2: Refer & earn (with ₹100 badge)
             GreenMenuItemCard(
                 icon = Icons.Outlined.CardGiftcard,
                 title = "Refer & earn",
@@ -802,7 +842,7 @@ fun ProfileScreen(
 
             // Item 5: Terms of services
             GreenMenuItemCard(
-                icon = Icons.Outlined.Article,
+                icon = Icons.Outlined.Description,
                 title = "Terms of services",
                 onClick = { showTermsSheet = true }
             )
@@ -830,7 +870,7 @@ fun ProfileScreen(
             )
 
             // =====================================================================
-            // 7. FOOTER: APP VERSION & ORGANIC DECORATION
+            // 6. FOOTER: APP VERSION
             // =====================================================================
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -841,7 +881,7 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "APP VERSION: 1.5.8 (8a48)",
+                    text = "APP VERSION: 1.5.8 (Rainbow Edition)",
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 1.sp,
@@ -867,6 +907,22 @@ fun ProfileScreen(
     // MODAL SHEETS & DIALOGS
     // =========================================================================
 
+    // 0. APPEARANCE & THEME BOTTOM SHEET (Rainbow Colors + Dark Mode)
+    if (showAppearanceSheet) {
+        AppearanceBottomSheet(
+            currentTheme = appTheme,
+            selectedColor = selectedColor,
+            isDark = isDark,
+            onThemeChange = { newTheme ->
+                onSetTheme(newTheme)
+            },
+            onColorChange = { newColor ->
+                onSetColor(newColor)
+            },
+            onDismiss = { showAppearanceSheet = false }
+        )
+    }
+
     // 1. EDIT PROFILE DIALOG
     if (showEditProfileDialog) {
         AlertDialog(
@@ -891,8 +947,8 @@ fun ProfileScreen(
                         label = { Text("Full Name") },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
-                            focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            focusedBorderColor = ServoraTheme.colors.primary,
+                            focusedLabelColor = ServoraTheme.colors.primary,
                             unfocusedBorderColor = ServoraTheme.colors.cardBorder,
                             unfocusedLabelColor = ServoraTheme.colors.subtext,
                             focusedTextColor = ServoraTheme.colors.textPrimary,
@@ -906,8 +962,8 @@ fun ProfileScreen(
                         label = { Text("Phone Number") },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
-                            focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            focusedBorderColor = ServoraTheme.colors.primary,
+                            focusedLabelColor = ServoraTheme.colors.primary,
                             unfocusedBorderColor = ServoraTheme.colors.cardBorder,
                             unfocusedLabelColor = ServoraTheme.colors.subtext,
                             focusedTextColor = ServoraTheme.colors.textPrimary,
@@ -921,8 +977,8 @@ fun ProfileScreen(
                         label = { Text("Email Address") },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
-                            focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            focusedBorderColor = ServoraTheme.colors.primary,
+                            focusedLabelColor = ServoraTheme.colors.primary,
                             unfocusedBorderColor = ServoraTheme.colors.cardBorder,
                             unfocusedLabelColor = ServoraTheme.colors.subtext,
                             focusedTextColor = ServoraTheme.colors.textPrimary,
@@ -940,9 +996,9 @@ fun ProfileScreen(
                             showEditProfileDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen)
+                    colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary)
                 ) {
-                    Text("Save Changes", color = Color.White /* theme-invariant */)
+                    Text("Save Changes", color = ServoraTheme.colors.onPrimary)
                 }
             },
             dismissButton = {
@@ -980,7 +1036,7 @@ fun ProfileScreen(
                         Icon(
                             imageVector = if (showAddAddressForm) Icons.Default.Close else Icons.Default.Add,
                             contentDescription = "Add Address",
-                            tint = if (isDark) ServoraTheme.colors.primary else DeepForestGreen
+                            tint = ServoraTheme.colors.primary
                         )
                     }
                 }
@@ -1004,8 +1060,8 @@ fun ProfileScreen(
                                 label = { Text("Title (Home/Office/Parents)") },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
-                                    focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    focusedBorderColor = ServoraTheme.colors.primary,
+                                    focusedLabelColor = ServoraTheme.colors.primary,
                                     unfocusedBorderColor = ServoraTheme.colors.cardBorder,
                                     unfocusedLabelColor = ServoraTheme.colors.subtext,
                                     focusedTextColor = ServoraTheme.colors.textPrimary,
@@ -1019,8 +1075,8 @@ fun ProfileScreen(
                                 label = { Text("House / Flat / Building / Road") },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
-                                    focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    focusedBorderColor = ServoraTheme.colors.primary,
+                                    focusedLabelColor = ServoraTheme.colors.primary,
                                     unfocusedBorderColor = ServoraTheme.colors.cardBorder,
                                     unfocusedLabelColor = ServoraTheme.colors.subtext,
                                     focusedTextColor = ServoraTheme.colors.textPrimary,
@@ -1034,8 +1090,8 @@ fun ProfileScreen(
                                 label = { Text("Locality (e.g. Dayalbagh, Taj Nagri)") },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
-                                    focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    focusedBorderColor = ServoraTheme.colors.primary,
+                                    focusedLabelColor = ServoraTheme.colors.primary,
                                     unfocusedBorderColor = ServoraTheme.colors.cardBorder,
                                     unfocusedLabelColor = ServoraTheme.colors.subtext,
                                     focusedTextColor = ServoraTheme.colors.textPrimary,
@@ -1051,10 +1107,10 @@ fun ProfileScreen(
                                         addrText = ""
                                     }
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen),
+                                colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("Save Address", color = Color.White /* theme-invariant */)
+                                Text("Save Address", color = ServoraTheme.colors.onPrimary)
                             }
                         }
                     }
@@ -1084,13 +1140,13 @@ fun ProfileScreen(
                                         modifier = Modifier
                                             .size(36.dp)
                                             .clip(CircleShape)
-                                            .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                                            .background(if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = Icons.Outlined.LocationOn,
                                             contentDescription = null,
-                                            tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                                            tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
                                             modifier = Modifier.size(20.dp)
                                         )
                                     }
@@ -1099,40 +1155,37 @@ fun ProfileScreen(
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text(
                                                 text = addr.title,
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontSize = 15.sp,
                                                 color = ServoraTheme.colors.textPrimary
                                             )
                                             if (addr.isDefault) {
                                                 Spacer(modifier = Modifier.width(6.dp))
                                                 Surface(
                                                     shape = RoundedCornerShape(4.dp),
-                                                    color = if (isDark) ServoraTheme.colors.surfaceVariant else MintBadgeBg
+                                                    color = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer
                                                 ) {
                                                     Text(
                                                         text = "DEFAULT",
-                                                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
-                                                        fontSize = 11.sp,
-                                                        fontWeight = FontWeight.Medium,
-                                                        color = if (isDark) ServoraTheme.colors.success else MintBadgeText
+                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                                        fontSize = 9.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer
                                                     )
                                                 }
                                             }
                                         }
-                                        Text(
-                                            text = "${addr.fullAddress}, ${addr.locality}, ${addr.city}",
-                                            fontSize = 12.sp,
-                                            color = ServoraTheme.colors.subtext
-                                        )
+                                        Text(text = addr.fullAddress, fontSize = 13.sp, color = ServoraTheme.colors.subtext)
+                                        Text(text = "${addr.locality}, Agra", fontSize = 12.sp, color = ServoraTheme.colors.subtext.copy(alpha = 0.7f))
                                     }
                                 }
 
                                 IconButton(onClick = { onDeleteAddress(addr.id) }) {
                                     Icon(
-                                        imageVector = Icons.Default.Delete,
+                                        imageVector = Icons.Outlined.DeleteOutline,
                                         contentDescription = "Delete",
-                                        tint = ServoraTheme.colors.subtext,
-                                        modifier = Modifier.size(18.dp)
+                                        tint = Color(0xFFEF4444),
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
@@ -1143,7 +1196,7 @@ fun ProfileScreen(
         }
     }
 
-    // 3. SERVICE ASSIST PASS DETAILS SHEET
+    // 3. PASS DETAILS SHEET
     if (showPassDetailsSheet) {
         ModalBottomSheet(
             onDismissRequest = { showPassDetailsSheet = false },
@@ -1153,21 +1206,20 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
-                    .padding(bottom = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(bottom = 32.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
-                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Star,
                         contentDescription = null,
-                        tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
-                        modifier = Modifier.size(30.dp)
+                        tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
+                        modifier = Modifier.size(26.dp)
                     )
                 }
 
@@ -1180,41 +1232,36 @@ fun ProfileScreen(
                 )
 
                 Text(
-                    text = "Unlock 3 Doorstep Visits across Agra for only ₹99",
+                    text = "Get 3 doorstep visits across Agra for only ₹99. Save up to ₹300 on visiting fees across electrical, AC, cleaning, and plumbing services.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = ServoraTheme.colors.subtext,
-                    textAlign = TextAlign.Center
+                    color = ServoraTheme.colors.subtext
                 )
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    PassPerkRow("₹0 Visiting Charges on AC, Electrical & Cleaning")
-                    PassPerkRow("Guaranteed 44-minute Priority Partner Arrival")
-                    PassPerkRow("Valid for 60 days across all localities in Agra")
-                    PassPerkRow("100% Satisfaction or full refund guarantee")
-                }
+                PassPerkRow("Zero Visiting Charges on 3 Bookings")
+                Spacer(modifier = Modifier.height(8.dp))
+                PassPerkRow("Priority Partner Allocation in 15 Mins")
+                Spacer(modifier = Modifier.height(8.dp))
+                PassPerkRow("Valid across all Agra localities for 60 days")
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Button(
                     onClick = { showPassDetailsSheet = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen),
+                    colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text("Activate Service Assist Pass for ₹99", fontWeight = FontWeight.SemiBold, color = Color.White /* theme-invariant */)
+                    Text("Activate Service Assist Pass for ₹99", fontWeight = FontWeight.SemiBold, color = ServoraTheme.colors.onPrimary)
                 }
             }
         }
     }
 
-    // 4. SERVICE ASSIST MONEY / WALLET SHEET
+    // 4. WALLET SHEET
     if (showWalletSheet) {
         ModalBottomSheet(
             onDismissRequest = { showWalletSheet = false },
@@ -1238,7 +1285,7 @@ fun ProfileScreen(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    color = if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg,
+                    color = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer,
                     border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
                 ) {
                     Column(
@@ -1247,7 +1294,7 @@ fun ProfileScreen(
                     ) {
                         Text("AVAILABLE BALANCE", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = ServoraTheme.colors.subtext)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("₹0.00", fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                        Text("₹0.00", fontSize = 32.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer)
                         Spacer(modifier = Modifier.height(6.dp))
                         Text("Use wallet cash on any service in Agra", fontSize = 12.sp, color = ServoraTheme.colors.subtext)
                     }
@@ -1257,13 +1304,13 @@ fun ProfileScreen(
 
                 Button(
                     onClick = { showWalletSheet = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen),
+                    colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text("Add Money to Wallet", fontWeight = FontWeight.Medium, color = Color.White /* theme-invariant */)
+                    Text("Add Money to Wallet", fontWeight = FontWeight.Medium, color = ServoraTheme.colors.onPrimary)
                 }
             }
         }
@@ -1332,13 +1379,13 @@ fun ProfileScreen(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(CircleShape)
-                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Redeem,
                         contentDescription = null,
-                        tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                        tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
                         modifier = Modifier.size(30.dp)
                     )
                 }
@@ -1362,7 +1409,7 @@ fun ProfileScreen(
 
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = if (isDark) ServoraTheme.colors.surfaceVariant else Color(0xFFF1F5F9),
+                    color = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer,
                     border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
                 ) {
                     Text(
@@ -1370,7 +1417,7 @@ fun ProfileScreen(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.5.sp,
-                        color = if (isDark) ServoraTheme.colors.success else DeepForestGreen
+                        color = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer
                     )
                 }
 
@@ -1378,15 +1425,15 @@ fun ProfileScreen(
 
                 Button(
                     onClick = { showReferSheet = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen),
+                    colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Icon(Icons.Default.Share, contentDescription = null, tint = Color.White /* theme-invariant */, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Share, contentDescription = null, tint = ServoraTheme.colors.onPrimary, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Share Referral Link", fontWeight = FontWeight.Medium, color = Color.White /* theme-invariant */)
+                    Text("Share Referral Link", fontWeight = FontWeight.Medium, color = ServoraTheme.colors.onPrimary)
                 }
             }
         }
@@ -1496,9 +1543,9 @@ fun ProfileScreen(
                         showDeleteAccountDialog = false
                         onLogout()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)) /* theme-invariant */
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626))
                 ) {
-                    Text("Confirm Deletion", color = Color.White /* theme-invariant */)
+                    Text("Confirm Deletion", color = Color.White)
                 }
             },
             dismissButton = {
@@ -1529,9 +1576,9 @@ fun ProfileScreen(
                         showLogoutConfirmDialog = false
                         onLogout()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)) /* theme-invariant */
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626))
                 ) {
-                    Text("Log Out", color = Color.White /* theme-invariant */)
+                    Text("Log Out", color = Color.White)
                 }
             },
             dismissButton = {
@@ -1540,6 +1587,359 @@ fun ProfileScreen(
                 }
             }
         )
+    }
+}
+
+// =============================================================================
+// APPEARANCE BOTTOM SHEET (Rainbow Colors + Dark Mode + WCAG AA Legibility)
+// =============================================================================
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun AppearanceBottomSheet(
+    currentTheme: AppTheme,
+    selectedColor: RainbowColor,
+    isDark: Boolean,
+    onThemeChange: (AppTheme) -> Unit,
+    onColorChange: (RainbowColor) -> Unit,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 36.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Palette,
+                            contentDescription = null,
+                            tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "Appearance & Theme",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 19.sp
+                            ),
+                            color = ServoraTheme.colors.textPrimary
+                        )
+                        Text(
+                            text = "Customize your app theme color and mode",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = ServoraTheme.colors.subtext
+                        )
+                    }
+                }
+
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = ServoraTheme.colors.subtext
+                    )
+                }
+            }
+
+            HorizontalDivider(color = ServoraTheme.colors.divider)
+
+            // Section 1: Dark Mode / Light Mode Segmented Selector
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = "THEME MODE",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.sp
+                    ),
+                    color = ServoraTheme.colors.subtext
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Light Mode Button
+                    ThemeModeCard(
+                        modifier = Modifier.weight(1f),
+                        icon = Icons.Outlined.LightMode,
+                        title = "Light",
+                        isSelected = currentTheme == AppTheme.LIGHT,
+                        onClick = { onThemeChange(AppTheme.LIGHT) }
+                    )
+
+                    // Dark Mode Button
+                    ThemeModeCard(
+                        modifier = Modifier.weight(1f),
+                        icon = Icons.Outlined.DarkMode,
+                        title = "Dark",
+                        isSelected = currentTheme == AppTheme.DARK,
+                        onClick = { onThemeChange(AppTheme.DARK) }
+                    )
+
+                    // System Mode Button
+                    ThemeModeCard(
+                        modifier = Modifier.weight(1f),
+                        icon = Icons.Default.BrightnessAuto,
+                        title = "System",
+                        isSelected = currentTheme == AppTheme.SYSTEM,
+                        onClick = { onThemeChange(AppTheme.SYSTEM) }
+                    )
+                }
+            }
+
+            // Section 2: Rainbow Color Spectrum Palette
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "RAINBOW COLOR THEME",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 1.sp
+                        ),
+                        color = ServoraTheme.colors.subtext
+                    )
+
+                    Text(
+                        text = selectedColor.displayName,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = ServoraTheme.colors.primary
+                    )
+                }
+
+                // Grid / FlowRow of Rainbow Color Swatches
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    maxItemsInEachRow = 4
+                ) {
+                    RainbowColor.entries.forEach { colorOption ->
+                        val isSelected = selectedColor == colorOption
+                        val colorLight = Color(colorOption.primaryLightHex)
+                        val colorDark = Color(colorOption.primaryDarkHex)
+                        val activeColor = if (isDark) colorDark else colorLight
+
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { onColorChange(colorOption) },
+                            shape = RoundedCornerShape(14.dp),
+                            color = if (isSelected) {
+                                if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surface
+                            },
+                            border = BorderStroke(
+                                width = if (isSelected) 2.dp else 1.dp,
+                                color = if (isSelected) activeColor else ServoraTheme.colors.cardBorder
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(vertical = 12.dp, horizontal = 6.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(34.dp)
+                                        .clip(CircleShape)
+                                        .background(activeColor)
+                                        .shadow(elevation = if (isSelected) 3.dp else 0.dp, shape = CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "Selected",
+                                            tint = if (isDark) Color(0xFF0F1412) else Color.White,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                Text(
+                                    text = colorOption.displayName.replace(" ", "\n"),
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSelected) ServoraTheme.colors.textPrimary else ServoraTheme.colors.subtext,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 13.sp,
+                                    maxLines = 2
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Section 3: Live Interactive Preview Card
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "LIVE PREVIEW",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.sp
+                    ),
+                    color = ServoraTheme.colors.subtext
+                )
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "${selectedColor.displayName} Theme",
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 14.sp,
+                                        color = ServoraTheme.colors.textPrimary
+                                    )
+                                    Text(
+                                        text = if (isDark) "Dark Mode • High Contrast" else "Light Mode • High Contrast",
+                                        fontSize = 11.sp,
+                                        color = ServoraTheme.colors.subtext
+                                    )
+                                }
+                            }
+
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = ServoraTheme.colors.primary
+                            ) {
+                                Text(
+                                    text = "Active",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = ServoraTheme.colors.onPrimary
+                                )
+                            }
+                        }
+
+                        Button(
+                            onClick = onDismiss,
+                            colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp)
+                        ) {
+                            Text(
+                                text = "Apply Theme & Close",
+                                fontWeight = FontWeight.SemiBold,
+                                color = ServoraTheme.colors.onPrimary
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemeModeCard(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    title: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val isDark = ServoraTheme.colors.isDark
+    Surface(
+        modifier = modifier
+            .height(72.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(14.dp),
+        color = if (isSelected) {
+            if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        border = BorderStroke(
+            width = if (isSelected) 2.dp else 1.dp,
+            color = if (isSelected) ServoraTheme.colors.primary else ServoraTheme.colors.cardBorder
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = if (isSelected) ServoraTheme.colors.primary else ServoraTheme.colors.subtext,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = title,
+                fontSize = 12.sp,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                color = if (isSelected) ServoraTheme.colors.textPrimary else ServoraTheme.colors.subtext
+            )
+        }
     }
 }
 
@@ -1576,7 +1976,6 @@ private fun GreenMenuItemCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                // Soft Mint Icon Container
                 Box(
                     modifier = Modifier
                         .size(38.dp)
@@ -1585,7 +1984,7 @@ private fun GreenMenuItemCard(
                             if (isDestructive) {
                                 if (isDark) Color(0xFF450A0A) else Color(0xFFFEE2E2)
                             } else {
-                                if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg
+                                if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer
                             }
                         ),
                     contentAlignment = Alignment.Center
@@ -1593,7 +1992,7 @@ private fun GreenMenuItemCard(
                     Icon(
                         imageVector = icon,
                         contentDescription = title,
-                        tint = if (isDestructive) (if (isDark) Color(0xFFF87171) else Color(0xFFDC2626)) else (if (isDark) ServoraTheme.colors.success else DeepForestGreen),
+                        tint = if (isDestructive) (if (isDark) Color(0xFFF87171) else Color(0xFFDC2626)) else (if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -1614,14 +2013,14 @@ private fun GreenMenuItemCard(
                 if (badgeText != null) {
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = VibrantMint
+                        color = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.primary
                     ) {
                         Text(
                             text = badgeText,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color.White /* theme-invariant */
+                            color = ServoraTheme.colors.onPrimary
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
@@ -1647,7 +2046,7 @@ private fun PassPerkRow(text: String) {
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = null,
-            tint = VibrantMint,
+            tint = ServoraTheme.colors.primary,
             modifier = Modifier.size(18.dp)
         )
         Spacer(modifier = Modifier.width(10.dp))
@@ -1678,13 +2077,13 @@ private fun SupportActionTile(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(if (isDark) MaterialTheme.colorScheme.surface else MintLightBg),
+                    .background(if (isDark) MaterialTheme.colorScheme.surface else ServoraTheme.colors.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                    tint = if (isDark) ServoraTheme.colors.primary else ServoraTheme.colors.onPrimaryContainer,
                     modifier = Modifier.size(22.dp)
                 )
             }

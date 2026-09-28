@@ -65,21 +65,23 @@ import com.example.data.model.ServicePackage
 import com.example.data.model.UserRole
 import com.example.ui.components.StatusBarIcons
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
 import com.example.ui.components.AdminBottomNav
 import com.example.ui.components.AdminNavTab
+import com.example.ui.components.FloatingCartBar
+import com.example.ui.components.IncomingMessageBanner
 import com.example.ui.components.LocationPickerModal
 import com.example.ui.components.PartnerBottomNav
-import com.example.ui.components.stableStatusBarsPadding
-import com.example.data.remote.supabase.SupabaseClient
-import com.example.data.remote.supabase.SupabaseConfig
-import com.example.data.repository.FakeChatRepository
-import com.example.data.repository.RemoteChatRepository
-import com.example.ui.components.IncomingMessageBanner
 import com.example.ui.components.PartnerNavTab
 import com.example.ui.components.SearchOverlay
 import com.example.ui.components.ServoraBottomNav
 import com.example.ui.components.ServoraNavTab
 import com.example.ui.components.ServoraTopBar
+import com.example.ui.components.stableStatusBarsPadding
+import com.example.data.remote.supabase.SupabaseClient
+import com.example.data.remote.supabase.SupabaseConfig
+import com.example.data.repository.FakeChatRepository
+import com.example.data.repository.RemoteChatRepository
 import com.example.ui.screens.AdminDashboardScreen
 import com.example.ui.screens.BookingConfirmationScreen
 import com.example.ui.screens.BookingFlowScreen
@@ -103,6 +105,7 @@ import com.example.ui.viewmodel.ServoraViewModel
 
 import android.app.Activity
 import android.graphics.drawable.ColorDrawable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -111,6 +114,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import com.example.data.prefs.AppTheme
+import com.example.data.prefs.RainbowColor
 import com.example.data.prefs.ThemePreferenceRepository
 import com.example.ui.viewmodel.ThemeViewModel
 import com.example.ui.viewmodel.ThemeViewModelFactory
@@ -149,11 +153,11 @@ class MainActivity : ComponentActivity() {
         insetsController.show(WindowInsetsCompat.Type.statusBars())
 
         val themeRepo = ThemePreferenceRepository(applicationContext)
-        val initialTheme = runBlocking {
+        val (initialTheme, initialColor) = runBlocking {
             try {
-                themeRepo.themeFlow.first()
+                Pair(themeRepo.themeFlow.first(), themeRepo.colorFlow.first())
             } catch (_: Exception) {
-                AppTheme.LIGHT
+                Pair(AppTheme.LIGHT, RainbowColor.GREEN)
             }
         }
         val initialDark = initialTheme == AppTheme.DARK
@@ -161,14 +165,28 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val themeViewModel: ThemeViewModel = viewModel(
-                factory = ThemeViewModelFactory(themeRepo, initialDark)
+                factory = ThemeViewModelFactory(themeRepo, initialTheme, initialColor)
             )
-            val isDark by themeViewModel.isDark.collectAsState()
+            val currentAppTheme by themeViewModel.appTheme.collectAsState()
+            val selectedColor by themeViewModel.selectedColor.collectAsState()
+            val systemInDark = isSystemInDarkTheme()
+            val effectiveDark = when (currentAppTheme) {
+                AppTheme.LIGHT -> false
+                AppTheme.DARK -> true
+                AppTheme.SYSTEM -> systemInDark
+            }
 
-            MyApplicationTheme(darkTheme = isDark) {
+            MyApplicationTheme(
+                darkTheme = effectiveDark,
+                rainbowColor = selectedColor
+            ) {
                 ServoraApp(
-                    isDarkTheme = isDark,
-                    onToggleTheme = { themeViewModel.toggle() }
+                    isDarkTheme = effectiveDark,
+                    selectedColor = selectedColor,
+                    appTheme = currentAppTheme,
+                    onToggleTheme = { themeViewModel.toggle() },
+                    onSetTheme = { themeViewModel.setTheme(it) },
+                    onSetColor = { themeViewModel.setColor(it) }
                 )
             }
         }
@@ -179,7 +197,11 @@ class MainActivity : ComponentActivity() {
 fun ServoraApp(
     viewModel: ServoraViewModel = viewModel(),
     isDarkTheme: Boolean = false,
-    onToggleTheme: () -> Unit = {}
+    selectedColor: RainbowColor = RainbowColor.GREEN,
+    appTheme: AppTheme = AppTheme.LIGHT,
+    onToggleTheme: () -> Unit = {},
+    onSetTheme: (AppTheme) -> Unit = {},
+    onSetColor: (RainbowColor) -> Unit = {}
 ) {
     val view = LocalView.current
     val activity = LocalContext.current as? Activity
@@ -243,6 +265,18 @@ fun ServoraApp(
     val notifications by viewModel.notifications.collectAsState()
     val unreadCustomerNotificationsCount by viewModel.unreadCustomerNotificationsCount.collectAsState()
     val unreadPartnerNotificationsCount by viewModel.unreadPartnerNotificationsCount.collectAsState()
+
+    var isCartVisible by remember { mutableStateOf(true) }
+    val cartItems by viewModel.cartItems.collectAsState()
+    val cartTotalCount by viewModel.cartTotalCount.collectAsState()
+    val cartTotalPrice by viewModel.cartTotalPrice.collectAsState()
+    val cartTotalSavings by viewModel.cartTotalSavings.collectAsState()
+
+    LaunchedEffect(cartTotalCount) {
+        if (cartTotalCount > 0) {
+            isCartVisible = true
+        }
+    }
 
     // Observe user / session changes to switch chat repository profile and cursors
     LaunchedEffect(currentUser.id, currentUser.role, impersonatingAdminProfile != null) {
@@ -637,7 +671,11 @@ fun ServoraApp(
                                                             currentScreen = AppScreen.Login
                                                         },
                                                         isDarkTheme = isDarkTheme,
-                                                        onToggleTheme = onToggleTheme
+                                                        selectedColor = selectedColor,
+                                                        appTheme = appTheme,
+                                                        onToggleTheme = onToggleTheme,
+                                                        onSetTheme = onSetTheme,
+                                                        onSetColor = onSetColor
                                                     )
                                                 }
                                             }
@@ -681,8 +719,7 @@ fun ServoraApp(
                                                                 currentScreen = AppScreen.ServiceDetail(srv)
                                                             },
                                                             onBookService = { srv ->
-                                                                viewModel.startBooking(srv)
-                                                                currentScreen = AppScreen.BookingFlow(srv, srv.packages.firstOrNull())
+                                                                viewModel.addToCart(srv)
                                                             },
                                                             onTrackBookingClick = { bookingId ->
                                                                 currentScreen = AppScreen.BookingTracking(bookingId)
@@ -710,8 +747,7 @@ fun ServoraApp(
                                                                 currentScreen = AppScreen.ServiceDetail(srv)
                                                             },
                                                             onBookService = { srv ->
-                                                                viewModel.startBooking(srv)
-                                                                currentScreen = AppScreen.BookingFlow(srv, srv.packages.firstOrNull())
+                                                                viewModel.addToCart(srv)
                                                             },
                                                             onBackClick = {
                                                                 currentTab = ServoraNavTab.HOME
@@ -732,8 +768,7 @@ fun ServoraApp(
                                                                 currentScreen = AppScreen.ServiceDetail(srv)
                                                             },
                                                             onBookService = { srv ->
-                                                                viewModel.startBooking(srv)
-                                                                currentScreen = AppScreen.BookingFlow(srv, srv.packages.firstOrNull())
+                                                                viewModel.addToCart(srv)
                                                             },
                                                             onBackClick = {
                                                                 currentTab = ServoraNavTab.HOME
@@ -795,7 +830,11 @@ fun ServoraApp(
                                                                 currentScreen = AppScreen.Login
                                                             },
                                                             isDarkTheme = isDarkTheme,
-                                                            onToggleTheme = onToggleTheme
+                                                            selectedColor = selectedColor,
+                                                            appTheme = appTheme,
+                                                            onToggleTheme = onToggleTheme,
+                                                            onSetTheme = onSetTheme,
+                                                            onSetColor = onSetColor
                                                         )
                                                     }
                                                 }
@@ -1106,6 +1145,39 @@ fun ServoraApp(
                 onDismiss = { showLocationPicker = false },
                 onLocationSelected = { city, locality ->
                     viewModel.setLocation(city, locality)
+                }
+            )
+        }
+
+        // Floating Cart Bar (Customer role, in Home/Services/Search tabs when cart has items)
+        val shouldShowCart = isMainTabsActive &&
+            currentUser.role == UserRole.CUSTOMER &&
+            (currentTab == ServoraNavTab.HOME || currentTab == ServoraNavTab.SERVICES || currentTab == ServoraNavTab.SEARCH) &&
+            cartTotalCount > 0 &&
+            isCartVisible
+
+        AnimatedVisibility(
+            visible = shouldShowCart,
+            enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(240)) + fadeIn(tween(200)),
+            exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(240)) + fadeOut(tween(180)),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = if (isBottomNavVisible) 76.dp else 16.dp)
+        ) {
+            FloatingCartBar(
+                itemCount = cartTotalCount,
+                totalPrice = cartTotalPrice,
+                totalSavings = cartTotalSavings,
+                onViewCartClick = {
+                    val firstItem = cartItems.firstOrNull()
+                    if (firstItem != null) {
+                        viewModel.startBooking(firstItem.service, firstItem.selectedPackage)
+                        currentScreen = AppScreen.BookingFlow(firstItem.service, firstItem.selectedPackage)
+                    }
+                },
+                onDismiss = {
+                    isCartVisible = false
                 }
             )
         }

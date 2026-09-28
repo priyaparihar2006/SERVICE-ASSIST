@@ -3,10 +3,9 @@ package com.example.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ============================================================================
-// LIGHT THEME TOKENS (Unchanged - pixel identical to today)
+// BASE BRAND CONSTANTS & FALLBACK TOKENS
 // ============================================================================
 
-// ServiceAssist Green Brand Theme Colors (#009051)
 val ServiceAssistGreen = Color(0xFF009051)
 val ServiceAssistDarkGreen = Color(0xFF0B5433)
 val ServiceAssistMintBg = Color(0xFFE6F5EE)
@@ -22,7 +21,7 @@ val ServoraDividerGray = Color(0xFFE5E7EB)
 val ServoraDarkTitle = Color(0xFF111827)
 val ServoraBodyGray = Color(0xFF4B5563)
 
-// Servora Brand Colors (Brand Green: #009051)
+// Servora Neutral Base Colors
 val ServoraCanvas = Color(0xFFFFFFFF)
 val ServoraCharcoal = Color(0xFF111827)
 val ServoraSubtext = Color(0xFF6B7280)
@@ -45,7 +44,7 @@ val ServoraBlueLight = Color(0xFFEFF6FF)
 val ServoraStarGold = Color(0xFFF59E0B)
 
 // ============================================================================
-// DARK THEME TOKENS (WCAG 2.1 AA Compliant)
+// DARK THEME NEUTRAL TOKENS (WCAG 2.1 AA Compliant)
 // ============================================================================
 val ServoraDarkBackground = Color(0xFF0F1412)
 val ServoraDarkSurface = Color(0xFF171D1A)

@@ -7,6 +7,7 @@ import com.example.data.db.ServoraDatabase
 import com.example.data.model.AppNotification
 import com.example.data.model.Booking
 import com.example.data.model.BookingStatus
+import com.example.data.model.CartItem
 import com.example.data.model.CustomerReview
 import com.example.data.model.NotificationType
 import com.example.data.model.Offer
@@ -641,6 +642,54 @@ class ServoraViewModel(application: Application) : AndroidViewModel(application)
         _notifications.value = listOf(notification) + _notifications.value
     }
 
+    // Cart Flow State
+    private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
+    val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
+
+    val cartTotalCount: StateFlow<Int> = _cartItems
+        .map { items -> items.sumOf { it.quantity } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val cartTotalPrice: StateFlow<Int> = _cartItems
+        .map { items -> items.sumOf { it.totalPrice } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val cartTotalSavings: StateFlow<Int> = _cartItems
+        .map { items -> items.sumOf { it.totalSavings } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    fun addToCart(service: ServiceItem, pkg: ServicePackage? = null) {
+        val current = _cartItems.value.toMutableList()
+        val targetPkg = pkg ?: service.packages.firstOrNull()
+        val existingIndex = current.indexOfFirst { it.service.id == service.id && it.selectedPackage?.id == targetPkg?.id }
+        if (existingIndex >= 0) {
+            val existing = current[existingIndex]
+            current[existingIndex] = existing.copy(quantity = existing.quantity + 1)
+        } else {
+            current.add(CartItem(service = service, selectedPackage = targetPkg, quantity = 1))
+        }
+        _cartItems.value = current
+        startBooking(service, targetPkg)
+    }
+
+    fun removeFromCart(serviceId: String, packageId: String? = null) {
+        val current = _cartItems.value.toMutableList()
+        val existingIndex = current.indexOfFirst { it.service.id == serviceId && (packageId == null || it.selectedPackage?.id == packageId) }
+        if (existingIndex >= 0) {
+            val existing = current[existingIndex]
+            if (existing.quantity > 1) {
+                current[existingIndex] = existing.copy(quantity = existing.quantity - 1)
+            } else {
+                current.removeAt(existingIndex)
+            }
+        }
+        _cartItems.value = current
+    }
+
+    fun clearCart() {
+        _cartItems.value = emptyList()
+    }
+
     // Booking Flow State
     private val _bookingDraft = MutableStateFlow(BookingDraft())
     val bookingDraft = _bookingDraft.asStateFlow()
@@ -679,6 +728,9 @@ class ServoraViewModel(application: Application) : AndroidViewModel(application)
             appliedPromo = null,
             paymentMethod = "Cash after service"
         )
+        if (_cartItems.value.none { it.service.id == service.id && it.selectedPackage?.id == pkg?.id }) {
+            _cartItems.value = _cartItems.value + CartItem(service = service, selectedPackage = pkg, quantity = 1)
+        }
     }
 
     fun updateBookingDraft(

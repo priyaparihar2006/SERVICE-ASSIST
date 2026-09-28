@@ -3,7 +3,12 @@ import { app } from './app.js';
 import { env } from './config/env.js';
 import { db } from './config/db.js';
 import { attachRealtime } from './realtime/socket.js';
-await db.$connect();
+try {
+  await db.$connect();
+  console.log('Database connected successfully');
+} catch (err) {
+  console.warn('Database connection status:', err.message);
+}
 const httpServer = createServer(app);
 const realtime = attachRealtime(httpServer);
 httpServer.listen(env.PORT, () => console.log(`Service Assist API listening on port ${env.PORT}`));

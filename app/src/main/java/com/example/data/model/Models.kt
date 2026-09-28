@@ -210,3 +210,14 @@ data class AppNotification(
     val actionUrl: String? = null
 )
 
+data class CartItem(
+    val service: ServiceItem,
+    val selectedPackage: ServicePackage? = null,
+    val quantity: Int = 1
+) {
+    val unitPrice: Int get() = selectedPackage?.price ?: service.startingPrice
+    val totalPrice: Int get() = unitPrice * quantity
+    val originalPrice: Int get() = selectedPackage?.originalPrice?.takeIf { it > 0 } ?: (unitPrice + 120)
+    val totalSavings: Int get() = (originalPrice - unitPrice).coerceAtLeast(0) * quantity
+}
+
