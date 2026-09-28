@@ -72,7 +72,7 @@ fun OffersScreen(
     val coroutineScope = rememberCoroutineScope()
     val isDark = ServoraTheme.colors.isDark
 
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else Color(0xFF009051)
+    val emeraldGreen = ServoraTheme.colors.primary
 
     Box(
         modifier = modifier
@@ -200,7 +200,7 @@ fun OfferCardItem(
     onApplyClick: () -> Unit
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else Color(0xFF009051)
+    val emeraldGreen = ServoraTheme.colors.primary
 
     val offerIcon: ImageVector = when {
         offer.code.contains("CLEAN", ignoreCase = true) || offer.title.contains("Clean", ignoreCase = true) -> Icons.Default.Home

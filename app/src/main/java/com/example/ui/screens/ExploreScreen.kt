@@ -114,9 +114,12 @@ fun ExploreScreen(
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else EmeraldGreen
-    val lightMintBg = if (isDark) ServoraTheme.colors.surfaceVariant else LightMintBg
-    val softBadgeBg = if (isDark) ServoraTheme.colors.surfaceVariant else SoftBadgeBg
+    val primaryColor = ServoraTheme.colors.primary
+    val primaryContainer = ServoraTheme.colors.primaryContainer
+    val onPrimary = ServoraTheme.colors.onPrimary
+    val onPrimaryContainer = ServoraTheme.colors.onPrimaryContainer
+    val lightMintBg = if (isDark) ServoraTheme.colors.surfaceVariant else primaryContainer.copy(alpha = 0.55f)
+    val softBadgeBg = if (isDark) ServoraTheme.colors.surfaceVariant else primaryContainer
     val darkTextPrimary = ServoraTheme.colors.textPrimary
     val textMutedSecondary = ServoraTheme.colors.subtext
     val cardBorderColor = ServoraTheme.colors.cardBorder
@@ -227,7 +230,7 @@ fun ExploreScreen(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Search",
-                                tint = if (isSearchExpanded) emeraldGreen else darkTextPrimary,
+                                tint = if (isSearchExpanded) primaryColor else darkTextPrimary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -276,7 +279,7 @@ fun ExploreScreen(
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = "Search",
-                                    tint = emeraldGreen,
+                                    tint = primaryColor,
                                     modifier = Modifier.size(20.dp)
                                 )
                             },
@@ -298,8 +301,8 @@ fun ExploreScreen(
                                 .testTag("explore_search_input"),
                             shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = emeraldGreen,
-                                unfocusedBorderColor = if (isDark) cardBorderColor else Color(0xFFD4E5DC),
+                                focusedBorderColor = primaryColor,
+                                unfocusedBorderColor = if (isDark) cardBorderColor else primaryContainer,
                                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                                 focusedTextColor = darkTextPrimary,
@@ -326,19 +329,19 @@ fun ExploreScreen(
                             .clickable { onCategorySelect(null) }
                             .testTag("cat_chip_all"),
                         shape = RoundedCornerShape(50.dp),
-                        color = if (isAllSelected) emeraldGreen else MaterialTheme.colorScheme.surface,
+                        color = if (isAllSelected) primaryColor else MaterialTheme.colorScheme.surface,
                         border = androidx.compose.foundation.BorderStroke(
                             1.dp,
-                            if (isAllSelected) emeraldGreen else cardBorderColor
+                            if (isAllSelected) primaryColor else cardBorderColor
                         )
                     ) {
                         Text(
                             text = "All Services",
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = if (isAllSelected) FontWeight.Medium else FontWeight.Medium,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 12.5.sp
                             ),
-                            color = if (isAllSelected) (if (isDark) ServoraTheme.colors.onPrimary else Color.White /* theme-invariant */) else darkTextPrimary,
+                            color = if (isAllSelected) onPrimary else darkTextPrimary,
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
                         )
                     }
@@ -352,19 +355,19 @@ fun ExploreScreen(
                             .clickable { onCategorySelect(category.id) }
                             .testTag("cat_chip_${category.id}"),
                         shape = RoundedCornerShape(50.dp),
-                        color = if (isSelected) emeraldGreen else MaterialTheme.colorScheme.surface,
+                        color = if (isSelected) primaryColor else MaterialTheme.colorScheme.surface,
                         border = androidx.compose.foundation.BorderStroke(
                             1.dp,
-                            if (isSelected) emeraldGreen else cardBorderColor
+                            if (isSelected) primaryColor else cardBorderColor
                         )
                     ) {
                         Text(
                             text = category.name,
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Medium,
+                                fontWeight = FontWeight.Medium,
                                 fontSize = 12.5.sp
                             ),
-                            color = if (isSelected) (if (isDark) ServoraTheme.colors.onPrimary else Color.White /* theme-invariant */) else darkTextPrimary,
+                            color = if (isSelected) onPrimary else darkTextPrimary,
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
                         )
                     }
@@ -394,10 +397,10 @@ fun ExploreScreen(
                             onSearchChange("")
                             isSearchExpanded = false
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = emeraldGreen),
+                        colors = ButtonDefaults.buttonColors(containerColor = primaryColor, contentColor = onPrimary),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Reset Filters", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Medium)
+                        Text("Reset Filters", color = onPrimary, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -417,7 +420,7 @@ fun ExploreScreen(
 
 // ============================================================================
 // VISUAL SERVICE EXPLORE CARD (EXACT MATCH TO REFERENCE SCREENSHOT)
-// Big image, clean hierarchy, bold title, green star rating, pill view details & floating + Add
+// Big image, clean hierarchy, bold title, star rating, pill view details & floating + Add
 // ============================================================================
 @Composable
 fun VisualServiceExploreCard(
@@ -427,8 +430,10 @@ fun VisualServiceExploreCard(
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else EmeraldGreen
-    val lightMintBg = if (isDark) ServoraTheme.colors.surfaceVariant else LightMintBg
+    val primaryColor = ServoraTheme.colors.primary
+    val primaryContainer = ServoraTheme.colors.primaryContainer
+    val onPrimary = ServoraTheme.colors.onPrimary
+    val lightMintBg = if (isDark) ServoraTheme.colors.surfaceVariant else primaryContainer.copy(alpha = 0.55f)
     val darkTextPrimary = ServoraTheme.colors.textPrimary
     val textMutedSecondary = ServoraTheme.colors.subtext
     val cardBorderColor = ServoraTheme.colors.cardBorder
@@ -471,14 +476,14 @@ fun VisualServiceExploreCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Rating Row (Green Star + Score + Reviews)
+                // Rating Row (Star + Score + Reviews)
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.Star,
                         contentDescription = "Rating",
-                        tint = emeraldGreen,
+                        tint = primaryColor,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -512,7 +517,7 @@ fun VisualServiceExploreCard(
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
                         ),
-                        color = emeraldGreen
+                        color = primaryColor
                     )
 
                     Text(
@@ -521,7 +526,7 @@ fun VisualServiceExploreCard(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Normal
                         ),
-                        color = if (isDark) cardBorderColor else Color(0xFFD0DDD5),
+                        color = if (isDark) cardBorderColor else primaryContainer,
                         modifier = Modifier.padding(horizontal = 4.dp)
                     )
 
@@ -563,13 +568,13 @@ fun VisualServiceExploreCard(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 13.sp
                             ),
-                            color = emeraldGreen
+                            color = primaryColor
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "View details",
-                            tint = emeraldGreen,
+                            tint = primaryColor,
                             modifier = Modifier.size(13.dp)
                         )
                     }
@@ -586,7 +591,7 @@ fun VisualServiceExploreCard(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(20.dp))
-                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else Color(0xFFF2F8F4))
+                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else primaryContainer.copy(alpha = 0.4f))
                 ) {
                     Image(
                         painter = painterResource(id = service.imageDrawableRes),
@@ -596,14 +601,14 @@ fun VisualServiceExploreCard(
                     )
                 }
 
-                // Floating "+ Add" Green Pill Button
+                // Floating "+ Add" Pill Button
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 6.dp)
                         .shadow(4.dp, RoundedCornerShape(50.dp))
                         .clip(RoundedCornerShape(50.dp))
-                        .background(emeraldGreen)
+                        .background(primaryColor)
                         .clickable { onBookService() }
                         .padding(horizontal = 16.dp, vertical = 6.dp)
                         .testTag("explore_add_${service.id}")
@@ -615,7 +620,7 @@ fun VisualServiceExploreCard(
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Add",
-                            tint = Color.White, /* theme-invariant */
+                            tint = onPrimary,
                             modifier = Modifier.size(15.dp)
                         )
                         Spacer(modifier = Modifier.width(3.dp))
@@ -625,7 +630,7 @@ fun VisualServiceExploreCard(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 13.sp
                             ),
-                            color = Color.White /* theme-invariant */
+                            color = onPrimary
                         )
                     }
                 }

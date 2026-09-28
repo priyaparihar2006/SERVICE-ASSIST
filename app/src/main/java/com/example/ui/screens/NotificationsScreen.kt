@@ -172,7 +172,7 @@ fun NotificationsScreen(
     }
 
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
+    val emeraldGreen = ServoraTheme.colors.primary
     val headerBg = if (isDark) ServoraTheme.colors.headerBackgroundStart else BrandGreen
 
     Box(
@@ -574,7 +574,7 @@ private fun NotificationCard(
     onDelete: () -> Unit
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
+    val emeraldGreen = ServoraTheme.colors.primary
     val typeConfig = getNotificationTypeConfig(notification.type, isDark)
     val timeAgo = formatTimeAgo(notification.timestamp)
 
@@ -700,7 +700,7 @@ private fun NotificationCard(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
                             contentDescription = null,
-                            tint = if (isDark) ServoraTheme.colors.primary else BrandGreenDark,
+                            tint = ServoraTheme.colors.onPrimaryContainer,
                             modifier = Modifier.size(13.dp)
                         )
                         Spacer(modifier = Modifier.width(5.dp))
@@ -710,13 +710,13 @@ private fun NotificationCard(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 11.5.sp
                             ),
-                            color = if (isDark) ServoraTheme.colors.primary else BrandGreenDark
+                            color = ServoraTheme.colors.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = null,
-                            tint = if (isDark) ServoraTheme.colors.primary else BrandGreenDark,
+                            tint = ServoraTheme.colors.onPrimaryContainer,
                             modifier = Modifier.size(12.dp)
                         )
                     }

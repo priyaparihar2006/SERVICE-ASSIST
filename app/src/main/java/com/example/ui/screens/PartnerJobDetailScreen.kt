@@ -207,11 +207,11 @@ fun PartnerJobDetailScreen(
                                     fontSize = 11.5.sp
                                 ),
                                 color = when (booking.status) {
-                                    BookingStatus.COMPLETED -> if (isDark) colors.onSuccessContainer else Color(0xFF0B5433)
+                                    BookingStatus.COMPLETED -> if (isDark) colors.onSuccessContainer else colors.onPrimaryContainer
                                     BookingStatus.CANCELLED -> if (isDark) colors.danger else Color(0xFFDC2626)
                                     BookingStatus.AWAITING_PAYMENT -> if (isDark) colors.onWarningContainer else Color(0xFFB45309)
                                     BookingStatus.ARRIVED -> if (isDark) colors.onInfoContainer else Color(0xFF2563EB)
-                                    else -> if (isDark) colors.onSuccessContainer else Color(0xFF0B5433)
+                                    else -> if (isDark) colors.onSuccessContainer else colors.onPrimaryContainer
                                 }
                             )
                         }
@@ -257,7 +257,7 @@ fun PartnerJobDetailScreen(
                                     enabled = !isAccepting,
                                     shape = RoundedCornerShape(14.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (isDark) colors.success else Color(0xFF009051)
+                                        containerColor = colors.primary
                                     ),
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -370,7 +370,7 @@ fun PartnerJobDetailScreen(
                                 onClick = onBackClick,
                                 shape = RoundedCornerShape(14.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isCompleted) (if (isDark) colors.success else Color(0xFF009051)) else (if (isDark) colors.surfaceVariant else Color(0xFFF1F5F9))
+                                    containerColor = if (isCompleted) (colors.primary) else (if (isDark) colors.surfaceVariant else Color(0xFFF1F5F9))
                                 ),
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -585,7 +585,7 @@ fun PartnerJobDetailScreen(
                             .testTag("input_partner_start_otp"),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (isDark) colors.success else Color(0xFF009051),
+                            focusedBorderColor = colors.primary,
                             unfocusedBorderColor = colors.cardBorder,
                             errorBorderColor = if (isDark) colors.danger else Color(0xFFDC2626),
                             focusedTextColor = colors.textPrimary,
@@ -629,7 +629,7 @@ fun PartnerJobDetailScreen(
                     enabled = enteredOtp.length == 4 && !isVerifyingOtp,
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isDark) colors.success else Color(0xFF009051)
+                        containerColor = colors.primary
                     ),
                     modifier = Modifier.testTag("btn_verify_otp_confirm")
                 ) {

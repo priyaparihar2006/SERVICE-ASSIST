@@ -209,10 +209,10 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
+    val emeraldGreen = ServoraTheme.colors.primary
     val brandGreen = emeraldGreen
-    val brandLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else BrandLightGreen
-    val brandVeryLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else BrandVeryLightGreen
+    val brandLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer
+    val brandVeryLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer.copy(alpha = 0.45f)
     val textPrimary = ServoraTheme.colors.textPrimary
     val textSecondary = ServoraTheme.colors.subtext
     val borderColor = ServoraTheme.colors.cardBorder
@@ -816,7 +816,7 @@ private fun DynamicHeroCarousel(
     if (slides.isEmpty()) return
 
     val isDark = ServoraTheme.colors.isDark
-    val brandGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
+    val brandGreen = ServoraTheme.colors.primary
     val borderColor = ServoraTheme.colors.cardBorder
 
     var currentIndex by remember { mutableIntStateOf(0) }
@@ -992,8 +992,8 @@ private fun AiReelsSection(
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val brandGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
-    val brandLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else BrandLightGreen
+    val brandGreen = ServoraTheme.colors.primary
+    val brandLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer
     val textPrimary = ServoraTheme.colors.textPrimary
     val textSecondary = ServoraTheme.colors.subtext
 
@@ -1092,7 +1092,7 @@ private fun AiReelCard(
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val brandGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
+    val brandGreen = ServoraTheme.colors.primary
 
     Card(
         modifier = modifier
@@ -1251,15 +1251,15 @@ private fun AiTransformationShowcaseSection(
     if (items.isEmpty()) return
 
     val isDark = ServoraTheme.colors.isDark
-    val brandGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
+    val brandGreen = ServoraTheme.colors.primary
     val textPrimary = ServoraTheme.colors.textPrimary
     val textSecondary = ServoraTheme.colors.subtext
     val borderColor = ServoraTheme.colors.cardBorder
     val surfaceVariant = ServoraTheme.colors.surfaceVariant
-    val pillBg = if (isDark) surfaceVariant else Color(0xFFEAF7F0)
-    val pillText = if (isDark) brandGreen else Color(0xFF1B633D)
+    val pillBg = if (isDark) surfaceVariant else ServoraTheme.colors.primaryContainer.copy(alpha = 0.45f)
+    val pillText = if (isDark) brandGreen else ServoraTheme.colors.onPrimaryContainer
     val pillSubtext = if (isDark) textSecondary else Color(0xFF507E63)
-    val circleIconBg = if (isDark) surfaceVariant else Color(0xFFE2F7ED)
+    val circleIconBg = if (isDark) surfaceVariant else ServoraTheme.colors.primaryContainer.copy(alpha = 0.5f)
     val glassBg = if (isDark) Color(0xCC1E2922) else Color(0xCCFFFFFF)
     val glassBorder = if (isDark) Color(0x33FFFFFF) else Color(0x66FFFFFF)
     val nextBtnBg = if (isDark) surfaceVariant else Color.White
@@ -1666,7 +1666,7 @@ private fun AiReelStoryPlayerDialog(
     onBookService: () -> Unit
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val brandGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
+    val brandGreen = ServoraTheme.colors.primary
 
     var activeStoryIndex by remember { mutableIntStateOf(0) }
     var isPaused by remember { mutableStateOf(false) }
@@ -1992,11 +1992,11 @@ private fun CategoryGridTile(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val isDark = ServoraTheme.colors.isDark
-    val brandGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
-    val brandVeryLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else BrandVeryLightGreen
+    val brandGreen = ServoraTheme.colors.primary
+    val brandVeryLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer.copy(alpha = 0.45f)
     val textPrimary = ServoraTheme.colors.textPrimary
     val borderColor = ServoraTheme.colors.cardBorder
-    val imgContainerBg = if (isDark) ServoraTheme.colors.surfaceVariant else Color(0xFFEBF5F0)
+    val imgContainerBg = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer.copy(alpha = 0.45f)
 
     Card(
         modifier = modifier
@@ -2121,8 +2121,8 @@ private fun PopularServiceCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val isDark = ServoraTheme.colors.isDark
-    val brandGreen = if (isDark) ServoraTheme.colors.primary else BrandGreen
-    val brandVeryLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else BrandVeryLightGreen
+    val brandGreen = ServoraTheme.colors.primary
+    val brandVeryLightGreen = if (isDark) ServoraTheme.colors.surfaceVariant else ServoraTheme.colors.primaryContainer.copy(alpha = 0.45f)
     val textPrimary = ServoraTheme.colors.textPrimary
     val textSecondary = ServoraTheme.colors.subtext
     val borderColor = ServoraTheme.colors.cardBorder

@@ -68,9 +68,11 @@ import com.example.ui.viewmodel.PaymentMethodTab
 import com.example.ui.viewmodel.PaymentUiState
 import com.example.ui.viewmodel.PaymentViewModel
 
-private val BrandGreen = Color(0xFF009051)
 private val BrandDarkGreen = Color(0xFF0F5132)
 private val BrandMintBg = Color(0xFFEEF9F3)
+
+
+
 private val BrandBorder = Color(0xFFE5E7EB)
 private val TextMain = Color(0xFF1E2022)
 private val TextSub = Color(0xFF6B7280)
@@ -102,7 +104,7 @@ fun PaymentCollectionScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                    CircularProgressIndicator(color = ServoraTheme.colors.primary)
                 }
             }
 
@@ -171,7 +173,7 @@ fun PaymentCollectionScreen(
                                 .weight(1f)
                                 .height(48.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                            colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
@@ -210,7 +212,7 @@ fun PaymentCollectionScreen(
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
                             contentDescription = "Success",
-                            tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                            tint = ServoraTheme.colors.primary,
                             modifier = Modifier.size(48.dp)
                         )
                     }
@@ -231,7 +233,7 @@ fun PaymentCollectionScreen(
                     Text(
                         text = "$amountText $methodLabel".trim(),
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                        color = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                        color = ServoraTheme.colors.primary,
                         textAlign = TextAlign.Center
                     )
 
@@ -252,7 +254,7 @@ fun PaymentCollectionScreen(
                             .fillMaxWidth(0.7f)
                             .height(48.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                        colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary)
                     ) {
                         Text(
                             text = "Done",
@@ -290,7 +292,7 @@ fun PaymentCollectionScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
-                                tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                tint = ServoraTheme.colors.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -429,7 +431,7 @@ fun PaymentCollectionScreen(
                                 Icon(
                                     imageVector = Icons.Default.Payments,
                                     contentDescription = null,
-                                    tint = if (isCash) (if (isDark) ServoraTheme.colors.success else BrandGreen) else ServoraTheme.colors.textMuted,
+                                    tint = if (isCash) (ServoraTheme.colors.primary) else ServoraTheme.colors.textMuted,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -462,7 +464,7 @@ fun PaymentCollectionScreen(
                                 Icon(
                                     imageVector = Icons.Default.QrCode,
                                     contentDescription = null,
-                                    tint = if (isUpi) (if (isDark) ServoraTheme.colors.success else BrandGreen) else ServoraTheme.colors.textMuted,
+                                    tint = if (isUpi) (ServoraTheme.colors.primary) else ServoraTheme.colors.textMuted,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -501,7 +503,7 @@ fun PaymentCollectionScreen(
                                         Icon(
                                             imageVector = Icons.Default.Payments,
                                             contentDescription = null,
-                                            tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                            tint = ServoraTheme.colors.primary,
                                             modifier = Modifier.size(32.dp)
                                         )
                                     }
@@ -532,7 +534,7 @@ fun PaymentCollectionScreen(
                                             .fillMaxWidth()
                                             .height(50.dp),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                                        colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary)
                                     ) {
                                         if (state.isSubmitting) {
                                             CircularProgressIndicator(
@@ -601,7 +603,7 @@ fun PaymentCollectionScreen(
                                                 modifier = Modifier.fillMaxSize() // theme-invariant: no tint applied to allow reliable camera scanning
                                             )
                                         } else {
-                                            CircularProgressIndicator(color = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                                            CircularProgressIndicator(color = ServoraTheme.colors.primary)
                                         }
                                     }
 
@@ -642,7 +644,7 @@ fun PaymentCollectionScreen(
                                                     fontWeight = FontWeight.Medium,
                                                     fontFamily = FontFamily.Monospace
                                                 ),
-                                                color = if (state.utr.length == 12) (if (isDark) ServoraTheme.colors.success else BrandGreen) else ServoraTheme.colors.textSecondary,
+                                                color = if (state.utr.length == 12) (ServoraTheme.colors.primary) else ServoraTheme.colors.textSecondary,
                                                 modifier = Modifier.padding(end = 12.dp)
                                             )
                                         },
@@ -650,7 +652,7 @@ fun PaymentCollectionScreen(
                                             Icon(
                                                 imageVector = Icons.Default.Receipt,
                                                 contentDescription = null,
-                                                tint = if (isDark) ServoraTheme.colors.success else BrandGreen
+                                                tint = ServoraTheme.colors.primary
                                             )
                                         },
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -660,9 +662,9 @@ fun PaymentCollectionScreen(
                                             unfocusedTextColor = ServoraTheme.colors.textPrimary,
                                             focusedContainerColor = MaterialTheme.colorScheme.surface,
                                             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                            focusedBorderColor = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                            focusedBorderColor = ServoraTheme.colors.primary,
                                             unfocusedBorderColor = ServoraTheme.colors.cardBorder,
-                                            focusedLabelColor = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                            focusedLabelColor = ServoraTheme.colors.primary,
                                             unfocusedLabelColor = ServoraTheme.colors.textSecondary
                                         ),
                                         shape = RoundedCornerShape(12.dp)
@@ -677,7 +679,7 @@ fun PaymentCollectionScreen(
                                             .fillMaxWidth()
                                             .height(50.dp),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                                        colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary)
                                     ) {
                                         if (state.isSubmitting) {
                                             CircularProgressIndicator(
@@ -721,7 +723,7 @@ fun PaymentCollectionScreen(
                                     showCashConfirmDialog = false
                                     viewModel.collectCash()
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                                colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary)
                             ) {
                                 Text("Yes, Cash Received", color = Color.White /* theme-invariant */)
                             }

@@ -101,7 +101,7 @@ fun BookingConfirmationScreen(
     )
 
     val isDark = ServoraTheme.colors.isDark
-    val brandGreen = if (isDark) ServoraTheme.colors.primary else Color(0xFF009051)
+    val brandGreen = ServoraTheme.colors.primary
     val brandDarkGreen = if (isDark) ServoraTheme.colors.primaryContainer else Color(0xFF0F5132)
     val brandMintBg = if (isDark) ServoraTheme.colors.cardBackgroundSubtle else Color(0xFFEEF9F3)
     val brandBorder = ServoraTheme.colors.cardBorder

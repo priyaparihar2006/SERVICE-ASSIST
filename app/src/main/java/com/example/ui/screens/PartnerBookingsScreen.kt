@@ -93,14 +93,6 @@ import com.example.ui.components.hideStatusBarOnScroll
 import com.example.ui.theme.ServoraTheme
 import java.util.Locale
 
-private val BrandGreen = Color(0xFF009051) // theme-invariant
-private val BrandDarkGreen = Color(0xFF0B5433) // theme-invariant
-private val BrandMintBg = Color(0xFFE6F5EE) // theme-invariant
-private val BrandBorder = Color(0xFFCCEBDC) // theme-invariant
-private val SurfaceBg = Color(0xFFF8FAFC) // theme-invariant
-private val TextDark = Color(0xFF0F172A) // theme-invariant
-private val TextMedium = Color(0xFF64748B) // theme-invariant
-private val TextLight = Color(0xFF94A3B8) // theme-invariant
 
 private enum class PartnerBookingFilter(
     val label: String,
@@ -183,13 +175,13 @@ fun PartnerBookingsScreen(
             item {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = if (isDark) ServoraTheme.colors.brandGradientStart else BrandGreen,
+                    color = ServoraTheme.colors.brandGradientStart,
                     shadowElevation = 0.dp
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(if (isDark) ServoraTheme.colors.brandGradientStart else BrandGreen)
+                            .background(ServoraTheme.colors.brandGradientStart)
                             .stableStatusBarsPadding()
                             .padding(horizontal = 16.dp, vertical = 14.dp)
                     ) {
@@ -273,7 +265,7 @@ fun PartnerBookingsScreen(
                         ) {
                             Text("Active", fontSize = 11.5.sp, fontWeight = FontWeight.Medium, color = ServoraTheme.colors.textSecondary)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("${activeBookings.size}", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                            Text("${activeBookings.size}", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = ServoraTheme.colors.primary)
                         }
 
                         Box(modifier = Modifier.size(width = 1.dp, height = 28.dp).background(ServoraTheme.colors.divider))
@@ -295,7 +287,7 @@ fun PartnerBookingsScreen(
                         ) {
                             Text("Revenue", fontSize = 11.5.sp, fontWeight = FontWeight.Medium, color = ServoraTheme.colors.textSecondary)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("₹${String.format(Locale.US, "%,d", totalRevenue)}", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else BrandGreen)
+                            Text("₹${String.format(Locale.US, "%,d", totalRevenue)}", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = ServoraTheme.colors.primary)
                         }
                     }
                 }
@@ -325,7 +317,7 @@ fun PartnerBookingsScreen(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = "Search",
-                                tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                tint = ServoraTheme.colors.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                         },
@@ -346,7 +338,7 @@ fun PartnerBookingsScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = MaterialTheme.colorScheme.surface,
                             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedBorderColor = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                            focusedBorderColor = ServoraTheme.colors.primary,
                             unfocusedBorderColor = ServoraTheme.colors.cardBorder,
                             focusedTextColor = ServoraTheme.colors.textPrimary,
                             unfocusedTextColor = ServoraTheme.colors.textPrimary
@@ -363,7 +355,7 @@ fun PartnerBookingsScreen(
                         .padding(horizontal = 14.dp, vertical = 6.dp),
                     shape = RoundedCornerShape(36.dp),
                     color = if (isDark) ServoraTheme.colors.cardBackgroundSubtle else Color.White,
-                    border = BorderStroke(1.2.dp, if (isDark) ServoraTheme.colors.cardBorder else Color(0xFFCCEBDC)),
+                    border = BorderStroke(1.2.dp, if (isDark) ServoraTheme.colors.cardBorder else ServoraTheme.colors.primaryContainer),
                     shadowElevation = 1.dp
                 ) {
                     Row(
@@ -383,7 +375,7 @@ fun PartnerBookingsScreen(
                                     .clickable { selectedFilter = filter }
                                     .testTag("filter_tab_${filter.name}"),
                                 shape = RoundedCornerShape(26.dp),
-                                color = if (isSelected) (if (isDark) ServoraTheme.colors.success else BrandGreen) else Color.Transparent
+                                color = if (isSelected) (ServoraTheme.colors.primary) else Color.Transparent
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -404,13 +396,13 @@ fun PartnerBookingsScreen(
                                             modifier = Modifier
                                                 .size(22.dp)
                                                 .clip(CircleShape)
-                                                .background(if (isDark) ServoraTheme.colors.successContainer else Color(0xFFE6F7EF)),
+                                                .background(if (isDark) ServoraTheme.colors.successContainer else ServoraTheme.colors.primaryContainer.copy(alpha = 0.5f)),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
                                                 imageVector = filter.icon,
                                                 contentDescription = null,
-                                                tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                                tint = ServoraTheme.colors.primary,
                                                 modifier = Modifier.size(12.dp)
                                             )
                                         }
@@ -463,13 +455,13 @@ fun PartnerBookingsScreen(
                                 modifier = Modifier
                                     .size(68.dp)
                                     .clip(CircleShape)
-                                    .background(if (isDark) ServoraTheme.colors.successContainer else BrandMintBg),
+                                    .background(ServoraTheme.colors.primaryContainer),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ReceiptLong,
                                     contentDescription = null,
-                                    tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                    tint = ServoraTheme.colors.primary,
                                     modifier = Modifier.size(34.dp)
                                 )
                             }
@@ -495,9 +487,9 @@ fun PartnerBookingsScreen(
                                 OutlinedButton(
                                     onClick = { searchQuery = "" },
                                     shape = RoundedCornerShape(10.dp),
-                                    border = BorderStroke(1.dp, if (isDark) ServoraTheme.colors.success else BrandGreen)
+                                    border = BorderStroke(1.dp, ServoraTheme.colors.primary)
                                 ) {
-                                    Text("Clear Search", color = if (isDark) ServoraTheme.colors.success else BrandGreen, fontWeight = FontWeight.Medium)
+                                    Text("Clear Search", color = ServoraTheme.colors.primary, fontWeight = FontWeight.Medium)
                                 }
                             }
                         }
@@ -548,13 +540,13 @@ fun PartnerBookingsScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (isDark) ServoraTheme.colors.successContainer else BrandMintBg),
+                                .background(ServoraTheme.colors.primaryContainer),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Lock,
                                 contentDescription = null,
-                                tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                tint = ServoraTheme.colors.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -611,8 +603,8 @@ fun PartnerBookingsScreen(
                                 .fillMaxWidth()
                                 .testTag("input_partner_start_otp"),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = if (isDark) ServoraTheme.colors.success else BrandGreen,
-                                focusedLabelColor = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                focusedBorderColor = ServoraTheme.colors.primary,
+                                focusedLabelColor = ServoraTheme.colors.primary,
                                 unfocusedBorderColor = ServoraTheme.colors.cardBorder,
                                 focusedTextColor = ServoraTheme.colors.textPrimary,
                                 unfocusedTextColor = ServoraTheme.colors.textPrimary
@@ -631,7 +623,7 @@ fun PartnerBookingsScreen(
                                 otpError = "Incorrect OTP. Please ask customer to re-check."
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.success else BrandGreen),
+                        colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.testTag("btn_verify_confirm_otp")
                     ) {
@@ -693,12 +685,12 @@ private fun RedesignedPartnerBookingCard(
     val statusDotColor = if (isCancelled) {
         if (isDark) ServoraTheme.colors.danger else Color(0xFFEF4444)
     } else {
-        if (isDark) ServoraTheme.colors.success else BrandGreen
+        ServoraTheme.colors.primary
     }
     val statusTextColor = if (isCancelled) {
         if (isDark) ServoraTheme.colors.onDangerContainer else Color(0xFFDC2626)
     } else {
-        if (isDark) ServoraTheme.colors.onSuccessContainer else BrandDarkGreen
+        ServoraTheme.colors.primary
     }
 
     val serviceImageRes = getServiceImageDrawable(booking.serviceId, booking.serviceName)
@@ -761,7 +753,7 @@ private fun RedesignedPartnerBookingCard(
                         text = "₹${booking.totalAmount}",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isCancelled) ServoraTheme.colors.textSecondary else (if (isDark) ServoraTheme.colors.success else BrandGreen)
+                        color = if (isCancelled) ServoraTheme.colors.textSecondary else (ServoraTheme.colors.primary)
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -769,28 +761,28 @@ private fun RedesignedPartnerBookingCard(
                     if (!booking.isPaid && !isCancelled) {
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = if (isDark) ServoraTheme.colors.successContainer else BrandMintBg,
-                            border = BorderStroke(1.dp, if (isDark) ServoraTheme.colors.cardBorder else BrandBorder),
+                            color = ServoraTheme.colors.primaryContainer,
+                            border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder),
                             modifier = Modifier.clickable { onCollectPayment(booking.id) }
                         ) {
                             Text(
                                 text = "COLLECT",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                color = ServoraTheme.colors.primary,
                                 modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
                             )
                         }
                     } else if (booking.isPaid) {
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = if (isDark) ServoraTheme.colors.successContainer else BrandMintBg
+                            color = ServoraTheme.colors.primaryContainer
                         ) {
                             Text(
                                 text = "PAID ✓",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                color = ServoraTheme.colors.primary,
                                 modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
                             )
                         }
@@ -858,13 +850,13 @@ private fun RedesignedPartnerBookingCard(
 
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = if (isDark) ServoraTheme.colors.successContainer else BrandMintBg
+                        color = ServoraTheme.colors.primaryContainer
                     ) {
                         Text(
                             text = booking.packageName.ifBlank { booking.serviceName },
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
-                            color = if (isDark) ServoraTheme.colors.onSuccessContainer else BrandDarkGreen,
+                            color = ServoraTheme.colors.onPrimaryContainer,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
@@ -907,13 +899,13 @@ private fun RedesignedPartnerBookingCard(
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(if (isDark) ServoraTheme.colors.successContainer else BrandMintBg),
+                            .background(ServoraTheme.colors.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
-                            tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                            tint = ServoraTheme.colors.primary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -939,7 +931,7 @@ private fun RedesignedPartnerBookingCard(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(if (isDark) ServoraTheme.colors.success else BrandGreen)
+                            .background(ServoraTheme.colors.primary)
                             .clickable {
                                 val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${booking.customerPhone}"))
                                 context.startActivity(intent)
@@ -973,7 +965,7 @@ private fun RedesignedPartnerBookingCard(
                         Icon(
                             imageVector = Icons.Outlined.ChatBubbleOutline,
                             contentDescription = "Chat Customer",
-                            tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                            tint = ServoraTheme.colors.primary,
                             modifier = Modifier.size(17.dp)
                         )
                         if (unreadCount > 0) {
@@ -1005,7 +997,7 @@ private fun RedesignedPartnerBookingCard(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                        tint = ServoraTheme.colors.primary,
                         modifier = Modifier.size(20.dp)
                     )
 
@@ -1032,7 +1024,7 @@ private fun RedesignedPartnerBookingCard(
                     Surface(
                         shape = RoundedCornerShape(10.dp),
                         color = if (isDark) ServoraTheme.colors.cardBackground else Color.White,
-                        border = BorderStroke(1.dp, if (isDark) ServoraTheme.colors.cardBorder else BrandBorder),
+                        border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder),
                         modifier = Modifier.clickable {
                             onNavigate(booking.addressText.ifBlank { "${booking.locality}, ${booking.city}" })
                         }
@@ -1044,7 +1036,7 @@ private fun RedesignedPartnerBookingCard(
                             Icon(
                                 imageVector = Icons.Default.NearMe,
                                 contentDescription = null,
-                                tint = if (isDark) ServoraTheme.colors.success else BrandGreen,
+                                tint = ServoraTheme.colors.primary,
                                 modifier = Modifier.size(13.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -1052,7 +1044,7 @@ private fun RedesignedPartnerBookingCard(
                                 text = "Map",
                                 fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = if (isDark) ServoraTheme.colors.success else BrandGreen
+                                color = ServoraTheme.colors.primary
                             )
                         }
                     }
@@ -1164,7 +1156,7 @@ private fun RedesignedPartnerBookingCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(44.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.success else BrandGreen),
+                    colors = ButtonDefaults.buttonColors(containerColor = ServoraTheme.colors.primary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
@@ -1209,7 +1201,7 @@ private fun PartnerStepTimeline(status: BookingStatus) {
                     modifier = Modifier
                         .size(20.dp)
                         .clip(CircleShape)
-                        .background(if (isStepDoneOrCurrent) (if (isDark) ServoraTheme.colors.success else BrandGreen) else (if (isDark) ServoraTheme.colors.cardBorder else Color(0xFFE2E8F0))),
+                        .background(if (isStepDoneOrCurrent) (ServoraTheme.colors.primary) else (if (isDark) ServoraTheme.colors.cardBorder else Color(0xFFE2E8F0))),
                     contentAlignment = Alignment.Center
                 ) {
                     if (isStepDoneOrCurrent) {
@@ -1228,7 +1220,7 @@ private fun PartnerStepTimeline(status: BookingStatus) {
                         modifier = Modifier
                             .weight(1f)
                             .height(2.dp)
-                            .background(if (isLineActive) (if (isDark) ServoraTheme.colors.success else BrandGreen) else (if (isDark) ServoraTheme.colors.cardBorder else Color(0xFFE2E8F0)))
+                            .background(if (isLineActive) (ServoraTheme.colors.primary) else (if (isDark) ServoraTheme.colors.cardBorder else Color(0xFFE2E8F0)))
                     )
                 }
             }
@@ -1246,7 +1238,7 @@ private fun PartnerStepTimeline(status: BookingStatus) {
                     text = title,
                     fontSize = 11.sp,
                     fontWeight = if (isStepDoneOrCurrent) FontWeight.Medium else FontWeight.Medium,
-                    color = if (isStepDoneOrCurrent) (if (isDark) ServoraTheme.colors.success else BrandGreen) else ServoraTheme.colors.textSecondary,
+                    color = if (isStepDoneOrCurrent) (ServoraTheme.colors.primary) else ServoraTheme.colors.textSecondary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.width(60.dp)
                 )

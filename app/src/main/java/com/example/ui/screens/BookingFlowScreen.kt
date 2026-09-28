@@ -126,7 +126,7 @@ fun BookingFlowScreen(
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else Color(0xFF009051)
+    val emeraldGreen = ServoraTheme.colors.primary
     val darkGreen = if (isDark) ServoraTheme.colors.primaryContainer else Color(0xFF123E2A)
     val textPrimary = ServoraTheme.colors.textPrimary
     val textSecondary = ServoraTheme.colors.textSecondary

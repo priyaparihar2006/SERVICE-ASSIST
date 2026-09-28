@@ -62,10 +62,6 @@ import com.example.data.model.Booking
 import com.example.ui.components.hideStatusBarOnScroll
 import com.example.ui.theme.ServoraTheme
 
-private val PartnerRevenueGreen = Color(0xFF009051)
-private val PartnerRevenueDarkGreen = Color(0xFF0B5433)
-private val PartnerMintBg = Color(0xFFE6F5EE)
-private val PartnerBorderColor = Color(0xFFCCEBDC)
 
 private enum class SettlementFilter(val title: String) {
     ALL("All Settlements"),
@@ -113,7 +109,7 @@ fun PartnerSettlementHistoryScreen(
         // 1. TOP HEADER BAR WITH THEME GREEN (#009051) EXTENDING BEHIND STATUS BAR
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = if (isDark) ServoraTheme.colors.brandGradientStart else PartnerRevenueGreen,
+            color = if (isDark) ServoraTheme.colors.brandGradientStart else ServoraTheme.colors.primary,
             shadowElevation = 2.dp
         ) {
             Row(
@@ -171,13 +167,13 @@ fun PartnerSettlementHistoryScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(containerColor = if (isDark) ServoraTheme.colors.brandGradientStart else PartnerRevenueGreen),
+                    colors = CardDefaults.cardColors(containerColor = if (isDark) ServoraTheme.colors.brandGradientStart else ServoraTheme.colors.primary),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(if (isDark) ServoraTheme.colors.brandGradientStart else PartnerRevenueGreen)
+                            .background(if (isDark) ServoraTheme.colors.brandGradientStart else ServoraTheme.colors.primary)
                             .padding(18.dp)
                     ) {
                         Column {
@@ -295,7 +291,7 @@ fun PartnerSettlementHistoryScreen(
                         unfocusedTextColor = ServoraTheme.colors.textPrimary,
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedBorderColor = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
+                        focusedBorderColor = if (isDark) ServoraTheme.colors.success else ServoraTheme.colors.primary,
                         unfocusedBorderColor = ServoraTheme.colors.cardBorder
                     ),
                     modifier = Modifier
@@ -319,10 +315,10 @@ fun PartnerSettlementHistoryScreen(
 
                         Surface(
                             shape = RoundedCornerShape(20.dp),
-                            color = if (isSelected) (if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen) else (if (isDark) ServoraTheme.colors.cardBackgroundSubtle else Color.White),
+                            color = if (isSelected) (if (isDark) ServoraTheme.colors.success else ServoraTheme.colors.primary) else (if (isDark) ServoraTheme.colors.cardBackgroundSubtle else Color.White),
                             border = androidx.compose.foundation.BorderStroke(
                                 1.dp,
-                                if (isSelected) (if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen) else ServoraTheme.colors.cardBorder
+                                if (isSelected) (if (isDark) ServoraTheme.colors.success else ServoraTheme.colors.primary) else ServoraTheme.colors.cardBorder
                             ),
                             modifier = Modifier.clickable { selectedFilter = filter }
                         ) {
@@ -375,7 +371,7 @@ fun PartnerSettlementHistoryScreen(
                                 expandedBookingId = if (isExpanded) null else booking.id
                             },
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, if (isExpanded) (if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen) else ServoraTheme.colors.cardBorder),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, if (isExpanded) (if (isDark) ServoraTheme.colors.success else ServoraTheme.colors.primary) else ServoraTheme.colors.cardBorder),
                         shape = RoundedCornerShape(16.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
                     ) {
@@ -389,13 +385,13 @@ fun PartnerSettlementHistoryScreen(
                                     modifier = Modifier
                                         .size(42.dp)
                                         .clip(CircleShape)
-                                        .background(if (isDark) ServoraTheme.colors.successContainer else PartnerMintBg),
+                                        .background(ServoraTheme.colors.primaryContainer),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = serviceIcon,
                                         contentDescription = null,
-                                        tint = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
+                                        tint = ServoraTheme.colors.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
@@ -435,19 +431,19 @@ fun PartnerSettlementHistoryScreen(
                                         style = MaterialTheme.typography.titleMedium.copy(
                                             fontWeight = FontWeight.SemiBold,
                                             fontSize = 15.sp,
-                                            color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen
+                                            color = ServoraTheme.colors.primary
                                         )
                                     )
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(6.dp))
-                                            .background(if (isDark) ServoraTheme.colors.successContainer else PartnerMintBg)
+                                            .background(ServoraTheme.colors.primaryContainer)
                                             .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
                                         Text(
                                             text = "SETTLED",
-                                            color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
+                                            color = ServoraTheme.colors.primary,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Medium,
                                             letterSpacing = 0.5.sp
@@ -496,7 +492,7 @@ fun PartnerSettlementHistoryScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text("Partner Commission Share (100%)", fontSize = 11.sp, color = ServoraTheme.colors.textSecondary)
-                                        Text("₹${booking.totalAmount}", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen)
+                                        Text("₹${booking.totalAmount}", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = if (isDark) ServoraTheme.colors.success else ServoraTheme.colors.primary)
                                     }
                                     Spacer(modifier = Modifier.height(3.dp))
 
@@ -525,7 +521,7 @@ fun PartnerSettlementHistoryScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text("Payout Status", fontSize = 11.sp, color = ServoraTheme.colors.textSecondary)
-                                        Text("Instant Settled to Wallet", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen)
+                                        Text("Instant Settled to Wallet", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = if (isDark) ServoraTheme.colors.success else ServoraTheme.colors.primary)
                                     }
                                 }
                             }

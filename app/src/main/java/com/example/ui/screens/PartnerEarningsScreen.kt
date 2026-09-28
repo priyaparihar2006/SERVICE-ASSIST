@@ -59,11 +59,6 @@ import com.example.data.model.CustomerReview
 import com.example.ui.components.hideStatusBarOnScroll
 import com.example.ui.theme.ServoraTheme
 
-private val PartnerRevenueGreen = Color(0xFF009051) // theme-invariant
-private val PartnerRevenueDarkGreen = Color(0xFF0B5433) // theme-invariant
-private val PartnerMintBg = Color(0xFFE6F5EE) // theme-invariant
-private val PartnerCardBg = Color(0xFFFAFCFA) // theme-invariant
-private val PartnerBorderColor = Color(0xFFCCEBDC) // theme-invariant
 
 @Composable
 fun PartnerEarningsScreen(
@@ -93,7 +88,7 @@ fun PartnerEarningsScreen(
         // TOP GREEN HEADER BAR EXTENDING BEHIND STATUS BAR
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = if (isDark) ServoraTheme.colors.brandGradientStart else PartnerRevenueGreen,
+            color = if (isDark) ServoraTheme.colors.brandGradientStart else ServoraTheme.colors.primary,
             shadowElevation = 2.dp
         ) {
             Row(
@@ -153,13 +148,13 @@ fun PartnerEarningsScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = if (isDark) ServoraTheme.colors.brandGradientStart else PartnerRevenueGreen),
+                    colors = CardDefaults.cardColors(containerColor = if (isDark) ServoraTheme.colors.brandGradientStart else ServoraTheme.colors.primary),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(if (isDark) ServoraTheme.colors.brandGradientStart else PartnerRevenueGreen)
+                            .background(if (isDark) ServoraTheme.colors.brandGradientStart else ServoraTheme.colors.primary)
                             .padding(20.dp)
                     ) {
                         Column {
@@ -344,7 +339,7 @@ fun PartnerEarningsScreen(
                     // Cash in Hand Card
                     Card(
                         modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(containerColor = if (isDark) ServoraTheme.colors.cardBackgroundSubtle else PartnerCardBg),
+                        colors = CardDefaults.cardColors(containerColor = ServoraTheme.colors.cardBackgroundSubtle),
                         border = androidx.compose.foundation.BorderStroke(1.dp, ServoraTheme.colors.cardBorder),
                         shape = RoundedCornerShape(16.dp)
                     ) {
@@ -363,13 +358,13 @@ fun PartnerEarningsScreen(
                                     modifier = Modifier
                                         .size(34.dp)
                                         .clip(CircleShape)
-                                        .background(if (isDark) ServoraTheme.colors.successContainer else PartnerMintBg),
+                                        .background(ServoraTheme.colors.primaryContainer),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.AccountBalanceWallet,
                                         contentDescription = null,
-                                        tint = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
+                                        tint = ServoraTheme.colors.primary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -412,7 +407,7 @@ fun PartnerEarningsScreen(
                     // Bank Transfer Card
                     Card(
                         modifier = Modifier.weight(1f),
-                        colors = CardDefaults.cardColors(containerColor = if (isDark) ServoraTheme.colors.cardBackgroundSubtle else PartnerCardBg),
+                        colors = CardDefaults.cardColors(containerColor = ServoraTheme.colors.cardBackgroundSubtle),
                         border = androidx.compose.foundation.BorderStroke(1.dp, ServoraTheme.colors.cardBorder),
                         shape = RoundedCornerShape(16.dp)
                     ) {
@@ -431,13 +426,13 @@ fun PartnerEarningsScreen(
                                     modifier = Modifier
                                         .size(34.dp)
                                         .clip(CircleShape)
-                                        .background(if (isDark) ServoraTheme.colors.successContainer else PartnerMintBg),
+                                        .background(ServoraTheme.colors.primaryContainer),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.AccountBalance,
                                         contentDescription = null,
-                                        tint = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
+                                        tint = ServoraTheme.colors.primary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -532,13 +527,13 @@ fun PartnerEarningsScreen(
                                 modifier = Modifier
                                     .size(42.dp)
                                     .clip(CircleShape)
-                                    .background(if (isDark) ServoraTheme.colors.successContainer else PartnerMintBg),
+                                    .background(ServoraTheme.colors.primaryContainer),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = serviceIcon,
                                     contentDescription = null,
-                                    tint = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
+                                    tint = ServoraTheme.colors.primary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -578,19 +573,19 @@ fun PartnerEarningsScreen(
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 15.sp,
-                                        color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen
+                                        color = ServoraTheme.colors.primary
                                     )
                                 )
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(if (isDark) ServoraTheme.colors.successContainer else PartnerMintBg)
+                                        .background(ServoraTheme.colors.primaryContainer)
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
+                                 ) {
                                     Text(
                                         text = "SETTLED",
-                                        color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
+                                        color = ServoraTheme.colors.primary,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Medium,
                                         letterSpacing = 0.5.sp
@@ -633,13 +628,13 @@ fun PartnerEarningsScreen(
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 13.sp
                                     ),
-                                    color = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen
+                                    color = if (isDark) ServoraTheme.colors.success else ServoraTheme.colors.primary
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                     contentDescription = "View All",
-                                    tint = if (isDark) ServoraTheme.colors.success else PartnerRevenueGreen,
+                                    tint = if (isDark) ServoraTheme.colors.success else ServoraTheme.colors.primary,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }

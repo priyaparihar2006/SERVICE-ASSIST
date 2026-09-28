@@ -80,11 +80,10 @@ import com.example.data.model.ServicePackage
 import com.example.ui.components.hideStatusBarOnScroll
 import com.example.ui.theme.ServoraTheme
 
-// Light Green & White Theme Palette
-private val brandGreen = Color(0xFF009051) // theme-invariant
-private val brandDarkGreen = Color(0xFF0F5132) // theme-invariant
+private val brandDarkGreen = Color(0xFF0F5132)
 private val brandMintBg = Color(0xFFEEF9F3)
 private val brandMintSubtle = Color(0xFFF2FAF5)
+
 private val starGold = Color(0xFFF59E0B) // theme-invariant
 
 @Composable
@@ -102,7 +101,7 @@ fun ServiceDetailScreen(
     var expandedFaqIndex by remember { mutableStateOf<Int?>(null) }
     val isDark = ServoraTheme.colors.isDark
 
-    val primaryColor = if (isDark) ServoraTheme.colors.primary else brandGreen
+    val primaryColor = ServoraTheme.colors.primary
     val currentPrice = selectedPackage?.price ?: service.startingPrice
     val currentOriginalPrice = selectedPackage?.originalPrice ?: 0
 
@@ -140,7 +139,7 @@ fun ServiceDetailScreen(
                             .fillMaxSize()
                             .background(
                                 Brush.verticalGradient(
-                                    listOf(brandDarkGreen, brandGreen)
+                                    listOf(ServoraTheme.colors.primary, ServoraTheme.colors.primary)
                                 )
                             )
                             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
@@ -963,7 +962,7 @@ private fun ValuePropItem(
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val primaryColor = if (isDark) ServoraTheme.colors.primary else brandGreen
+    val primaryColor = ServoraTheme.colors.primary
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically

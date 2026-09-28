@@ -67,11 +67,6 @@ import com.example.ui.theme.ServoraTheme
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
-// Modern Brand Theme Palette (#009051)
-private val brandEmeraldPrimary = Color(0xFF009051) // theme-invariant
-private val brandEmeraldDark = Color(0xFF0B5433) // theme-invariant
-private val brandEmeraldSoft = Color(0xFFE6F5EE) // theme-invariant
-private val brandAmber = Color(0xFFF59E0B) // theme-invariant
 
 @Composable
 fun PartnerJobsScreen(
@@ -138,8 +133,8 @@ fun PartnerJobsScreen(
                             brush = Brush.verticalGradient(
                                 listOf(
                                     Color(0xFF074828),
-                                    Color(0xFF0B5433),
-                                    Color(0xFF009051)
+                                    ServoraTheme.colors.onPrimaryContainer,
+                                    ServoraTheme.colors.primary
                                 ) /* theme-invariant */
                             ),
                             shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
@@ -185,7 +180,7 @@ fun PartnerJobsScreen(
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Surface(
                                             shape = RoundedCornerShape(6.dp),
-                                            color = brandAmber
+                                            color = Color(0xFFF59E0B)
                                         ) {
                                             Text(
                                                 text = "PRO",
@@ -297,7 +292,7 @@ fun PartnerJobsScreen(
                                     checked = isPartnerOnline,
                                     onCheckedChange = { isPartnerOnline = it },
                                     colors = SwitchDefaults.colors(
-                                        checkedThumbColor = Color(0xFF009051),
+                                        checkedThumbColor = ServoraTheme.colors.primary,
                                         checkedTrackColor = Color.White,
                                         uncheckedThumbColor = Color.White,
                                         uncheckedTrackColor = Color.White.copy(alpha = 0.4f)
@@ -378,13 +373,13 @@ fun PartnerJobsScreen(
                                 modifier = Modifier
                                     .size(72.dp)
                                     .clip(CircleShape)
-                                    .background(if (isDark) ServoraTheme.colors.successContainer else brandEmeraldSoft),
+                                    .background(ServoraTheme.colors.primaryContainer),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
                                     contentDescription = null,
-                                    tint = if (isDark) ServoraTheme.colors.success else brandEmeraldPrimary,
+                                    tint = ServoraTheme.colors.primary,
                                     modifier = Modifier.size(38.dp)
                                 )
                             }
@@ -427,7 +422,7 @@ fun PartnerJobsScreen(
                             modifier = Modifier
                                 .size(8.dp)
                                 .clip(CircleShape)
-                                .background(if (isDark) ServoraTheme.colors.success else brandEmeraldPrimary)
+                                .background(ServoraTheme.colors.primary)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
@@ -441,14 +436,14 @@ fun PartnerJobsScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = if (isDark) ServoraTheme.colors.successContainer else brandEmeraldSoft
+                            color = ServoraTheme.colors.primaryContainer
                         ) {
                             Text(
                                 text = "${newJobs.size} New",
                                 modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
                                 fontSize = 11.5.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = if (isDark) ServoraTheme.colors.success else brandEmeraldPrimary
+                                color = ServoraTheme.colors.primary
                             )
                         }
                     }

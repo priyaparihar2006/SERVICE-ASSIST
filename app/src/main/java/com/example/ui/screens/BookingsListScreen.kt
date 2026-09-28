@@ -91,8 +91,10 @@ fun BookingsListScreen(
     modifier: Modifier = Modifier
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else Color(0xFF009051)
-    val darkEmerald = if (isDark) ServoraTheme.colors.primaryContainer else Color(0xFF0B5433)
+    val primaryColor = ServoraTheme.colors.primary
+    val primaryContainer = ServoraTheme.colors.primaryContainer
+    val onPrimaryContainer = ServoraTheme.colors.onPrimaryContainer
+    val onPrimary = ServoraTheme.colors.onPrimary
     val textPrimary = ServoraTheme.colors.textPrimary
     val textSecondary = ServoraTheme.colors.textSecondary
 
@@ -148,14 +150,14 @@ fun BookingsListScreen(
                         modifier = Modifier
                             .size(38.dp)
                             .clip(CircleShape)
-                            .background(if (isDark) ServoraTheme.colors.cardBackgroundSubtle else Color(0xFFE8F6EE))
+                            .background(if (isDark) ServoraTheme.colors.cardBackgroundSubtle else primaryContainer.copy(alpha = 0.6f))
                             .clickable { onBackClick() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = emeraldGreen,
+                            tint = primaryColor,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -186,7 +188,7 @@ fun BookingsListScreen(
                         .padding(vertical = 4.dp),
                     shape = RoundedCornerShape(36.dp),
                     color = MaterialTheme.colorScheme.surface,
-                    border = BorderStroke(1.2.dp, if (isDark) ServoraTheme.colors.cardBorder else Color(0xFFCCEBDC)),
+                    border = BorderStroke(1.2.dp, if (isDark) ServoraTheme.colors.cardBorder else primaryContainer),
                     shadowElevation = 1.dp
                 ) {
                     Row(
@@ -206,7 +208,7 @@ fun BookingsListScreen(
                                     .clickable { selectedTab = tab }
                                     .testTag("customer_tab_${tab.name}"),
                                 shape = RoundedCornerShape(26.dp),
-                                color = if (isSelected) emeraldGreen else Color.Transparent /* theme-invariant */
+                                color = if (isSelected) primaryColor else Color.Transparent
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -219,7 +221,7 @@ fun BookingsListScreen(
                                         Icon(
                                             imageVector = tab.icon,
                                             contentDescription = null,
-                                            tint = Color.White, /* theme-invariant */
+                                            tint = onPrimary,
                                             modifier = Modifier.size(15.dp)
                                         )
                                     } else {
@@ -227,13 +229,13 @@ fun BookingsListScreen(
                                             modifier = Modifier
                                                 .size(22.dp)
                                                 .clip(CircleShape)
-                                                .background(if (isDark) ServoraTheme.colors.cardBackgroundSubtle else Color(0xFFE6F7EF)),
+                                                .background(if (isDark) ServoraTheme.colors.cardBackgroundSubtle else primaryContainer.copy(alpha = 0.6f)),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
                                                 imageVector = tab.icon,
                                                 contentDescription = null,
-                                                tint = emeraldGreen,
+                                                tint = primaryColor,
                                                 modifier = Modifier.size(12.dp)
                                             )
                                         }
@@ -248,7 +250,7 @@ fun BookingsListScreen(
                                             fontSize = 11.5.sp,
                                             letterSpacing = 0.sp
                                         ),
-                                        color = if (isSelected) Color.White /* theme-invariant */ else textPrimary,
+                                        color = if (isSelected) onPrimary else textPrimary,
                                         maxLines = 1,
                                         softWrap = false
                                     )
@@ -286,7 +288,7 @@ fun BookingsListScreen(
                     Icon(
                         imageVector = Icons.Default.CalendarMonth,
                         contentDescription = null,
-                        tint = emeraldGreen,
+                        tint = primaryColor,
                         modifier = Modifier.size(54.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -311,9 +313,9 @@ fun BookingsListScreen(
                     Button(
                         onClick = onExploreClick,
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = emeraldGreen)
+                        colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                     ) {
-                        Text("Explore Services", color = Color.White /* theme-invariant */, fontWeight = FontWeight.Medium)
+                        Text("Explore Services", color = onPrimary, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -342,8 +344,10 @@ fun BookingCardItem(
     unreadCount: Int = 0
 ) {
     val isDark = ServoraTheme.colors.isDark
-    val emeraldGreen = if (isDark) ServoraTheme.colors.primary else Color(0xFF009051)
-    val darkEmerald = if (isDark) ServoraTheme.colors.primaryContainer else Color(0xFF0B5433)
+    val primaryColor = ServoraTheme.colors.primary
+    val primaryContainer = ServoraTheme.colors.primaryContainer
+    val onPrimaryContainer = ServoraTheme.colors.onPrimaryContainer
+    val onPrimary = ServoraTheme.colors.onPrimary
     val textPrimary = ServoraTheme.colors.textPrimary
     val textSecondary = ServoraTheme.colors.textSecondary
     val cardBorder = ServoraTheme.colors.cardBorder
@@ -394,7 +398,7 @@ fun BookingCardItem(
                             when (booking.status) {
                                 BookingStatus.COMPLETED -> if (isDark) ServoraTheme.colors.successContainer else Color(0xFFE8F6EE)
                                 BookingStatus.CANCELLED -> if (isDark) ServoraTheme.colors.dangerContainer else Color(0xFFFEF2F2)
-                                else -> if (isDark) ServoraTheme.colors.successContainer else Color(0xFFE8F6EE)
+                                else -> if (isDark) ServoraTheme.colors.cardBackgroundSubtle else primaryContainer.copy(alpha = 0.6f)
                             }
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -403,7 +407,7 @@ fun BookingCardItem(
                         Icon(
                             imageVector = if (isCancelled) Icons.Default.Cancel else Icons.Default.CheckCircle,
                             contentDescription = null,
-                            tint = if (isCancelled) (if (isDark) ServoraTheme.colors.danger else Color(0xFFEF4444)) else emeraldGreen,
+                            tint = if (isCancelled) (if (isDark) ServoraTheme.colors.danger else Color(0xFFEF4444)) else primaryColor,
                             modifier = Modifier.size(13.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -413,7 +417,7 @@ fun BookingCardItem(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 11.sp
                             ),
-                            color = if (isCancelled) (if (isDark) ServoraTheme.colors.onDangerContainer else Color(0xFFEF4444)) else (if (isDark) ServoraTheme.colors.onSuccessContainer else emeraldGreen)
+                            color = if (isCancelled) (if (isDark) ServoraTheme.colors.onDangerContainer else Color(0xFFEF4444)) else (if (isDark) primaryColor else onPrimaryContainer)
                         )
                     }
                 }
@@ -431,13 +435,13 @@ fun BookingCardItem(
                     modifier = Modifier
                         .size(46.dp)
                         .clip(CircleShape)
-                        .background(if (isDark) ServoraTheme.colors.cardBackgroundSubtle else if (isCancelled) Color(0xFFF1F5F9) else Color(0xFFE8F6EE)),
+                        .background(if (isDark) ServoraTheme.colors.cardBackgroundSubtle else if (isCancelled) Color(0xFFF1F5F9) else primaryContainer.copy(alpha = 0.5f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = serviceIcon,
                         contentDescription = null,
-                        tint = if (isCancelled) textSecondary else emeraldGreen,
+                        tint = if (isCancelled) textSecondary else primaryColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -464,7 +468,7 @@ fun BookingCardItem(
                         Icon(
                             imageVector = Icons.Default.Schedule,
                             contentDescription = null,
-                            tint = emeraldGreen,
+                            tint = primaryColor,
                             modifier = Modifier.size(13.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -482,8 +486,8 @@ fun BookingCardItem(
                 Spacer(modifier = Modifier.height(12.dp))
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = if (isDark) ServoraTheme.colors.cardBackgroundSubtle else Color(0xFFEEF9F3),
-                    border = BorderStroke(1.dp, if (isDark) ServoraTheme.colors.cardBorder else Color(0xFFC6F0D8)),
+                    color = if (isDark) ServoraTheme.colors.cardBackgroundSubtle else primaryContainer.copy(alpha = 0.45f),
+                    border = BorderStroke(1.dp, if (isDark) ServoraTheme.colors.cardBorder else primaryContainer),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -497,7 +501,7 @@ fun BookingCardItem(
                             Icon(
                                 imageVector = Icons.Default.Key,
                                 contentDescription = null,
-                                tint = emeraldGreen,
+                                tint = primaryColor,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
@@ -506,7 +510,7 @@ fun BookingCardItem(
                                     text = "Start OTP",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
-                                    color = if (isDark) ServoraTheme.colors.textPrimary else darkEmerald
+                                    color = if (isDark) ServoraTheme.colors.textPrimary else onPrimaryContainer
                                 )
                                 Text(
                                     text = "Tell this OTP to partner upon arrival",
@@ -519,7 +523,7 @@ fun BookingCardItem(
                         Surface(
                             shape = RoundedCornerShape(8.dp),
                             color = MaterialTheme.colorScheme.surface,
-                            border = BorderStroke(1.dp, emeraldGreen)
+                            border = BorderStroke(1.dp, primaryColor)
                         ) {
                             val otpDigits = booking.startOtp.ifBlank { "4829" }
                             Text(
@@ -527,7 +531,7 @@ fun BookingCardItem(
                                 fontSize = 13.5.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 letterSpacing = 2.sp,
-                                color = if (isDark) emeraldGreen else darkEmerald,
+                                color = if (isDark) primaryColor else onPrimaryContainer,
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                             )
                         }
@@ -579,7 +583,7 @@ fun BookingCardItem(
                         fontWeight = FontWeight.Medium,
                         fontSize = 17.sp
                     ),
-                    color = if (isCancelled) textSecondary else emeraldGreen,
+                    color = if (isCancelled) textSecondary else primaryColor,
                     maxLines = 1
                 )
 
@@ -592,8 +596,8 @@ fun BookingCardItem(
                     OutlinedButton(
                         onClick = onSelectBooking,
                         shape = RoundedCornerShape(10.dp),
-                        border = BorderStroke(1.2.dp, emeraldGreen),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = emeraldGreen),
+                        border = BorderStroke(1.2.dp, primaryColor),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = primaryColor),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
@@ -603,7 +607,7 @@ fun BookingCardItem(
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 12.sp
                             ),
-                            color = emeraldGreen,
+                            color = primaryColor,
                             maxLines = 1,
                             softWrap = false
                         )
@@ -612,7 +616,7 @@ fun BookingCardItem(
                     if (isCompleted || isCancelled) {
                         Button(
                             onClick = onBookAgain,
-                            colors = ButtonDefaults.buttonColors(containerColor = if (isDark) emeraldGreen else darkEmerald),
+                            colors = ButtonDefaults.buttonColors(containerColor = primaryColor, contentColor = onPrimary),
                             shape = RoundedCornerShape(10.dp),
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                             modifier = Modifier.height(36.dp)
@@ -624,7 +628,7 @@ fun BookingCardItem(
                                 Icon(
                                     imageVector = Icons.Default.CalendarToday,
                                     contentDescription = null,
-                                    tint = if (isDark) Color(0xFF00210F) else Color.White, /* theme-invariant */
+                                    tint = onPrimary,
                                     modifier = Modifier.size(13.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -634,7 +638,7 @@ fun BookingCardItem(
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 12.sp
                                     ),
-                                    color = if (isDark) Color(0xFF00210F) else Color.White, /* theme-invariant */
+                                    color = onPrimary,
                                     maxLines = 1,
                                     softWrap = false
                                 )
@@ -649,7 +653,7 @@ fun BookingCardItem(
                                     onSelectBooking()
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = emeraldGreen),
+                            colors = ButtonDefaults.buttonColors(containerColor = primaryColor, contentColor = onPrimary),
                             shape = RoundedCornerShape(10.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                             modifier = Modifier.height(36.dp)
@@ -661,7 +665,7 @@ fun BookingCardItem(
                                 Icon(
                                     imageVector = Icons.Outlined.ChatBubbleOutline,
                                     contentDescription = "Message",
-                                    tint = Color.White, /* theme-invariant */
+                                    tint = onPrimary,
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -671,7 +675,7 @@ fun BookingCardItem(
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 12.sp
                                     ),
-                                    color = Color.White, /* theme-invariant */
+                                    color = onPrimary,
                                     maxLines = 1,
                                     softWrap = false
                                 )
