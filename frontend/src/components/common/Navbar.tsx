@@ -84,9 +84,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
             : 'bg-white py-3.5 border-b border-[var(--color-brand-light)]/70'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-2 min-[380px]:px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-1 sm:gap-4">
-          {/* Brand Logo & Location */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-6">
+          {/* Left: Brand Logo & Location */}
+          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
             <button
               onClick={() => onNavigate('/')}
               className="text-left cursor-pointer transition-transform hover:opacity-95"
@@ -97,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
             {/* Location Selector */}
             <button
               onClick={openLocationModal}
-              className="hidden md:flex items-center gap-1.5 h-9 px-3 rounded-xl border border-[var(--color-brand-light)] bg-[var(--color-brand-soft)]/70 hover:bg-[var(--color-brand-light)]/60 hover:border-[var(--color-brand)]/40 text-xs font-semibold text-[var(--color-ink)] transition-all cursor-pointer shadow-2xs shrink-0"
+              className="hidden sm:flex items-center gap-1.5 h-9 px-2.5 sm:px-3 rounded-xl border border-[var(--color-brand-light)] bg-[var(--color-brand-soft)]/70 hover:bg-[var(--color-brand-light)]/60 hover:border-[var(--color-brand)]/40 text-xs font-semibold text-[var(--color-ink)] transition-all cursor-pointer shadow-2xs shrink-0"
             >
               <MapPin className="w-3.5 h-3.5 text-[var(--color-brand)]" />
               <span className="font-semibold text-[var(--color-brand-dark)]">{selectedCity.name}</span>
@@ -105,32 +105,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
             </button>
           </div>
 
-          {/* Desktop Search Bar */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="hidden lg:flex w-40 xl:w-52 relative items-center shrink-0"
-          >
-            <Search className="absolute left-3 w-3.5 h-3.5 text-[var(--color-muted)]" />
-            <input
-              type="text"
-              placeholder="Search services..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-9 pl-9 pr-3 py-1.5 bg-[var(--color-brand-soft)]/80 hover:bg-white focus:bg-white border border-[var(--color-brand-light)] rounded-xl text-xs text-[var(--color-ink)] placeholder-[var(--color-muted)]/70 transition-all focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)] focus:border-[var(--color-brand)]"
-            />
-          </form>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[13px] font-medium text-gray-600 shrink-0">
+          {/* Center: Desktop Navigation Links */}
+          <nav className="hidden xl:flex items-center justify-center gap-1 2xl:gap-2 text-[13px] font-medium text-gray-600">
             {navLinks.map((link) => {
               const isActive = currentPath === link.path;
               return (
                 <button
                   key={link.label}
                   onClick={() => (link.action ? link.action() : onNavigate(link.path))}
-                  className={`whitespace-nowrap px-2.5 py-1.5 rounded-xl transition-all cursor-pointer font-medium ${
+                  className={`whitespace-nowrap px-3 py-1.5 rounded-xl transition-all cursor-pointer font-medium ${
                     isActive
-                      ? 'text-[var(--color-brand-hover)] font-bold bg-[var(--color-brand-light)]/70 shadow-2xs'
+                      ? 'text-[var(--color-brand-hover)] font-bold bg-[var(--color-brand-light)]/80 shadow-2xs'
                       : 'hover:text-[var(--color-brand)] hover:bg-[var(--color-brand-soft)]/60'
                   }`}
                 >
@@ -140,8 +125,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
             })}
           </nav>
 
-          {/* Right Action Icons & Auth */}
-          <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
+          {/* Right: Action Icons, Auth & Book CTA */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Notification Bell */}
             <button
               onClick={onOpenNotifications}
@@ -190,7 +175,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                   className="flex items-center gap-1.5 h-9 px-2 sm:px-2.5 rounded-xl border border-[var(--color-brand-light)] hover:border-[var(--color-brand)] hover:bg-[var(--color-brand-soft)] transition-all text-xs font-semibold text-[var(--color-ink)] cursor-pointer"
                 >
-                  <span className="max-w-[85px] truncate hidden xl:inline">{user?.name}</span>
+                  <span className="max-w-[85px] truncate hidden md:inline">{user?.name}</span>
                   <span
                     className={`hidden sm:inline text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${
                       role === 'ADMIN'
@@ -297,7 +282,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
             {/* Primary Book CTA */}
             <button
               onClick={() => onNavigate('/services')}
-              className="hidden lg:inline-flex items-center justify-center h-9 px-4 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-[var(--color-brand)]/20 active:scale-95 cursor-pointer whitespace-nowrap"
+              className="hidden sm:inline-flex items-center justify-center h-9 px-4 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-[var(--color-brand)]/20 active:scale-95 cursor-pointer whitespace-nowrap"
             >
               Book a Service
             </button>
@@ -305,8 +290,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden w-9 h-9 flex items-center justify-center text-[var(--color-brand-dark)] hover:text-[var(--color-brand)] rounded-xl cursor-pointer"
-              aria-label="Toggle mobile menu"
+              className="xl:hidden w-9 h-9 flex items-center justify-center text-[var(--color-brand-dark)] hover:text-[var(--color-brand)] hover:bg-[var(--color-brand-light)] rounded-xl cursor-pointer"
+              aria-label="Toggle navigation menu"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
