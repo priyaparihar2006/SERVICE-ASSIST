@@ -10,7 +10,7 @@ object SupabaseConfig {
         get() = try {
             BuildConfig.SUPABASE_URL.trim().removeSuffix("/")
         } catch (e: Throwable) {
-            "https://your-project.supabase.co"
+            "https://biaequumqtdtugjqqkqs.supabase.co"
         }
 
     /**
@@ -24,8 +24,7 @@ object SupabaseConfig {
         }
 
     /**
-     * Returns true if the user has supplied a valid custom Supabase URL and Anon key
-     * (i.e. not the placeholder string).
+     * Returns true if the user has supplied a valid custom Supabase URL and Anon key.
      */
     val isConfigured: Boolean
         get() {

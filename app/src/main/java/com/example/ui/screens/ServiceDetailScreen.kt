@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,7 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import com.example.ui.components.stableStatusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,11 +26,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.Button
@@ -36,10 +51,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,24 +64,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.CustomerReview
 import com.example.data.model.Professional
 import com.example.data.model.ServiceItem
 import com.example.data.model.ServicePackage
-import com.example.ui.theme.ServoraBorder
-import com.example.ui.theme.ServoraCharcoal
-import com.example.ui.theme.ServoraCoral
-import com.example.ui.theme.ServoraGreen
-import com.example.ui.theme.ServoraPeach
-import com.example.ui.theme.ServoraPeachLight
-import com.example.ui.theme.ServoraStarGold
-import com.example.ui.theme.ServoraSubtext
+import com.example.ui.components.hideStatusBarOnScroll
+import com.example.ui.theme.ServoraTheme
+
+// Light Green & White Theme Palette
+private val brandGreen = Color(0xFF009051) // theme-invariant
+private val brandDarkGreen = Color(0xFF0F5132) // theme-invariant
+private val brandMintBg = Color(0xFFEEF9F3)
+private val brandMintSubtle = Color(0xFFF2FAF5)
+private val starGold = Color(0xFFF59E0B) // theme-invariant
 
 @Composable
 fun ServiceDetailScreen(
@@ -83,182 +99,271 @@ fun ServiceDetailScreen(
     var selectedPackage by remember {
         mutableStateOf(service.packages.firstOrNull())
     }
-    var expandedFaqIndex by remember { mutableStateOf<Int?>(0) }
+    var expandedFaqIndex by remember { mutableStateOf<Int?>(null) }
+    val isDark = ServoraTheme.colors.isDark
 
-    Box(modifier = modifier.fillMaxSize()) {
+    val primaryColor = if (isDark) ServoraTheme.colors.primary else brandGreen
+    val currentPrice = selectedPackage?.price ?: service.startingPrice
+    val currentOriginalPrice = selectedPackage?.originalPrice ?: 0
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = 100.dp)
+                .hideStatusBarOnScroll()
+                .padding(bottom = 110.dp)
         ) {
-            // Hero Image with Top Bar Overlay
+            // ================= 1. HERO IMAGE BANNER & TOP BAR =================
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(260.dp)
             ) {
-                Image(
-                    painter = painterResource(id = service.imageDrawableRes),
-                    contentDescription = service.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(Color(0x88000000), Color.Transparent, Color(0xAA000000))
+                // Hero Image
+                if (service.imageDrawableRes != 0) {
+                    Image(
+                        painter = painterResource(id = service.imageDrawableRes),
+                        contentDescription = service.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(brandDarkGreen, brandGreen)
+                                )
                             )
-                        )
-                )
+                            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                    )
+                }
 
-                // Top Back Button
+                // Top Actions: Back & Share (Circular Buttons)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(16.dp),
+                        .stableStatusBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = onBackClick,
+                    Surface(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color.Black.copy(alpha = 0.5f))
-                            .testTag("service_detail_back_btn")
+                            .clickable { onBackClick() }
+                            .testTag("service_detail_back_btn"),
+                        shape = CircleShape,
+                        color = if (isDark) ServoraTheme.colors.surfaceVariant else Color.White,
+                        shadowElevation = 4.dp
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(ServoraCoral)
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Text(
-                            text = "Agra Verified",
-                            color = Color.White,
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
-                }
-
-                // Bottom badges in hero
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color.White)
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = null,
-                                tint = ServoraStarGold,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(3.dp))
-                            Text(
-                                text = "${service.rating} (${service.reviewsCount} reviews)",
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                color = ServoraCharcoal
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = if (isDark) ServoraTheme.colors.textPrimary else brandDarkGreen,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
 
-                    Box(
+                    Surface(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color.Black.copy(alpha = 0.7f))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .clickable { /* Share */ },
+                        shape = CircleShape,
+                        color = if (isDark) ServoraTheme.colors.surfaceVariant else Color.White,
+                        shadowElevation = 4.dp
                     ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Share",
+                                tint = if (isDark) ServoraTheme.colors.textPrimary else brandDarkGreen,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Bottom Hero Floating Pill (Duration Badge)
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 14.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color.Black.copy(alpha = 0.65f) /* theme-invariant */
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AccessTime,
+                            contentDescription = "Duration",
+                            tint = Color.White, /* theme-invariant */
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
-                            text = "⏱ ${service.duration}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White
+                            text = service.duration.ifEmpty { "45 mins" },
+                            color = Color.White, /* theme-invariant */
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
             }
 
-            // Service Content Section
-            Column(modifier = Modifier.padding(16.dp)) {
+            // ================= 2. TITLE & SERVICE HEADER =================
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+            ) {
                 Text(
                     text = service.name,
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = ServoraCharcoal
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 22.sp,
+                        letterSpacing = (-0.3).sp
+                    ),
+                    color = ServoraTheme.colors.textPrimary
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = service.subtitle,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ServoraSubtext
-                )
+
+                if (service.subtitle.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = service.subtitle,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        ),
+                        color = ServoraTheme.colors.subtext
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Warranty & Safety Highlights
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(ServoraPeachLight)
-                        .border(1.dp, ServoraPeach, RoundedCornerShape(12.dp))
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                // 3-Value Props Banner
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    color = if (isDark) ServoraTheme.colors.surfaceVariant else brandMintBg
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Security,
-                        contentDescription = null,
-                        tint = ServoraCoral,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        Text(
-                            text = "Service Assist Protection Plan",
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
-                            color = ServoraCharcoal
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp, horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ValuePropItem(
+                            icon = Icons.Default.Security,
+                            title = "Expert\nTechnicians"
                         )
-                        Text(
-                            text = "${service.warrantyText} • Trained & background checked staff",
-                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                            color = ServoraSubtext
+                        ValuePropItem(
+                            icon = Icons.Default.Eco,
+                            title = "Safe & Eco\nFriendly"
+                        )
+                        ValuePropItem(
+                            icon = Icons.Default.Bolt,
+                            title = "Quick\nService"
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Select Package Section
-                if (service.packages.isNotEmpty()) {
-                    Text(
-                        text = "CHOOSE A PACKAGE",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = ServoraSubtext,
-                        letterSpacing = 1.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                // Promo / Offer Card
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (isDark) ServoraTheme.colors.surfaceVariant else brandMintBg
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 11.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocalOffer,
+                            contentDescription = "Offer",
+                            tint = primaryColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "Get free vibration test on orders above ₹500",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 12.5.sp
+                            ),
+                            color = ServoraTheme.colors.textPrimary,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = primaryColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // ================= 3. CHOOSE A PACKAGE =================
+            if (service.packages.isNotEmpty()) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Choose a Package",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            ),
+                            color = ServoraTheme.colors.textPrimary
+                        )
+
+                        Text(
+                            text = "${service.packages.size} options available",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = primaryColor
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        service.packages.forEach { pkg ->
+                        service.packages.forEachIndexed { index, pkg ->
                             val isSelected = selectedPackage?.id == pkg.id
+                            val discountPercent = if (pkg.originalPrice > pkg.price) {
+                                ((pkg.originalPrice - pkg.price) * 100) / pkg.originalPrice
+                            } else 0
+
+                            val icon = when (index % 3) {
+                                0 -> Icons.Default.AcUnit
+                                1 -> Icons.Default.Build
+                                else -> Icons.Default.Home
+                            }
 
                             Card(
                                 modifier = Modifier
@@ -266,187 +371,357 @@ fun ServiceDetailScreen(
                                     .clip(RoundedCornerShape(14.dp))
                                     .clickable { selectedPackage = pkg }
                                     .testTag("package_${pkg.id}"),
+                                shape = RoundedCornerShape(14.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) ServoraPeachLight else MaterialTheme.colorScheme.surface
+                                    containerColor = MaterialTheme.colorScheme.surface
                                 ),
-                                border = androidx.compose.foundation.BorderStroke(
-                                    1.dp,
-                                    if (isSelected) ServoraCoral else ServoraBorder
-                                )
+                                border = BorderStroke(
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = if (isSelected) primaryColor else ServoraTheme.colors.cardBorder
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                             ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(14.dp),
+                                        .padding(horizontal = 14.dp, vertical = 12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    RadioButton(
-                                        selected = isSelected,
-                                        onClick = { selectedPackage = pkg },
-                                        colors = RadioButtonDefaults.colors(selectedColor = ServoraCoral)
-                                    )
-
-                                    Spacer(modifier = Modifier.width(6.dp))
-
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = pkg.name,
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = ServoraCharcoal
+                                    // Custom Radio Button
+                                    Box(
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .clip(CircleShape)
+                                            .border(
+                                                width = if (isSelected) 2.dp else 1.5.dp,
+                                                color = if (isSelected) primaryColor else ServoraTheme.colors.cardBorder,
+                                                shape = CircleShape
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (isSelected) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(10.dp)
+                                                    .clip(CircleShape)
+                                                    .background(primaryColor)
                                             )
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Text(
-                                                    text = "₹${pkg.originalPrice}",
-                                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                                        textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough
-                                                    ),
-                                                    color = ServoraSubtext
-                                                )
-                                                Spacer(modifier = Modifier.width(6.dp))
-                                                Text(
-                                                    text = "₹${pkg.price}",
-                                                    style = MaterialTheme.typography.titleMedium.copy(
-                                                        color = ServoraCoral,
-                                                        fontWeight = FontWeight.Black
-                                                    )
-                                                )
-                                            }
                                         }
+                                    }
 
+                                    Spacer(modifier = Modifier.width(10.dp))
+
+                                    // Mint Appliance Icon Circle
+                                    Box(
+                                        modifier = Modifier
+                                            .size(38.dp)
+                                            .clip(CircleShape)
+                                            .background(if (isDark) ServoraTheme.colors.surfaceVariant else brandMintBg),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = icon,
+                                            contentDescription = null,
+                                            tint = primaryColor,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(10.dp))
+
+                                    // Package Title & Description
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = pkg.name,
+                                            style = MaterialTheme.typography.titleSmall.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 13.5.sp
+                                            ),
+                                            color = ServoraTheme.colors.textPrimary,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Spacer(modifier = Modifier.height(2.dp))
                                         Text(
                                             text = pkg.description,
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                            color = ServoraSubtext
+                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                fontSize = 11.5.sp,
+                                                lineHeight = 15.sp
+                                            ),
+                                            color = ServoraTheme.colors.subtext,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
                                         )
+                                    }
 
-                                        if (pkg.includes.isNotEmpty()) {
-                                            Spacer(modifier = Modifier.height(4.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                    // Price & Discount Pill
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            if (pkg.originalPrice > pkg.price) {
+                                                Text(
+                                                    text = "₹${pkg.originalPrice}",
+                                                    style = MaterialTheme.typography.bodySmall.copy(
+                                                        textDecoration = TextDecoration.LineThrough,
+                                                        fontSize = 11.5.sp
+                                                    ),
+                                                    color = ServoraTheme.colors.subtext
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                            }
                                             Text(
-                                                text = "Includes: " + pkg.includes.joinToString(", "),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = ServoraCharcoal
+                                                text = "₹${pkg.price}",
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    fontWeight = FontWeight.ExtraBold,
+                                                    fontSize = 15.5.sp
+                                                ),
+                                                color = primaryColor
                                             )
+                                        }
+
+                                        if (discountPercent > 0) {
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Surface(
+                                                shape = RoundedCornerShape(4.dp),
+                                                color = if (isDark) ServoraTheme.colors.surfaceVariant else brandMintBg
+                                            ) {
+                                                Text(
+                                                    text = "$discountPercent% OFF",
+                                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = if (isDark) ServoraTheme.colors.success else brandDarkGreen
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-
-                // Detailed Description
-                Text(
-                    text = "ABOUT THIS SERVICE",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = ServoraSubtext,
-                    letterSpacing = 1.sp
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = service.description,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ServoraCharcoal
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // What is included
-                Text(
-                    text = "WHAT'S INCLUDED",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = ServoraGreen,
-                    letterSpacing = 1.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    service.whatIsIncluded.forEach { item ->
-                        Row(verticalAlignment = Alignment.Top) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Included",
-                                tint = ServoraGreen,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = item,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = ServoraCharcoal
-                            )
-                        }
-                    }
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
+            }
 
-                // What is not included
-                Text(
-                    text = "WHAT'S NOT INCLUDED",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = ServoraSubtext,
-                    letterSpacing = 1.sp
-                )
+            // ================= 4. ABOUT THIS SERVICE =================
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Description,
+                        contentDescription = null,
+                        tint = primaryColor,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "About This Service",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.5.sp
+                        ),
+                        color = ServoraTheme.colors.textPrimary
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    service.whatIsNotIncluded.forEach { item ->
-                        Row(verticalAlignment = Alignment.Top) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Not included",
-                                tint = ServoraSubtext,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = item,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = ServoraSubtext
-                            )
+
+                Text(
+                    text = service.description,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 12.5.sp,
+                        lineHeight = 18.sp
+                    ),
+                    color = ServoraTheme.colors.subtext
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // ================= 5. WHAT'S INCLUDED & WHAT'S NOT INCLUDED =================
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // What's Included Card
+                if (service.whatIsIncluded.isNotEmpty()) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        color = if (isDark) ServoraTheme.colors.surfaceVariant else brandMintSubtle
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clip(CircleShape)
+                                        .background(primaryColor),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = Color.White, /* theme-invariant */
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "What's Included",
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.5.sp
+                                    ),
+                                    color = if (isDark) ServoraTheme.colors.textPrimary else brandDarkGreen
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                service.whatIsIncluded.forEach { item ->
+                                    Row(verticalAlignment = Alignment.Top) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = primaryColor,
+                                            modifier = Modifier
+                                                .padding(top = 2.dp)
+                                                .size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = item,
+                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                fontSize = 12.sp,
+                                                lineHeight = 16.sp
+                                            ),
+                                            color = ServoraTheme.colors.textPrimary
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Assigned Professional Highlight
-                assignedPro?.let { pro ->
-                    Text(
-                        text = "VERIFIED PROFESSIONAL",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = ServoraSubtext,
-                        letterSpacing = 1.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Card(
+                // What's Not Included Card
+                if (service.whatIsNotIncluded.isNotEmpty()) {
+                    Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, ServoraBorder)
+                        shape = RoundedCornerShape(14.dp),
+                        color = if (isDark) ServoraTheme.colors.surfaceVariant else Color(0xFFF8FAFC)
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clip(CircleShape)
+                                        .background(ServoraTheme.colors.subtext),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = null,
+                                        tint = Color.White, /* theme-invariant */
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "What's Not Included",
+                                    style = MaterialTheme.typography.titleSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.5.sp
+                                    ),
+                                    color = ServoraTheme.colors.textPrimary
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                service.whatIsNotIncluded.forEach { item ->
+                                    Row(verticalAlignment = Alignment.Top) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = null,
+                                            tint = ServoraTheme.colors.subtext,
+                                            modifier = Modifier
+                                                .padding(top = 2.dp)
+                                                .size(13.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = item,
+                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                fontSize = 12.sp,
+                                                lineHeight = 16.sp
+                                            ),
+                                            color = ServoraTheme.colors.subtext
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // ================= 6. VERIFIED SERVICE EXPERT =================
+            assignedPro?.let { pro ->
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Security,
+                            contentDescription = null,
+                            tint = primaryColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Verified Service Expert",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.5.sp
+                            ),
+                            color = ServoraTheme.colors.textPrimary
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
                     ) {
                         Row(
-                            modifier = Modifier.padding(14.dp),
+                            modifier = Modifier.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(50.dp)
+                                    .size(44.dp)
                                     .clip(CircleShape)
-                                    .background(ServoraPeach),
+                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else brandMintBg),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = pro.avatarInitials,
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold,
-                                        color = ServoraCoral
-                                    )
+                                        fontSize = 16.sp
+                                    ),
+                                    color = primaryColor
                                 )
                             }
 
@@ -456,57 +731,101 @@ fun ServiceDetailScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         text = pro.name,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = ServoraCharcoal
+                                        style = MaterialTheme.typography.titleSmall.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp
+                                        ),
+                                        color = ServoraTheme.colors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Icon(
                                         imageVector = Icons.Default.Verified,
                                         contentDescription = "Verified",
-                                        tint = ServoraGreen,
-                                        modifier = Modifier.size(16.dp)
+                                        tint = primaryColor,
+                                        modifier = Modifier.size(14.dp)
                                     )
                                 }
                                 Text(
-                                    text = pro.specialty,
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                    color = ServoraSubtext
+                                    text = pro.specialty.ifEmpty { "Technician" },
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                    color = ServoraTheme.colors.subtext
                                 )
-                                Text(
-                                    text = "★ ${pro.rating} • ${pro.completedJobs}+ jobs completed • ${pro.experienceYears} yrs exp",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = ServoraCharcoal
-                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = if (isDark) ServoraTheme.colors.warning else starGold,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = "${pro.rating} (${pro.completedJobs}+ jobs)",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        ),
+                                        color = ServoraTheme.colors.textPrimary
+                                    )
+                                }
                             }
+
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = ServoraTheme.colors.subtext,
+                                modifier = Modifier.size(18.dp)
+                            )
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                // FAQs
-                if (service.faqs.isNotEmpty()) {
-                    Text(
-                        text = "FREQUENTLY ASKED QUESTIONS",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = ServoraSubtext,
-                        letterSpacing = 1.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(18.dp))
+            }
+
+            // ================= 7. FREQUENTLY ASKED QUESTIONS =================
+            if (service.faqs.isNotEmpty()) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Help,
+                            contentDescription = null,
+                            tint = primaryColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Frequently Asked Questions",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.5.sp
+                            ),
+                            color = ServoraTheme.colors.textPrimary
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         service.faqs.forEachIndexed { index, (q, a) ->
                             val isExpanded = expandedFaqIndex == index
-                            Card(
+
+                            Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .clip(RoundedCornerShape(10.dp))
                                     .clickable {
                                         expandedFaqIndex = if (isExpanded) null else index
                                     },
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, ServoraBorder)
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.surface,
+                                border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
                             ) {
-                                Column(modifier = Modifier.padding(14.dp)) {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(12.dp)
+                                        .animateContentSize()
+                                ) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -514,24 +833,32 @@ fun ServiceDetailScreen(
                                     ) {
                                         Text(
                                             text = q,
-                                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
-                                            color = ServoraCharcoal,
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = 12.5.sp
+                                            ),
+                                            color = ServoraTheme.colors.textPrimary,
                                             modifier = Modifier.weight(1f)
                                         )
                                         Icon(
-                                            imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                                             contentDescription = null,
-                                            tint = ServoraSubtext
+                                            tint = ServoraTheme.colors.subtext,
+                                            modifier = Modifier.size(18.dp)
                                         )
                                     }
+
                                     if (isExpanded) {
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        HorizontalDivider(color = ServoraBorder)
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        HorizontalDivider(color = ServoraTheme.colors.cardBorder)
+                                        Spacer(modifier = Modifier.height(6.dp))
                                         Text(
                                             text = a,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = ServoraSubtext
+                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                fontSize = 12.sp,
+                                                lineHeight = 16.sp
+                                            ),
+                                            color = ServoraTheme.colors.subtext
                                         )
                                     }
                                 }
@@ -542,55 +869,120 @@ fun ServiceDetailScreen(
             }
         }
 
-        // STICKY BOTTOM BOOKING BAR
+        // ================= 8. STICKY BOTTOM ACTION BAR =================
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(),
             color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 12.dp
+            shadowElevation = 8.dp,
+            border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .navigationBarsPadding()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Left: Selected Package & Price
                 Column {
-                    val price = selectedPackage?.price ?: service.startingPrice
-                    val pkgName = selectedPackage?.name ?: "Standard Service"
-                    Text(
-                        text = pkgName,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = ServoraSubtext,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = "₹$price",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Black,
-                            color = ServoraCoral
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "₹$currentPrice",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 20.sp
+                            ),
+                            color = primaryColor
                         )
+                        if (currentOriginalPrice > currentPrice) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "₹$currentOriginalPrice",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    textDecoration = TextDecoration.LineThrough,
+                                    fontSize = 12.sp
+                                ),
+                                color = ServoraTheme.colors.subtext
+                            )
+                        }
+                    }
+                    Text(
+                        text = selectedPackage?.name ?: service.name,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 11.5.sp
+                        ),
+                        color = ServoraTheme.colors.subtext,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.width(160.dp)
                     )
                 }
 
+                // Right: Book Now CTA Button
                 Button(
                     onClick = { onBookPackage(service, selectedPackage) },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = ServoraCoral),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = primaryColor,
+                        contentColor = Color.White /* theme-invariant */
+                    ),
                     modifier = Modifier
-                        .height(48.dp)
+                        .height(44.dp)
                         .testTag("sticky_book_cta")
                 ) {
-                    Text(
-                        text = "Select Date & Time",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Color.White
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "Book Now",
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ValuePropItem(
+    icon: ImageVector,
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    val isDark = ServoraTheme.colors.isDark
+    val primaryColor = if (isDark) ServoraTheme.colors.primary else brandGreen
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = primaryColor,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 11.sp,
+                lineHeight = 13.sp
+            ),
+            color = if (isDark) ServoraTheme.colors.textPrimary else brandDarkGreen
+        )
     }
 }

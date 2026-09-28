@@ -9,64 +9,60 @@ import com.example.data.model.Booking
 import com.example.data.model.BookingStatus
 import com.example.data.model.CustomerReview
 import com.example.data.model.SavedAddress
-import com.example.data.model.UserProfile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Response
+
+private fun <T> Response<T>.logIfFailed(tag: String, action: String) {
+    if (!isSuccessful) {
+        val err = errorBody()?.string()?.take(500) ?: "no error body"
+        Log.w(tag, "$action failed HTTP ${code()}: $err")
+    }
+}
 
 data class SupabaseSyncState(
-    val isConfigured: Boolean = false,
-    val isConnected: Boolean = false,
     val isSyncing: Boolean = false,
-    val lastSyncTime: Long = 0L,
-    val lastMessage: String = "Local Room DB active",
-    val error: String? = null,
-    val remoteBookingsCount: Int = 0
+    val isConnected: Boolean = false,
+    val lastSyncTime: Long? = null,
+    val lastMessage: String = "Ready",
+    val error: String? = null
 )
 
 class SupabaseSyncManager(
     private val bookingDao: BookingDao,
     private val addressDao: AddressDao,
     private val reviewDao: ReviewDao,
-    private val userDao: UserDao,
-    private val scope: CoroutineScope
+    private val userDao: UserDao
 ) {
     private val TAG = "SupabaseSyncManager"
 
     private val _syncState = MutableStateFlow(
         SupabaseSyncState(
-            isConfigured = SupabaseConfig.isConfigured,
-            lastMessage = if (SupabaseConfig.isConfigured) "Configured, awaiting sync" else "Offline Room database active"
+            isConnected = SupabaseConfig.isConfigured,
+            lastMessage = if (SupabaseConfig.isConfigured) "Connected to Supabase" else "Supabase not configured"
         )
     )
     val syncState: StateFlow<SupabaseSyncState> = _syncState.asStateFlow()
 
-    init {
-        // Initial sync check if configured
-        if (SupabaseConfig.isConfigured) {
-            triggerSync()
-        }
-    }
-
-    fun triggerSync() {
-        scope.launch(Dispatchers.IO) {
-            syncNow()
-        }
-    }
-
-    suspend fun syncNow(): Boolean {
+    /**
+     * Performs a full two-way synchronization between local Room DB and Supabase
+     */
+    suspend fun performFullSync(): Boolean = withContext(Dispatchers.IO) {
         if (!SupabaseConfig.isConfigured) {
             _syncState.value = _syncState.value.copy(
-                isConfigured = false,
-                isConnected = false,
                 isSyncing = false,
-                lastMessage = "Supabase credentials not set. Set SUPABASE_URL & SUPABASE_ANON_KEY in AI Studio Secrets.",
-                error = null
+                lastMessage = "Supabase not configured in .env",
+                error = "Missing SUPABASE_URL or SUPABASE_ANON_KEY"
             )
-            return false
+            return@withContext false
         }
 
         val api = SupabaseClient.apiService ?: run {
@@ -75,429 +71,365 @@ class SupabaseSyncManager(
                 lastMessage = "Failed to initialize Supabase HTTP client",
                 error = "Client initialization failed"
             )
-            return false
+            return@withContext false
         }
 
         _syncState.value = _syncState.value.copy(isSyncing = true, error = null)
 
-        return try {
+        try {
             // 1. PUSH User profile
             val currentUser = userDao.getCurrentUserSync()
             if (currentUser != null) {
                 try {
-                    api.upsertUserProfile(profile = currentUser.toSupabaseDto())
+                    val resp = api.upsertUserProfile(profile = currentUser.toSupabaseDto())
+                    resp.logIfFailed(TAG, "upsertUserProfile")
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to upsert user profile: ${e.message}")
                 }
             }
 
             // 2. SYNC BOOKINGS (Two-way)
-            val remoteBookingsResponse = api.getBookings()
-            var remoteCount = 0
-            if (remoteBookingsResponse.isSuccessful) {
-                val remoteList = remoteBookingsResponse.body() ?: emptyList()
-                remoteCount = remoteList.size
-                // Merge remote bookings into local Room DB
-                remoteList.forEach { remoteDto ->
-                    val existing = bookingDao.getBookingByCode(remoteDto.bookingCode)
-                    if (existing == null) {
-                        bookingDao.insertBooking(remoteDto.toDomainBooking())
-                    } else {
-                        // Update status if remote changed
-                        val remoteStatus = try {
-                            BookingStatus.valueOf(remoteDto.status)
-                        } catch (e: Exception) {
-                            existing.status
-                        }
-                        if (existing.status != remoteStatus) {
-                            bookingDao.updateStatus(existing.id, remoteStatus)
+            try {
+                val remoteBookingsResponse = api.getBookings()
+                remoteBookingsResponse.logIfFailed(TAG, "getBookings")
+                if (remoteBookingsResponse.isSuccessful) {
+                    val remoteList = remoteBookingsResponse.body() ?: emptyList()
+                    // Merge remote bookings into local Room DB
+                    remoteList.forEach { remoteDto ->
+                        val existing = bookingDao.getBookingByCode(remoteDto.bookingCode)
+                        if (existing == null) {
+                            bookingDao.insertBooking(remoteDto.toDomainBooking())
+                        } else if (!existing.pendingSync) {
+                            val remoteStatus = try {
+                                BookingStatus.valueOf(remoteDto.status)
+                            } catch (e: Exception) {
+                                existing.status
+                            }
+                            val remoteAcceptedAt = com.example.util.ChatTime.parseIsoToEpochMillis(remoteDto.acceptedAt)
+                            val updated = existing.copy(
+                                status = remoteStatus,
+                                isPaid = remoteDto.isPaid,
+                                paymentMethod = remoteDto.paymentMethod,
+                                paymentReference = remoteDto.paymentReference,
+                                paidAt = remoteDto.paidAt,
+                                cancellationReason = remoteDto.cancellationReason,
+                                cancellationFeedback = remoteDto.cancellationFeedback,
+                                cancelledAt = remoteDto.cancelledAt,
+                                cancelledBy = remoteDto.cancelledBy ?: existing.cancelledBy,
+                                acceptedAt = remoteAcceptedAt ?: existing.acceptedAt,
+                                professionalId = remoteDto.professionalId,
+                                startOtp = remoteDto.startOtp,
+                                specialNotes = remoteDto.specialNotes
+                            )
+                            if (existing != updated) {
+                                bookingDao.updateBooking(updated)
+                            }
                         }
                     }
-                }
 
-                // Push any local bookings that don't exist remotely
-                val remoteCodes = remoteList.map { it.bookingCode }.toSet()
-                val localList = bookingDao.getAllBookingsList()
-                localList.forEach { local ->
-                    if (!remoteCodes.contains(local.bookingCode)) {
-                        try {
-                            api.insertBooking(local.toSupabaseDto())
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Could not push local booking ${local.bookingCode}: ${e.message}")
+                    // Push any local bookings that don't exist remotely (concurrently, capped at 4)
+                    val remoteCodes = remoteList.map { it.bookingCode }.toSet()
+                    val localList = bookingDao.getAllBookingsList()
+                    val bookingApi = SupabaseClient.bookingApiService
+                    val missingLocal = localList.filter { !remoteCodes.contains(it.bookingCode) }
+
+                    if (missingLocal.isNotEmpty() && bookingApi != null) {
+                        coroutineScope {
+                            missingLocal.chunked(4).forEach { chunk ->
+                                chunk.map { local ->
+                                    async {
+                                        try {
+                                            val pushResp = bookingApi.createBooking(local.toSupabaseDto())
+                                            pushResp.logIfFailed(TAG, "pushLocalBooking (${local.bookingCode})")
+                                            if (pushResp.isSuccessful && local.pendingSync) {
+                                                bookingDao.updateBooking(local.copy(pendingSync = false))
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.w(TAG, "Could not push local booking ${local.bookingCode}: ${e.message}")
+                                        }
+                                    }
+                                }.awaitAll()
+                            }
                         }
                     }
                 }
+            } catch (e: Exception) {
+                Log.w(TAG, "Booking sync failed: ${e.message}")
             }
 
             // 3. SYNC REVIEWS
-            val remoteReviewsResponse = api.getReviews()
-            if (remoteReviewsResponse.isSuccessful) {
-                val remoteReviews = remoteReviewsResponse.body() ?: emptyList()
-                val localReviews = reviewDao.getAllReviewsList()
-                val localComments = localReviews.map { it.comment }.toSet()
+            try {
+                val remoteReviewsResponse = api.getReviews()
+                remoteReviewsResponse.logIfFailed(TAG, "getReviews")
+                if (remoteReviewsResponse.isSuccessful) {
+                    val remoteReviews = remoteReviewsResponse.body() ?: emptyList()
+                    val localReviews = reviewDao.getAllReviewsList()
+                    val localComments = localReviews.map { it.comment }.toSet()
 
-                remoteReviews.forEach { remoteDto ->
-                    if (!localComments.contains(remoteDto.comment)) {
-                        reviewDao.insertReview(remoteDto.toDomainReview())
+                    remoteReviews.forEach { remoteDto ->
+                        if (!localComments.contains(remoteDto.comment)) {
+                            reviewDao.insertReview(remoteDto.toDomainReview())
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                Log.w(TAG, "Review sync failed: ${e.message}")
             }
 
             // 4. SYNC ADDRESSES
-            val remoteAddressesResponse = api.getAddresses()
-            if (remoteAddressesResponse.isSuccessful) {
-                val remoteAddresses = remoteAddressesResponse.body() ?: emptyList()
-                val localAddresses = addressDao.getAllAddressesList()
-                val localAddrs = localAddresses.map { it.fullAddress }.toSet()
+            try {
+                val remoteAddressesResponse = api.getAddresses()
+                remoteAddressesResponse.logIfFailed(TAG, "getAddresses")
+                if (remoteAddressesResponse.isSuccessful) {
+                    val remoteAddresses = remoteAddressesResponse.body() ?: emptyList()
+                    val localAddresses = addressDao.getAllAddressesList()
+                    val localAddrs = localAddresses.map { it.fullAddress }.toSet()
 
-                remoteAddresses.forEach { remoteDto ->
-                    if (!localAddrs.contains(remoteDto.fullAddress)) {
-                        addressDao.insertAddress(remoteDto.toDomainAddress())
+                    remoteAddresses.forEach { remoteDto ->
+                        if (!localAddrs.contains(remoteDto.fullAddress)) {
+                            addressDao.insertAddress(remoteDto.toDomainAddress())
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                Log.w(TAG, "Address sync failed: ${e.message}")
+            }
+
+            // 5. SYNC SERVICE CATEGORIES
+            try {
+                val remoteCategoriesResponse = api.getServiceCategories()
+                remoteCategoriesResponse.logIfFailed(TAG, "getServiceCategories")
+                if (remoteCategoriesResponse.isSuccessful) {
+                    val remoteCats = remoteCategoriesResponse.body() ?: emptyList()
+                    if (remoteCats.isNotEmpty()) {
+                        _remoteCategories.value = remoteCats.map { it.toDomainCategory() }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Category sync failed: ${e.message}")
             }
 
             _syncState.value = SupabaseSyncState(
-                isConfigured = true,
-                isConnected = true,
                 isSyncing = false,
+                isConnected = true,
                 lastSyncTime = System.currentTimeMillis(),
-                lastMessage = "Synchronized with Supabase Cloud Postgres ($remoteCount bookings)",
-                error = null,
-                remoteBookingsCount = remoteCount
+                lastMessage = "Synced with Supabase at ${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())}",
+                error = null
             )
             true
         } catch (e: Exception) {
-            Log.e(TAG, "Sync failed: ${e.message}", e)
+            Log.e(TAG, "Sync exception: ${e.message}", e)
             _syncState.value = _syncState.value.copy(
                 isSyncing = false,
                 isConnected = false,
-                lastMessage = "Sync failed: ${e.localizedMessage ?: e.message}",
-                error = e.localizedMessage ?: e.message
+                error = e.message ?: "Unknown sync error",
+                lastMessage = "Sync failed: ${e.localizedMessage}"
             )
             false
         }
     }
 
-    fun onBookingCreated(booking: Booking) {
-        if (!SupabaseConfig.isConfigured) return
-        scope.launch(Dispatchers.IO) {
-            try {
-                SupabaseClient.apiService?.insertBooking(booking.toSupabaseDto())
-                Log.d(TAG, "Pushed new booking ${booking.bookingCode} to Supabase")
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to push booking to Supabase: ${e.message}")
-            }
-        }
-    }
+    private val _remoteCategories = MutableStateFlow<List<com.example.data.model.ServiceCategory>>(emptyList())
+    val remoteCategories: StateFlow<List<com.example.data.model.ServiceCategory>> = _remoteCategories.asStateFlow()
 
-    fun onBookingStatusUpdated(bookingCode: String, status: BookingStatus) {
-        if (!SupabaseConfig.isConfigured) return
-        scope.launch(Dispatchers.IO) {
-            try {
-                SupabaseClient.apiService?.updateBookingStatus(
-                    bookingCodeFilter = "eq.$bookingCode",
-                    updates = mapOf("status" to status.name)
+    /**
+     * Synchronous/awaited update booking status on Supabase (Dual-channel: Edge Function + Direct REST fallback)
+     */
+    suspend fun updateBookingStatus(
+        bookingCode: String,
+        status: BookingStatus,
+        reason: String? = null,
+        feedback: String? = null
+    ): Boolean = withContext(Dispatchers.IO) {
+        var success = false
+
+        // 1. Try via Edge Function first and only
+        try {
+            val bookingApi = SupabaseClient.bookingApiService
+            if (bookingApi != null) {
+                val resp = bookingApi.updateBookingStatus(
+                    com.example.data.remote.booking.BookingUpdateStatusRequest(
+                        bookingCode = bookingCode,
+                        status = status.name,
+                        cancellationReason = reason,
+                        cancellationFeedback = feedback
+                    )
                 )
-                Log.d(TAG, "Pushed status $status for $bookingCode to Supabase")
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to update booking status in Supabase: ${e.message}")
+                success = resp.isSuccessful
             }
-        }
-    }
-
-    fun onReviewAdded(review: CustomerReview) {
-        if (!SupabaseConfig.isConfigured) return
-        scope.launch(Dispatchers.IO) {
-            try {
-                SupabaseClient.apiService?.insertReview(review.toSupabaseDto())
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to push review to Supabase: ${e.message}")
-            }
-        }
-    }
-
-    fun onAddressAdded(address: SavedAddress) {
-        if (!SupabaseConfig.isConfigured) return
-        scope.launch(Dispatchers.IO) {
-            try {
-                SupabaseClient.apiService?.insertAddress(address.toSupabaseDto())
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to push address to Supabase: ${e.message}")
-            }
-        }
-    }
-
-    fun onUserProfileUpdated(profile: UserProfile) {
-        if (!SupabaseConfig.isConfigured) return
-        scope.launch(Dispatchers.IO) {
-            try {
-                SupabaseClient.apiService?.upsertUserProfile(profile = profile.toSupabaseDto())
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to upsert user profile to Supabase: ${e.message}")
-            }
-        }
-    }
-
-    suspend fun seedDemoDataToSupabase(): Boolean {
-        if (!SupabaseConfig.isConfigured) {
-            _syncState.value = _syncState.value.copy(
-                error = "Supabase credentials missing in Secrets panel."
-            )
-            return false
-        }
-        val api = SupabaseClient.apiService ?: return false
-        _syncState.value = _syncState.value.copy(isSyncing = true, error = null)
-
-        return try {
-            // 1. User profile
-            val demoUser = SupabaseUserProfileDto(
-                id = "user_priya_1",
-                name = "Priya Sharma",
-                phone = "+91 98765 43210",
-                email = "priya.sharma@example.com",
-                city = "Agra",
-                locality = "Taj Nagri Phase 2",
-                role = "CUSTOMER"
-            )
-            try {
-                api.upsertUserProfile(demoUser)
-            } catch (e: Exception) {
-                Log.w(TAG, "User profile upload failed: ${e.message}")
-            }
-
-            // 2. Demo Addresses
-            val demoAddresses = listOf(
-                SupabaseSavedAddressDto(
-                    title = "Home",
-                    fullAddress = "Flat 402, Royal Residency, Taj Nagri Phase 2",
-                    locality = "Taj Nagri Phase 2",
-                    city = "Agra",
-                    landmark = "Near Shilpgram East Gate",
-                    isDefault = true
-                ),
-                SupabaseSavedAddressDto(
-                    title = "Office",
-                    fullAddress = "Suite 305, Corporate Plaza, Sanjay Place",
-                    locality = "Sanjay Place",
-                    city = "Agra",
-                    landmark = "Opposite LIC Building",
-                    isDefault = false
-                ),
-                SupabaseSavedAddressDto(
-                    title = "Parents Home",
-                    fullAddress = "B-14, Radhasoami Colony, Dayalbagh Main Road",
-                    locality = "Dayalbagh",
-                    city = "Agra",
-                    landmark = "Near Radhasoami Temple",
-                    isDefault = false
-                ),
-                SupabaseSavedAddressDto(
-                    title = "Farmhouse",
-                    fullAddress = "Villa 7, Shamshabad Road Green Acres",
-                    locality = "Shamshabad Road",
-                    city = "Agra",
-                    landmark = "Behind Toll Plaza",
-                    isDefault = false
-                )
-            )
-            try {
-                api.insertAddresses(demoAddresses)
-            } catch (_: Exception) {
-                demoAddresses.forEach { addr ->
-                    try { api.insertAddress(addr) } catch (_: Exception) {}
-                }
-            }
-
-            // 3. Demo Bookings
-            val demoBookings = listOf(
-                SupabaseBookingDto(
-                    bookingCode = "SRV-84920",
-                    serviceId = "ac_service_deep",
-                    serviceName = "Intense AC Foam Jet Service",
-                    packageName = "1 Split AC Deep Jet Cleaning",
-                    scheduledDate = "Today",
-                    scheduledTime = "02:30 PM",
-                    addressText = "Flat 402, Royal Residency, Taj Nagri Phase 2, Agra",
-                    locality = "Taj Nagri Phase 2",
-                    city = "Agra",
-                    totalAmount = 499,
-                    discountAmount = 100,
-                    promoCode = "FIRST20",
-                    paymentMethod = "Cash after service",
-                    isPaid = false,
-                    status = "ON_THE_WAY",
-                    professionalId = "pro_rajesh_1",
-                    startOtp = "6824",
-                    specialNotes = "Ring bell twice, AC is in master bedroom"
-                ),
-                SupabaseBookingDto(
-                    bookingCode = "SRV-95012",
-                    serviceId = "plumbing_leak_fix",
-                    serviceName = "Pipe Leakage & Tap Fix",
-                    packageName = "Drain & Pipe Repair",
-                    scheduledDate = "Tomorrow",
-                    scheduledTime = "11:00 AM",
-                    addressText = "Suite 305, Corporate Plaza, Sanjay Place, Agra",
-                    locality = "Sanjay Place",
-                    city = "Agra",
-                    totalAmount = 249,
-                    discountAmount = 50,
-                    promoCode = "AGRA50",
-                    paymentMethod = "UPI (Google Pay)",
-                    isPaid = true,
-                    status = "ASSIGNED",
-                    professionalId = "pro_kavita_4",
-                    startOtp = "3912",
-                    specialNotes = "Pantry sink tap is leaking continuously"
-                ),
-                SupabaseBookingDto(
-                    bookingCode = "SRV-73105",
-                    serviceId = "deep_home_cleaning",
-                    serviceName = "Complete Home Deep Cleaning",
-                    packageName = "2 BHK Intensive Deep Clean",
-                    scheduledDate = "12 Sep 2026",
-                    scheduledTime = "10:00 AM",
-                    addressText = "Flat 402, Royal Residency, Taj Nagri Phase 2, Agra",
-                    locality = "Taj Nagri Phase 2",
-                    city = "Agra",
-                    totalAmount = 1899,
-                    discountAmount = 200,
-                    promoCode = "CLEAN100",
-                    paymentMethod = "UPI (PhonePe)",
-                    isPaid = true,
-                    status = "COMPLETED",
-                    professionalId = "pro_amit_2",
-                    startOtp = "3194",
-                    specialNotes = "Completed thoroughly with hospital-grade sanitizers"
-                ),
-                SupabaseBookingDto(
-                    bookingCode = "SRV-61294",
-                    serviceId = "salon_women_glow",
-                    serviceName = "Glow Facial & Mani-Pedi",
-                    packageName = "Bridal Radiance Package",
-                    scheduledDate = "08 Sep 2026",
-                    scheduledTime = "04:00 PM",
-                    addressText = "B-14, Radhasoami Colony, Dayalbagh Main Road, Agra",
-                    locality = "Dayalbagh",
-                    city = "Agra",
-                    totalAmount = 1299,
-                    discountAmount = 150,
-                    promoCode = "FESTIVE15",
-                    paymentMethod = "Card Payment",
-                    isPaid = true,
-                    status = "COMPLETED",
-                    professionalId = "pro_meera_3",
-                    startOtp = "8401",
-                    specialNotes = "Disposable sterilized equipment used"
-                ),
-                SupabaseBookingDto(
-                    bookingCode = "SRV-54911",
-                    serviceId = "electrician_instant",
-                    serviceName = "Electrical Short Circuit & Wiring",
-                    packageName = "Emergency Repair",
-                    scheduledDate = "01 Sep 2026",
-                    scheduledTime = "06:30 PM",
-                    addressText = "Villa 7, Shamshabad Road Green Acres, Agra",
-                    locality = "Shamshabad Road",
-                    city = "Agra",
-                    totalAmount = 399,
-                    discountAmount = 0,
-                    promoCode = "",
-                    paymentMethod = "Cash after service",
-                    isPaid = true,
-                    status = "COMPLETED",
-                    professionalId = "pro_rajesh_1",
-                    startOtp = "1928",
-                    specialNotes = "Fixed main MCB trip and neutralized earthing"
-                )
-            )
-            try {
-                api.upsertBookings(demoBookings)
-            } catch (_: Exception) {
-                demoBookings.forEach { b ->
-                    try { api.insertBooking(b) } catch (_: Exception) {}
-                }
-            }
-
-            // 4. Demo Reviews
-            val demoReviews = listOf(
-                SupabaseReviewDto(
-                    serviceId = "ac_service_deep",
-                    serviceName = "Intense AC Foam Jet Service",
-                    professionalName = "Rajesh Sharma",
-                    customerName = "Ananya V.",
-                    rating = 5.0f,
-                    comment = "Brilliant service! Rajesh brought proper foam jet pressure equipment and spill-jacket. AC cooling is ice-cold now, zero mess left on the wall.",
-                    tags = "Punctual, Super Clean, Expert",
-                    dateText = "2 days ago"
-                ),
-                SupabaseReviewDto(
-                    serviceId = "deep_home_cleaning",
-                    serviceName = "Complete Home Deep Cleaning",
-                    professionalName = "Amit Kumar & Team",
-                    customerName = "Vikram Singhania",
-                    rating = 4.9f,
-                    comment = "Booked for our home in Fatehabad Road Agra before family arrived. Every bathroom tile, balcony rail, and kitchen chimney was scrubbed mirror-shine.",
-                    tags = "Detail Oriented, Professional",
-                    dateText = "Last week"
-                ),
-                SupabaseReviewDto(
-                    serviceId = "salon_women_glow",
-                    serviceName = "Glow Facial & Mani-Pedi",
-                    professionalName = "Meera Saxena",
-                    customerName = "Pooja Agarwal",
-                    rating = 5.0f,
-                    comment = "Meera brought all 100% sanitized disposable kits. The facial massage was so relaxing right in my living room in Dayalbagh. Will book again!",
-                    tags = "Hygienic, Gentle, Punctual",
-                    dateText = "3 days ago"
-                ),
-                SupabaseReviewDto(
-                    serviceId = "plumbing_leak_fix",
-                    serviceName = "Pipe Leakage & Tap Fix",
-                    professionalName = "Kavita Singh",
-                    customerName = "Rohan Gupta",
-                    rating = 4.8f,
-                    comment = "Replaced the old rusted angle valve under the kitchen sink in 20 minutes. Clean plumbing work and upfront transparent pricing.",
-                    tags = "Fast Arrival, Fair Price",
-                    dateText = "5 days ago"
-                ),
-                SupabaseReviewDto(
-                    serviceId = "electrician_instant",
-                    serviceName = "Electrical Short Circuit & Wiring",
-                    professionalName = "Rajesh Sharma",
-                    customerName = "Sunil Mathur",
-                    rating = 5.0f,
-                    comment = "Our main MCB kept tripping due to heavy geyser load. The electrician diagnosed a neutral wire short and re-terminated it safely within half an hour.",
-                    tags = "Knowledgeable, Safe Work",
-                    dateText = "1 week ago"
-                )
-            )
-            try {
-                api.insertReviews(demoReviews)
-            } catch (_: Exception) {
-                demoReviews.forEach { r ->
-                    try { api.insertReview(r) } catch (_: Exception) {}
-                }
-            }
-
-            // Sync back to local Room as well
-            syncNow()
-
-            _syncState.value = _syncState.value.copy(
-                isSyncing = false,
-                isConnected = true,
-                lastSyncTime = System.currentTimeMillis(),
-                lastMessage = "Seeded 5 demo bookings, 5 reviews, 4 addresses & profile to Supabase"
-            )
-            true
         } catch (e: Exception) {
-            Log.e(TAG, "Seeding demo data to Supabase failed: ${e.message}", e)
-            _syncState.value = _syncState.value.copy(
-                isSyncing = false,
-                error = "Seeding failed: ${e.localizedMessage ?: e.message}"
-            )
+            Log.w(TAG, "Edge function updateBookingStatus failed: ${e.message}")
+        }
+
+        // 2. Direct REST Update fallback only if Edge Function failed due to network / 5xx
+        if (!success) {
+            try {
+                val updates = mutableMapOf<String, String>(
+                    "status" to status.name
+                )
+                if (reason != null) updates["cancellation_reason"] = reason
+                if (feedback != null) updates["cancellation_feedback"] = feedback
+
+                val restResp = SupabaseClient.apiService?.updateBookingStatusByCode("eq.$bookingCode", updates)
+                if (restResp != null && restResp.isSuccessful) {
+                    success = true
+                    Log.i(TAG, "Direct REST updateBookingStatusByCode succeeded for $bookingCode -> $status")
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Direct REST update failed: ${e.message}")
+            }
+        }
+
+        // On success, clear pendingSync for the local booking
+        if (success) {
+            val existing = bookingDao.getBookingByCode(bookingCode)
+            if (existing != null && existing.pendingSync) {
+                bookingDao.updateBooking(existing.copy(pendingSync = false))
+            }
+        }
+
+        success
+    }
+
+    /**
+     * Light-weight single booking refresh from Supabase (for live customer tracking)
+     */
+    suspend fun refreshBookingStatus(bookingId: Long): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val api = SupabaseClient.apiService ?: return@withContext false
+            val resp = api.getBookingById(idFilter = "eq.$bookingId")
+            if (resp.isSuccessful && !resp.body().isNullOrEmpty()) {
+                val remoteDto = resp.body()!!.first()
+                val existing = bookingDao.getBookingByIdSync(bookingId)
+                if (existing != null) {
+                    val remoteStatus = try {
+                        BookingStatus.valueOf(remoteDto.status)
+                    } catch (e: Exception) {
+                        existing.status
+                    }
+                    val remoteAcceptedAt = com.example.util.ChatTime.parseIsoToEpochMillis(remoteDto.acceptedAt)
+                    val updated = existing.copy(
+                        status = remoteStatus,
+                        isPaid = remoteDto.isPaid,
+                        paymentMethod = remoteDto.paymentMethod,
+                        paymentReference = remoteDto.paymentReference,
+                        paidAt = remoteDto.paidAt,
+                        cancellationReason = remoteDto.cancellationReason,
+                        cancellationFeedback = remoteDto.cancellationFeedback,
+                        cancelledAt = remoteDto.cancelledAt,
+                        cancelledBy = remoteDto.cancelledBy ?: existing.cancelledBy,
+                        acceptedAt = remoteAcceptedAt ?: existing.acceptedAt,
+                        professionalId = remoteDto.professionalId,
+                        startOtp = remoteDto.startOtp,
+                        specialNotes = remoteDto.specialNotes
+                    )
+                    bookingDao.updateBooking(updated)
+                } else {
+                    bookingDao.insertBooking(remoteDto.toDomainBooking())
+                }
+                true
+            } else {
+                resp.logIfFailed(TAG, "refreshBookingStatus ($bookingId)")
+                false
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to refresh booking status ($bookingId): ${e.message}")
             false
+        }
+    }
+
+    /**
+     * Synchronous/awaited push on booking creation (Dual-channel)
+     */
+    suspend fun pushBooking(booking: Booking): Boolean = withContext(Dispatchers.IO) {
+        var success = false
+        try {
+            val bookingApi = SupabaseClient.bookingApiService
+            if (bookingApi != null) {
+                try {
+                    val resp = bookingApi.createBooking(booking.toSupabaseDto())
+                    success = resp.isSuccessful
+                } catch (e: Exception) {
+                    Log.w(TAG, "Edge function createBooking failed: ${e.message}")
+                }
+            }
+
+            if (!success) {
+                val restResp = SupabaseClient.apiService?.insertBooking(booking.toSupabaseDto())
+                success = restResp != null && restResp.isSuccessful
+                if (success) {
+                    Log.i(TAG, "Direct REST insertBooking succeeded for ${booking.bookingCode}")
+                }
+            }
+            success
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed push booking (${booking.bookingCode}): ${e.message}")
+            false
+        }
+    }
+
+    /**
+     * Async push on booking creation
+     */
+    fun pushBookingAsync(booking: Booking, scope: CoroutineScope) {
+        scope.launch(Dispatchers.IO) {
+            pushBooking(booking)
+        }
+    }
+
+    /**
+     * Async push on address creation
+     */
+    fun pushAddressAsync(address: SavedAddress, scope: CoroutineScope) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                val resp = SupabaseClient.apiService?.insertAddress(address.toSupabaseDto())
+                resp?.logIfFailed(TAG, "pushAddressAsync")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed async push address: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Async push on review creation
+     */
+    fun pushReviewAsync(review: CustomerReview, scope: CoroutineScope) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                val resp = SupabaseClient.apiService?.insertReview(review.toSupabaseDto())
+                resp?.logIfFailed(TAG, "pushReviewAsync")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed async push review: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Async push on user profile update
+     */
+    fun pushUserProfileAsync(user: com.example.data.model.UserProfile, scope: CoroutineScope) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                val resp = SupabaseClient.apiService?.upsertUserProfile(user.toSupabaseDto())
+                resp?.logIfFailed(TAG, "pushUserProfileAsync")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed async push user profile: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Async delete on address removal
+     */
+    fun deleteAddressAsync(id: Long, scope: CoroutineScope) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                val resp = SupabaseClient.apiService?.deleteAddress("eq.$id")
+                resp?.logIfFailed(TAG, "deleteAddressAsync ($id)")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed async delete address: ${e.message}")
+            }
         }
     }
 }

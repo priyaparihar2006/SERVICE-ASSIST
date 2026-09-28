@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,43 +13,80 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import com.example.ui.components.stableStatusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudSync
-import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Handyman
+import androidx.compose.material.icons.filled.HeadsetMic
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonRemove
+import androidx.compose.material.icons.filled.Redeem
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.Article
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.CardGiftcard
+import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.EventAvailable
+import androidx.compose.material.icons.outlined.HeadsetMic
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.PersonRemove
+import androidx.compose.material.icons.outlined.Policy
+import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,655 +95,1604 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.model.Booking
+import com.example.data.model.BookingStatus
+import com.example.data.model.CustomerReview
 import com.example.data.model.SavedAddress
 import com.example.data.model.UserProfile
 import com.example.data.model.UserRole
-import com.example.data.remote.supabase.SupabaseConfig
 import com.example.data.remote.supabase.SupabaseSyncState
-import com.example.ui.theme.ServoraBorder
-import com.example.ui.theme.ServoraCharcoal
-import com.example.ui.theme.ServoraCoral
-import com.example.ui.theme.ServoraGreen
-import com.example.ui.theme.ServoraHoney
-import com.example.ui.theme.ServoraPeach
-import com.example.ui.theme.ServoraPeachLight
-import com.example.ui.theme.ServoraStarGold
-import com.example.ui.theme.ServoraSubtext
+import com.example.ui.components.ThemeToggleButton
+import com.example.ui.components.hideStatusBarOnScroll
+import com.example.ui.theme.ServoraTheme
 
+// Primary Green Palette matching #009051 brand theme
+private val DeepForestGreen = Color(0xFF009051) // theme-invariant
+private val ForestGreenGradient = listOf(
+    Color(0xFF009051),
+    Color(0xFF008249),
+    Color(0xFF007542)
+) // theme-invariant
+private val MintLightBg = Color(0xFFE6F5EE)
+private val MintBadgeBg = Color(0xFFDCF4E9)
+private val MintBadgeText = Color(0xFF00703E)
+private val VibrantMint = Color(0xFF009051) // theme-invariant
+private val MintLinkText = Color(0xFF86EFAC) // theme-invariant
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     userProfile: UserProfile,
     savedAddresses: List<SavedAddress>,
-    onSwitchRole: (UserRole) -> Unit,
-    onLocationClick: () -> Unit,
-    onDeleteAddress: (Long) -> Unit,
-    onAddNewAddress: (String, String, String, String) -> Unit,
-    supabaseSyncState: SupabaseSyncState = SupabaseSyncState(),
-    onSyncWithSupabase: () -> Unit = {},
-    onSeedSupabaseDemoData: () -> Unit = {},
+    allBookings: List<Booking> = emptyList(),
+    allReviews: List<CustomerReview> = emptyList(),
+    syncState: SupabaseSyncState = SupabaseSyncState(),
+    onSyncClick: () -> Unit = {},
+    onUpdateProfile: (String, String, String) -> Unit = { _, _, _ -> },
+    onSwitchRole: (UserRole) -> Unit = {},
+    onMyBookingsClick: () -> Unit = {},
+    onLocationClick: () -> Unit = {},
+    onDeleteAddress: (Long) -> Unit = {},
+    onAddNewAddress: (String, String, String, String) -> Unit = { _, _, _, _ -> },
+    onLogout: () -> Unit = {},
+    isDarkTheme: Boolean = false,
+    onToggleTheme: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var isPartnerOnline by remember { mutableStateOf(true) }
-    var showAddAddress by remember { mutableStateOf(false) }
+    val isDark = ServoraTheme.colors.isDark
 
+    // Dialog / Sheet states
+    var showEditProfileDialog by remember { mutableStateOf(false) }
+    var showAddressesSheet by remember { mutableStateOf(false) }
+    var showPassDetailsSheet by remember { mutableStateOf(false) }
+    var showWalletSheet by remember { mutableStateOf(false) }
+    var showSupportSheet by remember { mutableStateOf(false) }
+    var showReferSheet by remember { mutableStateOf(false) }
+    var showAboutUsSheet by remember { mutableStateOf(false) }
+    var showTermsSheet by remember { mutableStateOf(false) }
+    var showPrivacySheet by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
+    var showLogoutConfirmDialog by remember { mutableStateOf(false) }
+
+    // Add Address Form State
+    var showAddAddressForm by remember { mutableStateOf(false) }
     var addrTitle by remember { mutableStateOf("Home") }
     var addrText by remember { mutableStateOf("") }
     var addrLocality by remember { mutableStateOf("Taj Nagri") }
     var addrLandmark by remember { mutableStateOf("") }
 
+    // Edit profile state
+    var editName by remember { mutableStateOf(userProfile.name) }
+    var editPhone by remember { mutableStateOf(userProfile.phone) }
+    var editEmail by remember { mutableStateOf(userProfile.email) }
+
+    // Partner Online State (if partner logged in)
+    var isPartnerOnline by remember { mutableStateOf(true) }
+
+    val completedBookingsCount = allBookings.count { it.status == BookingStatus.COMPLETED }
+    val activeBookingsCount = allBookings.count {
+        it.status != BookingStatus.COMPLETED && it.status != BookingStatus.CANCELLED
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .padding(bottom = 16.dp)
+            .hideStatusBarOnScroll()
     ) {
-        // User Profile Header Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, ServoraBorder)
+        // =========================================================================
+        // 1. TOP GREEN WAVE PROFILE HEADER
+        // =========================================================================
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(ForestGreenGradient),
+                    shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
+                )
+                .stableStatusBarsPadding()
+                .padding(horizontal = 20.dp)
+                .padding(top = 18.dp, bottom = 26.dp)
         ) {
             Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(CircleShape)
-                        .background(ServoraPeach),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = userProfile.name.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString(""),
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = ServoraCoral
-                        )
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(14.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = userProfile.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = ServoraCharcoal
-                    )
-                    Text(
-                        text = "${userProfile.phone} • ${userProfile.email}",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                        color = ServoraSubtext
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(ServoraPeach)
-                            .clickable { onLocationClick() }
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = ServoraCoral,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Spacer(modifier = Modifier.width(3.dp))
-                        Text(
-                            text = "${userProfile.city} (${userProfile.locality})",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = ServoraCoral
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // ROLE SWITCHER (Customer / Professional Partner / Admin view)
-        Text(
-            text = "PERSPECTIVE MODE SWITCH",
-            style = MaterialTheme.typography.labelSmall,
-            color = ServoraSubtext,
-            letterSpacing = 1.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .border(1.dp, ServoraBorder, RoundedCornerShape(14.dp))
-                .padding(4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            UserRole.entries.forEach { role ->
-                val isSelected = userProfile.role == role
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(if (isSelected) ServoraCoral else Color.Transparent)
-                        .clickable { onSwitchRole(role) }
-                        .padding(vertical = 10.dp)
-                        .testTag("role_tab_${role.name}"),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = when (role) {
-                                UserRole.CUSTOMER -> Icons.Default.Person
-                                UserRole.PROFESSIONAL -> Icons.Default.Handyman
-                                UserRole.ADMIN -> Icons.Default.AdminPanelSettings
-                            },
-                            contentDescription = null,
-                            tint = if (isSelected) Color.White else ServoraSubtext,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = when (role) {
-                                UserRole.CUSTOMER -> "Customer"
-                                UserRole.PROFESSIONAL -> "Partner Pro"
-                                UserRole.ADMIN -> "Admin"
-                            },
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = if (isSelected) Color.White else ServoraCharcoal
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // CONDITIONAL DASHBOARD ACCORDING TO ROLE
-        if (userProfile.role == UserRole.PROFESSIONAL) {
-            // PRO DASHBOARD VIEW
-            Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF0FDF4)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, ServoraGreen)
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "PARTNER DASHBOARD",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = ServoraGreen
-                            )
-                            Text(
-                                text = if (isPartnerOnline) "Status: Online & Receiving Jobs" else "Status: Offline",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = ServoraCharcoal
-                            )
-                        }
-
-                        Switch(
-                            checked = isPartnerOnline,
-                            onCheckedChange = { isPartnerOnline = it },
-                            colors = SwitchDefaults.colors(checkedThumbColor = ServoraGreen)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text("TODAY'S EARNINGS", style = MaterialTheme.typography.labelSmall, color = ServoraSubtext)
-                            Text("₹3,850", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black, color = ServoraGreen))
-                        }
-                        Column {
-                            Text("JOBS COMPLETED", style = MaterialTheme.typography.labelSmall, color = ServoraSubtext)
-                            Text("142", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black, color = ServoraCharcoal))
-                        }
-                        Column {
-                            Text("RATING", style = MaterialTheme.typography.labelSmall, color = ServoraSubtext)
-                            Text("4.9 ★", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Black, color = ServoraHoney))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Text(
-                        text = "Next Scheduled Job: Taj Nagri Phase 2 • 02:00 PM • AC Jet Service",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                        color = ServoraCharcoal
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-        } else if (userProfile.role == UserRole.ADMIN) {
-            // ADMIN DASHBOARD VIEW
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFBEB)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, ServoraHoney)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "AGRA OPERATIONS CONSOLE",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFFB45309)
-                    )
-                    Text(
-                        text = "Service Assist Live City Metrics",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = ServoraCharcoal
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text("ACTIVE BOOKINGS", style = MaterialTheme.typography.labelSmall, color = ServoraSubtext)
-                            Text("28 Live", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = ServoraCoral))
-                        }
-                        Column {
-                            Text("ONLINE PROS", style = MaterialTheme.typography.labelSmall, color = ServoraSubtext)
-                            Text("74 Active", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = ServoraGreen))
-                        }
-                        Column {
-                            Text("AVG ARRIVAL", style = MaterialTheme.typography.labelSmall, color = ServoraSubtext)
-                            Text("22 Mins", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = ServoraCharcoal))
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // SAVED ADDRESSES MANAGEMENT
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "SAVED ADDRESSES (${savedAddresses.size})",
-                style = MaterialTheme.typography.labelSmall,
-                color = ServoraSubtext,
-                letterSpacing = 1.sp
-            )
-
-            OutlinedButton(
-                onClick = { showAddAddress = !showAddAddress },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.height(32.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    tint = ServoraCoral,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Add", color = ServoraCoral, style = MaterialTheme.typography.labelSmall)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            savedAddresses.forEach { addr ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, ServoraBorder)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = addr.title,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
-                                    color = ServoraCharcoal
-                                )
-                                if (addr.isDefault) {
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(ServoraPeach)
-                                            .padding(horizontal = 6.dp, vertical = 1.dp)
-                                    ) {
-                                        Text("DEFAULT", color = ServoraCoral, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                                    }
-                                }
-                            }
-                            Text(
-                                text = "${addr.fullAddress}, ${addr.locality}, ${addr.city}",
-                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                color = ServoraSubtext
-                            )
-                        }
-
-                        IconButton(onClick = { onDeleteAddress(addr.id) }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete",
-                                tint = Color.LightGray,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        if (showAddAddress) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, ServoraBorder)
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Text(
-                        text = "New Address Details",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = ServoraCharcoal
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    OutlinedTextField(
-                        value = addrTitle,
-                        onValueChange = { addrTitle = it },
-                        label = { Text("Label (Home/Office)") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    OutlinedTextField(
-                        value = addrText,
-                        onValueChange = { addrText = it },
-                        label = { Text("House/Flat/Road") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    OutlinedTextField(
-                        value = addrLocality,
-                        onValueChange = { addrLocality = it },
-                        label = { Text("Locality") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(
-                        onClick = {
-                            if (addrText.isNotBlank()) {
-                                onAddNewAddress(addrTitle, addrText, addrLocality, addrLandmark)
-                                showAddAddress = false
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = ServoraCoral),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Save Address", color = Color.White)
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // SUPABASE CLOUD BACKEND DATABASE STATUS CARD
-        Text(
-            text = "CLOUD BACKEND INTEGRATION",
-            style = MaterialTheme.typography.labelSmall,
-            color = ServoraSubtext,
-            letterSpacing = 1.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("supabase_database_card"),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, ServoraBorder)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+                // Left: Avatar + User Info
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Profile Photo Container with Camera Badge
+                    Box(
+                        modifier = Modifier.size(72.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Surface(
+                            modifier = Modifier.size(68.dp),
+                            shape = CircleShape,
+                            color = Color.White, /* theme-invariant */
+                            shadowElevation = 4.dp
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color(0xFFE2F5EC)), /* theme-invariant */
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Avatar",
+                                    tint = DeepForestGreen,
+                                    modifier = Modifier.size(44.dp)
+                                )
+                            }
+                        }
+
+                        // Small camera badge at bottom-right
                         Box(
                             modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(Color(0xFF3ECF8E).copy(alpha = 0.15f)),
+                                .align(Alignment.BottomEnd)
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF1E293B)) /* theme-invariant */
+                                .border(1.5.dp, Color.White, CircleShape), /* theme-invariant */
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.CloudSync,
-                                contentDescription = null,
-                                tint = Color(0xFF2E7D32),
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "Supabase PostgreSQL Database",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = ServoraCharcoal
-                            )
-                            Text(
-                                text = if (supabaseSyncState.isConfigured) "Live Cloud Synchronization" else "Room DB Active (Supabase Ready)",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = ServoraSubtext
+                                imageVector = Icons.Default.CameraAlt,
+                                contentDescription = "Change Photo",
+                                tint = Color.White, /* theme-invariant */
+                                modifier = Modifier.size(12.dp)
                             )
                         }
                     }
 
-                    // Status pill
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                if (supabaseSyncState.isConnected) Color(0xFFE8F5E9)
-                                else if (supabaseSyncState.isConfigured) Color(0xFFFFF3E0)
-                                else Color(0xFFF1F5F9)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // Name, Phone & Edit Profile Link
+                    Column {
                         Text(
-                            text = if (supabaseSyncState.isConnected) "CONNECTED"
-                            else if (supabaseSyncState.isConfigured) "READY"
-                            else "OFFLINE ROOM",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (supabaseSyncState.isConnected) Color(0xFF2E7D32)
-                            else if (supabaseSyncState.isConfigured) Color(0xFFE65100)
-                            else ServoraSubtext
+                            text = userProfile.name,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 21.sp,
+                                letterSpacing = (-0.3).sp
+                            ),
+                            color = Color.White /* theme-invariant */
                         )
-                    }
-                }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
 
-                Text(
-                    text = supabaseSyncState.lastMessage,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                    color = if (supabaseSyncState.error != null) Color(0xFFC62828) else ServoraSubtext
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "URL: ${SupabaseConfig.maskedUrl}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = ServoraSubtext
-                    )
-                    Text(
-                        text = "Tables: bookings, addresses, reviews, users",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = ServoraSubtext
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedButton(
-                        onClick = onSeedSupabaseDemoData,
-                        enabled = !supabaseSyncState.isSyncing,
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(36.dp)
-                            .testTag("seed_demo_data_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CloudUpload,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = ServoraCoral
+                        Text(
+                            text = userProfile.phone,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                            color = Color.White.copy(alpha = 0.88f) /* theme-invariant */
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Seed Demo Data", fontSize = 11.sp, color = ServoraCoral, fontWeight = FontWeight.SemiBold)
-                    }
 
-                    Button(
-                        onClick = onSyncWithSupabase,
-                        enabled = !supabaseSyncState.isSyncing,
-                        colors = ButtonDefaults.buttonColors(containerColor = ServoraCoral),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(36.dp)
-                            .testTag("sync_supabase_button")
-                    ) {
-                        if (supabaseSyncState.isSyncing) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(14.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .clickable {
+                                    editName = userProfile.name
+                                    editPhone = userProfile.phone
+                                    editEmail = userProfile.email
+                                    showEditProfileDialog = true
+                                }
+                        ) {
+                            Text(
+                                text = "Edit profile",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 13.sp
+                                ),
+                                color = MintLinkText /* theme-invariant */
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Syncing...", fontSize = 11.sp)
-                        } else {
+                            Spacer(modifier = Modifier.width(3.dp))
                             Icon(
-                                imageVector = Icons.Default.Sync,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                                 contentDescription = null,
-                                modifier = Modifier.size(14.dp)
+                                tint = MintLinkText, /* theme-invariant */
+                                modifier = Modifier.size(11.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Sync Now", fontSize = 11.sp)
                         }
                     }
                 }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 24x7 AGRA CUSTOMER CARE CARD
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = ServoraPeachLight),
-            border = androidx.compose.foundation.BorderStroke(1.dp, ServoraPeach)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(ServoraCoral),
-                    contentAlignment = Alignment.Center
+                // Right: Theme Toggle Button + Circular Pencil Edit Button
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Call,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(22.dp)
+                    ThemeToggleButton(
+                        isDarkTheme = isDarkTheme,
+                        onToggle = onToggleTheme
                     )
-                }
 
-                Spacer(modifier = Modifier.width(14.dp))
-
-                Column {
-                    Text(
-                        text = "24x7 Service Assist Helpline Agra",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = ServoraCharcoal
-                    )
-                    Text(
-                        text = "1800-ASSIST-PRO (Toll-Free) • Dedicated city support",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                        color = ServoraSubtext
-                    )
+                    Surface(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .clickable {
+                                editName = userProfile.name
+                                editPhone = userProfile.phone
+                                editEmail = userProfile.email
+                                showEditProfileDialog = true
+                            },
+                        shape = CircleShape,
+                        color = Color.White.copy(alpha = 0.18f) /* theme-invariant */
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Profile",
+                                tint = Color.White, /* theme-invariant */
+                                modifier = Modifier.size(19.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // SAFETY & INSURANCE BADGE
+        // Content Body
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // =====================================================================
+            // 2. SERVICE ASSIST PASS PROMO BANNER
+            // =====================================================================
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showPassDetailsSheet = true },
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF00A45C)), /* theme-invariant */
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                listOf(Color(0xFF00A45C), Color(0xFF008E50))
+                            )
+                        )
+                        .padding(horizontal = 18.dp, vertical = 16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Left Text Block
+                        Column(modifier = Modifier.weight(1f)) {
+                            // Pill Badge
+                            Surface(
+                                shape = RoundedCornerShape(20.dp),
+                                color = Color(0xFFDCFCE7).copy(alpha = 0.95f) /* theme-invariant */
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = Color(0xFF15803D), /* theme-invariant */
+                                        modifier = Modifier.size(11.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "SERVICE ASSIST PASS",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = FontWeight.ExtraBold,
+                                            fontSize = 9.5.sp,
+                                            letterSpacing = 0.4.sp
+                                        ),
+                                        color = Color(0xFF15803D) /* theme-invariant */
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Get 3 Visits for ₹99 only",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 17.sp
+                                    ),
+                                    color = Color.White /* theme-invariant */
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(22.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White.copy(alpha = 0.2f)), /* theme-invariant */
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        contentDescription = null,
+                                        tint = Color.White, /* theme-invariant */
+                                        modifier = Modifier.size(10.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            Text(
+                                text = "More visits. More value.",
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                                color = Color.White.copy(alpha = 0.8f) /* theme-invariant */
+                            )
+                        }
+
+                        // Right 3D Green Pass Stack Mockup
+                        Box(
+                            modifier = Modifier
+                                .size(width = 86.dp, height = 70.dp)
+                                .padding(start = 6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            // Back card
+                            Surface(
+                                modifier = Modifier
+                                    .size(width = 54.dp, height = 58.dp)
+                                    .offset(x = (-12).dp, y = 4.dp),
+                                shape = RoundedCornerShape(10.dp),
+                                color = Color(0xFF22C55E).copy(alpha = 0.5f) /* theme-invariant */
+                            ) {}
+
+                            // Front Pass Card
+                            Surface(
+                                modifier = Modifier
+                                    .size(width = 62.dp, height = 64.dp)
+                                    .offset(x = 6.dp, y = (-2).dp),
+                                shape = RoundedCornerShape(10.dp),
+                                color = Color(0xFF16A34A), /* theme-invariant */
+                                shadowElevation = 4.dp,
+                                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)) /* theme-invariant */
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(4.dp),
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "SERVICE ASSIST",
+                                        fontSize = 5.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White.copy(alpha = 0.9f), /* theme-invariant */
+                                        maxLines = 1
+                                    )
+                                    Text(
+                                        text = "PASS",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color.White, /* theme-invariant */
+                                        letterSpacing = (-0.5).sp
+                                    )
+                                    Text(
+                                        text = "60 MIN",
+                                        fontSize = 6.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFFDCFCE7) /* theme-invariant */
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // =====================================================================
+            // 3. THREE QUICK ACTION CARDS (My Bookings, Service Assist Money, Help & Support)
+            // =====================================================================
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // Card 1: My Bookings
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(118.dp)
+                        .clickable { onMyBookingsClick() },
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.EventAvailable,
+                                    contentDescription = "My Bookings",
+                                    tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                contentDescription = null,
+                                tint = ServoraTheme.colors.subtext.copy(alpha = 0.6f),
+                                modifier = Modifier.size(11.dp)
+                            )
+                        }
+
+                        Column {
+                            Text(
+                                text = "My\nBookings",
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    lineHeight = 17.sp
+                                ),
+                                color = ServoraTheme.colors.textPrimary
+                            )
+                        }
+                    }
+                }
+
+                // Card 2: Service Assist Money (Wallet)
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(118.dp)
+                        .clickable { showWalletSheet = true },
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.AccountBalanceWallet,
+                                    contentDescription = "Service Assist Money",
+                                    tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            // ₹0 Balance Pill
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (isDark) ServoraTheme.colors.surfaceVariant else MintBadgeBg
+                            ) {
+                                Text(
+                                    text = "₹0",
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDark) ServoraTheme.colors.success else MintBadgeText
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text(
+                                text = "Service\nAssist Money",
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.5.sp,
+                                    lineHeight = 15.sp
+                                ),
+                                color = ServoraTheme.colors.textPrimary,
+                                maxLines = 2
+                            )
+
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                contentDescription = null,
+                                tint = ServoraTheme.colors.subtext.copy(alpha = 0.6f),
+                                modifier = Modifier.size(11.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Card 3: Help & Support
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(118.dp)
+                        .clickable { showSupportSheet = true },
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.HeadsetMic,
+                                    contentDescription = "Help & Support",
+                                    tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                contentDescription = null,
+                                tint = ServoraTheme.colors.subtext.copy(alpha = 0.6f),
+                                modifier = Modifier.size(11.dp)
+                            )
+                        }
+
+                        Column {
+                            Text(
+                                text = "Help &\nSupport",
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    lineHeight = 17.sp
+                                ),
+                                color = ServoraTheme.colors.textPrimary
+                            )
+                        }
+                    }
+                }
+            }
+
+
+            // =====================================================================
+            // 5. ROLE & PARTNER / ADMIN CONSOLE (Conditional for Partner / Admin)
+            // =====================================================================
+            if (userProfile.role == UserRole.PROFESSIONAL) {
+                // Partner Dashboard Quick Widget
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("PARTNER DUTY CONSOLE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                                Text(
+                                    text = if (isPartnerOnline) "Status: Online (Accepting Jobs)" else "Status: Offline",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = ServoraTheme.colors.textPrimary
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Switch(
+                                checked = isPartnerOnline,
+                                onCheckedChange = { isPartnerOnline = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = VibrantMint,
+                                    checkedTrackColor = if (isDark) ServoraTheme.colors.surfaceVariant else MintBadgeBg
+                                )
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text("COMPLETED", fontSize = 10.sp, color = ServoraTheme.colors.subtext)
+                                Text("$completedBookingsCount Jobs", fontSize = 16.sp, fontWeight = FontWeight.Black, color = ServoraTheme.colors.textPrimary)
+                            }
+                            Column {
+                                Text("ACTIVE IN-FLIGHT", fontSize = 10.sp, color = ServoraTheme.colors.subtext)
+                                Text("$activeBookingsCount Active", fontSize = 16.sp, fontWeight = FontWeight.Black, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                            }
+                            Column {
+                                Text("RATING", fontSize = 10.sp, color = ServoraTheme.colors.subtext)
+                                Text("4.9 ★", fontSize = 16.sp, fontWeight = FontWeight.Black, color = if (isDark) ServoraTheme.colors.warning else Color(0xFFD97706))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // =====================================================================
+            // 6. MENU ITEMS LIST
+            // =====================================================================
+
+            // Item 1: Refer & earn (with ₹100 badge)
+            GreenMenuItemCard(
+                icon = Icons.Outlined.CardGiftcard,
+                title = "Refer & earn",
+                badgeText = "₹100",
+                onClick = { showReferSheet = true }
+            )
+
+            // Item 3: Saved addresses
+            GreenMenuItemCard(
+                icon = Icons.Outlined.LocationOn,
+                title = "Saved addresses",
+                onClick = { showAddressesSheet = true }
+            )
+
+            // Item 4: About us
+            GreenMenuItemCard(
+                icon = Icons.Outlined.Info,
+                title = "About us",
+                onClick = { showAboutUsSheet = true }
+            )
+
+            // Item 5: Terms of services
+            GreenMenuItemCard(
+                icon = Icons.Outlined.Article,
+                title = "Terms of services",
+                onClick = { showTermsSheet = true }
+            )
+
+            // Item 6: Privacy policy
+            GreenMenuItemCard(
+                icon = Icons.Outlined.Shield,
+                title = "Privacy policy",
+                onClick = { showPrivacySheet = true }
+            )
+
+            // Item 7: Request account deletion
+            GreenMenuItemCard(
+                icon = Icons.Outlined.PersonRemove,
+                title = "Request account deletion",
+                onClick = { showDeleteAccountDialog = true }
+            )
+
+            // Item 8: Log out
+            GreenMenuItemCard(
+                icon = Icons.AutoMirrored.Outlined.Logout,
+                title = "Log out",
+                onClick = { showLogoutConfirmDialog = true },
+                isDestructive = true
+            )
+
+            // =====================================================================
+            // 7. FOOTER: APP VERSION & ORGANIC DECORATION
+            // =====================================================================
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "APP VERSION: 1.5.8 (8a48)",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp,
+                        fontSize = 11.sp
+                    ),
+                    color = ServoraTheme.colors.subtext.copy(alpha = 0.7f)
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "ServiceAssist • Agra Smart Services",
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = ServoraTheme.colors.subtext.copy(alpha = 0.5f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+
+    // =========================================================================
+    // MODAL SHEETS & DIALOGS
+    // =========================================================================
+
+    // 1. EDIT PROFILE DIALOG
+    if (showEditProfileDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditProfileDialog = false },
+            title = {
+                Text(
+                    text = "Edit Profile",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = ServoraTheme.colors.textPrimary
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = "Update your profile information for Agra doorstep services.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = ServoraTheme.colors.subtext
+                    )
+                    OutlinedTextField(
+                        value = editName,
+                        onValueChange = { editName = it },
+                        label = { Text("Full Name") },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            unfocusedBorderColor = ServoraTheme.colors.cardBorder,
+                            unfocusedLabelColor = ServoraTheme.colors.subtext,
+                            focusedTextColor = ServoraTheme.colors.textPrimary,
+                            unfocusedTextColor = ServoraTheme.colors.textPrimary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = editPhone,
+                        onValueChange = { editPhone = it },
+                        label = { Text("Phone Number") },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            unfocusedBorderColor = ServoraTheme.colors.cardBorder,
+                            unfocusedLabelColor = ServoraTheme.colors.subtext,
+                            focusedTextColor = ServoraTheme.colors.textPrimary,
+                            unfocusedTextColor = ServoraTheme.colors.textPrimary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = editEmail,
+                        onValueChange = { editEmail = it },
+                        label = { Text("Email Address") },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                            unfocusedBorderColor = ServoraTheme.colors.cardBorder,
+                            unfocusedLabelColor = ServoraTheme.colors.subtext,
+                            focusedTextColor = ServoraTheme.colors.textPrimary,
+                            unfocusedTextColor = ServoraTheme.colors.textPrimary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (editName.isNotBlank()) {
+                            onUpdateProfile(editName, editPhone, editEmail)
+                            showEditProfileDialog = false
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen)
+                ) {
+                    Text("Save Changes", color = Color.White /* theme-invariant */)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showEditProfileDialog = false }) {
+                    Text("Cancel", color = ServoraTheme.colors.textPrimary)
+                }
+            }
+        )
+    }
+
+    // 2. SAVED ADDRESSES SHEET
+    if (showAddressesSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showAddressesSheet = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 32.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Saved Addresses (${savedAddresses.size})",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = ServoraTheme.colors.textPrimary
+                    )
+                    IconButton(onClick = { showAddAddressForm = !showAddAddressForm }) {
+                        Icon(
+                            imageVector = if (showAddAddressForm) Icons.Default.Close else Icons.Default.Add,
+                            contentDescription = "Add Address",
+                            tint = if (isDark) ServoraTheme.colors.primary else DeepForestGreen
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (showAddAddressForm) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = ServoraTheme.colors.surfaceVariant),
+                        border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(14.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("Add New Address", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ServoraTheme.colors.textPrimary)
+                            OutlinedTextField(
+                                value = addrTitle,
+                                onValueChange = { addrTitle = it },
+                                label = { Text("Title (Home/Office/Parents)") },
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    unfocusedBorderColor = ServoraTheme.colors.cardBorder,
+                                    unfocusedLabelColor = ServoraTheme.colors.subtext,
+                                    focusedTextColor = ServoraTheme.colors.textPrimary,
+                                    unfocusedTextColor = ServoraTheme.colors.textPrimary
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            OutlinedTextField(
+                                value = addrText,
+                                onValueChange = { addrText = it },
+                                label = { Text("House / Flat / Building / Road") },
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    unfocusedBorderColor = ServoraTheme.colors.cardBorder,
+                                    unfocusedLabelColor = ServoraTheme.colors.subtext,
+                                    focusedTextColor = ServoraTheme.colors.textPrimary,
+                                    unfocusedTextColor = ServoraTheme.colors.textPrimary
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            OutlinedTextField(
+                                value = addrLocality,
+                                onValueChange = { addrLocality = it },
+                                label = { Text("Locality (e.g. Dayalbagh, Taj Nagri)") },
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    focusedLabelColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen,
+                                    unfocusedBorderColor = ServoraTheme.colors.cardBorder,
+                                    unfocusedLabelColor = ServoraTheme.colors.subtext,
+                                    focusedTextColor = ServoraTheme.colors.textPrimary,
+                                    unfocusedTextColor = ServoraTheme.colors.textPrimary
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Button(
+                                onClick = {
+                                    if (addrText.isNotBlank()) {
+                                        onAddNewAddress(addrTitle, addrText, addrLocality, addrLandmark)
+                                        showAddAddressForm = false
+                                        addrText = ""
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Save Address", color = Color.White /* theme-invariant */)
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    savedAddresses.forEach { addr ->
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.LocationOn,
+                                            contentDescription = null,
+                                            tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = addr.title,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 14.sp,
+                                                color = ServoraTheme.colors.textPrimary
+                                            )
+                                            if (addr.isDefault) {
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Surface(
+                                                    shape = RoundedCornerShape(4.dp),
+                                                    color = if (isDark) ServoraTheme.colors.surfaceVariant else MintBadgeBg
+                                                ) {
+                                                    Text(
+                                                        text = "DEFAULT",
+                                                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
+                                                        fontSize = 9.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = if (isDark) ServoraTheme.colors.success else MintBadgeText
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        Text(
+                                            text = "${addr.fullAddress}, ${addr.locality}, ${addr.city}",
+                                            fontSize = 12.sp,
+                                            color = ServoraTheme.colors.subtext
+                                        )
+                                    }
+                                }
+
+                                IconButton(onClick = { onDeleteAddress(addr.id) }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete",
+                                        tint = ServoraTheme.colors.subtext,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. SERVICE ASSIST PASS DETAILS SHEET
+    if (showPassDetailsSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showPassDetailsSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Service Assist Pass",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = ServoraTheme.colors.textPrimary
+                )
+
+                Text(
+                    text = "Unlock 3 Doorstep Visits across Agra for only ₹99",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ServoraTheme.colors.subtext,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    PassPerkRow("₹0 Visiting Charges on AC, Electrical & Cleaning")
+                    PassPerkRow("Guaranteed 44-minute Priority Partner Arrival")
+                    PassPerkRow("Valid for 60 days across all localities in Agra")
+                    PassPerkRow("100% Satisfaction or full refund guarantee")
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = { showPassDetailsSheet = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text("Activate Service Assist Pass for ₹99", fontWeight = FontWeight.Bold, color = Color.White /* theme-invariant */)
+                }
+            }
+        }
+    }
+
+    // 4. SERVICE ASSIST MONEY / WALLET SHEET
+    if (showWalletSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showWalletSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Service Assist Wallet",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = ServoraTheme.colors.textPrimary
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg,
+                    border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("AVAILABLE BALANCE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = ServoraTheme.colors.subtext)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("₹0.00", fontSize = 32.sp, fontWeight = FontWeight.Black, color = if (isDark) ServoraTheme.colors.success else DeepForestGreen)
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text("Use wallet cash on any service in Agra", fontSize = 12.sp, color = ServoraTheme.colors.subtext)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = { showWalletSheet = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text("Add Money to Wallet", fontWeight = FontWeight.Bold, color = Color.White /* theme-invariant */)
+                }
+            }
+        }
+    }
+
+    // 5. HELP & SUPPORT SHEET
+    if (showSupportSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSupportSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp)
+            ) {
+                Text(
+                    text = "24x7 Customer Support",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = ServoraTheme.colors.textPrimary
+                )
+                Text(
+                    text = "Dedicated support team for Agra doorstep services",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ServoraTheme.colors.subtext
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SupportActionTile(
+                    icon = Icons.Default.Call,
+                    title = "Call Support (Toll-Free)",
+                    subtitle = "1800-SERVORA-AGRA (9 AM - 9 PM)"
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                SupportActionTile(
+                    icon = Icons.Default.HeadsetMic,
+                    title = "WhatsApp Chat Support",
+                    subtitle = "Instant technician tracking & query resolution"
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                SupportActionTile(
+                    icon = Icons.Default.Security,
+                    title = "₹10,000 Damage Cover",
+                    subtitle = "All bookings covered with verified safety assurance"
+                )
+            }
+        }
+    }
+
+    // 6. REFER & EARN SHEET
+    if (showReferSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showReferSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Redeem,
+                        contentDescription = null,
+                        tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Refer Friends & Earn ₹100",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = ServoraTheme.colors.textPrimary
+                )
+
+                Text(
+                    text = "Share your referral code. When your friend completes their first service in Agra, you both receive ₹100 in your wallet!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ServoraTheme.colors.subtext,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (isDark) ServoraTheme.colors.surfaceVariant else Color(0xFFF1F5F9),
+                    border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
+                ) {
+                    Text(
+                        text = "YOUR CODE: SERVORA100",
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.5.sp,
+                        color = if (isDark) ServoraTheme.colors.success else DeepForestGreen
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = { showReferSheet = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = if (isDark) ServoraTheme.colors.primary else DeepForestGreen),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Icon(Icons.Default.Share, contentDescription = null, tint = Color.White /* theme-invariant */, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Share Referral Link", fontWeight = FontWeight.Bold, color = Color.White /* theme-invariant */)
+                }
+            }
+        }
+    }
+
+    // 7. ABOUT US SHEET
+    if (showAboutUsSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showAboutUsSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp)
+            ) {
+                Text(
+                    text = "About ServiceAssist",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = ServoraTheme.colors.textPrimary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "ServiceAssist (Servora) is Agra's premier on-demand doorstep home services platform. We connect verified electricians, AC jet cleaning technicians, plumbers, and salon experts with residents across Taj Nagri, Dayalbagh, Sanjay Place, and all major localities in Agra.\n\nEvery professional undergoes a multi-stage background check, skill verification, and standardized safety training.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ServoraTheme.colors.subtext,
+                    lineHeight = 22.sp
+                )
+            }
+        }
+    }
+
+    // 8. TERMS SHEET
+    if (showTermsSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showTermsSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp)
+            ) {
+                Text(
+                    text = "Terms of Service",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = ServoraTheme.colors.textPrimary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "1. Services booked through ServiceAssist are delivered by certified third-party service partners in Agra.\n2. Customers must verify the 4-digit doorstep Start OTP before initiating any job.\n3. Cancellation is completely free up to 30 minutes before the scheduled time slot.\n4. All pricing includes standard taxes and verified service equipment.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ServoraTheme.colors.subtext,
+                    lineHeight = 22.sp
+                )
+            }
+        }
+    }
+
+    // 9. PRIVACY SHEET
+    if (showPrivacySheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showPrivacySheet = false },
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp)
+            ) {
+                Text(
+                    text = "Privacy Policy",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = ServoraTheme.colors.textPrimary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Your privacy is paramount. Your address and contact details are only shared with the assigned professional for the duration of the active booking. All data is encrypted in transit and at rest using industry standard encryption protocols.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ServoraTheme.colors.subtext,
+                    lineHeight = 22.sp
+                )
+            }
+        }
+    }
+
+    // 10. REQUEST ACCOUNT DELETION DIALOG
+    if (showDeleteAccountDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteAccountDialog = false },
+            title = {
+                Text("Request Account Deletion", fontWeight = FontWeight.Bold, color = ServoraTheme.colors.textPrimary)
+            },
+            text = {
+                Text(
+                    "Are you sure you want to request deletion of your ServiceAssist account? All saved addresses, past service invoices, and wallet credits will be permanently removed after verification.",
+                    color = ServoraTheme.colors.subtext,
+                    fontSize = 14.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteAccountDialog = false
+                        onLogout()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)) /* theme-invariant */
+                ) {
+                    Text("Confirm Deletion", color = Color.White /* theme-invariant */)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeleteAccountDialog = false }) {
+                    Text("Cancel", color = ServoraTheme.colors.textPrimary)
+                }
+            }
+        )
+    }
+
+    // 11. LOGOUT CONFIRMATION DIALOG
+    if (showLogoutConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutConfirmDialog = false },
+            title = {
+                Text("Log Out", fontWeight = FontWeight.Bold, color = ServoraTheme.colors.textPrimary)
+            },
+            text = {
+                Text(
+                    "Are you sure you want to log out of ${userProfile.name}?",
+                    color = ServoraTheme.colors.subtext,
+                    fontSize = 14.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutConfirmDialog = false
+                        onLogout()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)) /* theme-invariant */
+                ) {
+                    Text("Log Out", color = Color.White /* theme-invariant */)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showLogoutConfirmDialog = false }) {
+                    Text("Cancel", color = ServoraTheme.colors.textPrimary)
+                }
+            }
+        )
+    }
+}
+
+// =============================================================================
+// SUB-COMPONENTS & HELPERS
+// =============================================================================
+
+@Composable
+private fun GreenMenuItemCard(
+    icon: ImageVector,
+    title: String,
+    badgeText: String? = null,
+    isDestructive: Boolean = false,
+    onClick: () -> Unit
+) {
+    val isDark = ServoraTheme.colors.isDark
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFF1F5F9))
-                .padding(12.dp),
+                .padding(horizontal = 16.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                // Soft Mint Icon Container
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            if (isDestructive) {
+                                if (isDark) Color(0xFF450A0A) else Color(0xFFFEE2E2)
+                            } else {
+                                if (isDark) ServoraTheme.colors.surfaceVariant else MintLightBg
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = title,
+                        tint = if (isDestructive) (if (isDark) Color(0xFFF87171) else Color(0xFFDC2626)) else (if (isDark) ServoraTheme.colors.success else DeepForestGreen),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp
+                    ),
+                    color = if (isDestructive) (if (isDark) Color(0xFFF87171) else Color(0xFFDC2626)) else ServoraTheme.colors.textPrimary
+                )
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (badgeText != null) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = VibrantMint
+                    ) {
+                        Text(
+                            text = badgeText,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White /* theme-invariant */
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                    contentDescription = null,
+                    tint = ServoraTheme.colors.subtext.copy(alpha = 0.6f),
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PassPerkRow(text: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null,
+            tint = VibrantMint,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text = text, fontSize = 13.sp, color = ServoraTheme.colors.textPrimary)
+    }
+}
+
+@Composable
+private fun SupportActionTile(
+    icon: ImageVector,
+    title: String,
+    subtitle: String
+) {
+    val isDark = ServoraTheme.colors.isDark
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        color = ServoraTheme.colors.surfaceVariant,
+        border = BorderStroke(1.dp, ServoraTheme.colors.cardBorder)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.VerifiedUser,
-                contentDescription = null,
-                tint = ServoraGreen,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = "₹10,000 Property Damage Cover on every service booking in Agra",
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                color = ServoraCharcoal
-            )
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(if (isDark) MaterialTheme.colorScheme.surface else MintLightBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = if (isDark) ServoraTheme.colors.success else DeepForestGreen,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(text = title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ServoraTheme.colors.textPrimary)
+                Text(text = subtitle, fontSize = 12.sp, color = ServoraTheme.colors.subtext)
+            }
         }
     }
 }

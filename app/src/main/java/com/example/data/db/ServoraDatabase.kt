@@ -20,9 +20,11 @@ import kotlinx.coroutines.launch
         Booking::class,
         SavedAddress::class,
         CustomerReview::class,
-        UserProfile::class
+        UserProfile::class,
+        ChatConversationEntity::class,
+        ChatMessageEntity::class
     ],
-    version = 1,
+    version = 8,
     exportSchema = false
 )
 abstract class ServoraDatabase : RoomDatabase() {
@@ -30,10 +32,98 @@ abstract class ServoraDatabase : RoomDatabase() {
     abstract fun addressDao(): AddressDao
     abstract fun reviewDao(): ReviewDao
     abstract fun userDao(): UserDao
+    abstract fun chatDao(): ChatDao
 
     companion object {
         @Volatile
         private var INSTANCE: ServoraDatabase? = null
+
+        val MIGRATION_2_3 = object : androidx.room.migration.Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE bookings ADD COLUMN paymentReference TEXT")
+                db.execSQL("ALTER TABLE bookings ADD COLUMN paidAt INTEGER")
+            }
+        }
+
+        val MIGRATION_3_4 = object : androidx.room.migration.Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE bookings ADD COLUMN cancellationReason TEXT")
+                db.execSQL("ALTER TABLE bookings ADD COLUMN cancellationFeedback TEXT")
+                db.execSQL("ALTER TABLE bookings ADD COLUMN cancelledAt INTEGER")
+            }
+        }
+
+        val MIGRATION_4_5 = object : androidx.room.migration.Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE bookings ADD COLUMN pendingSync INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE bookings ADD COLUMN localUpdatedAt INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_5_6 = object : androidx.room.migration.Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `chat_conversations` (
+                        `id` TEXT NOT NULL,
+                        `ownerProfileId` TEXT NOT NULL,
+                        `bookingId` INTEGER NOT NULL,
+                        `bookingCode` TEXT NOT NULL,
+                        `serviceName` TEXT NOT NULL,
+                        `counterpartDisplayName` TEXT NOT NULL,
+                        `lastMessagePreview` TEXT NOT NULL,
+                        `lastMessageAt` TEXT,
+                        `lastMessageFromMe` INTEGER NOT NULL,
+                        `unreadCount` INTEGER NOT NULL,
+                        `status` TEXT NOT NULL,
+                        `peerReadSeq` INTEGER NOT NULL,
+                        `peerDeliveredSeq` INTEGER NOT NULL,
+                        `latestSeq` INTEGER NOT NULL,
+                        `localUpdatedAt` INTEGER NOT NULL,
+                        PRIMARY KEY(`id`)
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_chat_conversations_ownerProfileId` ON `chat_conversations` (`ownerProfileId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_chat_conversations_bookingId` ON `chat_conversations` (`bookingId`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `chat_messages` (
+                        `id` TEXT NOT NULL,
+                        `conversationId` TEXT NOT NULL,
+                        `seq` INTEGER NOT NULL,
+                        `senderId` TEXT NOT NULL,
+                        `senderRole` TEXT NOT NULL,
+                        `isFromMe` INTEGER NOT NULL,
+                        `kind` TEXT NOT NULL,
+                        `text` TEXT NOT NULL,
+                        `status` TEXT NOT NULL,
+                        `failureReason` TEXT,
+                        `createdAt` INTEGER NOT NULL,
+                        `clientMsgId` TEXT,
+                        PRIMARY KEY(`id`)
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_chat_messages_conversationId` ON `chat_messages` (`conversationId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_chat_messages_seq` ON `chat_messages` (`seq`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_chat_messages_status` ON `chat_messages` (`status`)")
+            }
+        }
+
+        val MIGRATION_6_7 = object : androidx.room.migration.Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE bookings ADD COLUMN acceptedAt INTEGER")
+                db.execSQL("ALTER TABLE bookings ADD COLUMN cancelledBy TEXT")
+                db.execSQL("""
+                    UPDATE bookings SET acceptedAt = createdAt 
+                    WHERE status IN ('ON_THE_WAY','ARRIVED','STARTED','AWAITING_PAYMENT','COMPLETED') AND acceptedAt IS NULL
+                """.trimIndent())
+            }
+        }
+
+        val MIGRATION_7_8 = object : androidx.room.migration.Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("UPDATE bookings SET status = 'CONFIRMED' WHERE status = 'ASSIGNED' AND acceptedAt IS NULL")
+            }
+        }
 
         fun getDatabase(context: Context, scope: CoroutineScope): ServoraDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -42,6 +132,7 @@ abstract class ServoraDatabase : RoomDatabase() {
                     ServoraDatabase::class.java,
                     "servora_database"
                 )
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                     .fallbackToDestructiveMigration()
                     .addCallback(DatabaseCallback(scope))
                     .build()
@@ -68,6 +159,11 @@ abstract class ServoraDatabase : RoomDatabase() {
             val addressDao = database.addressDao()
             val bookingDao = database.bookingDao()
             val reviewDao = database.reviewDao()
+
+            // Only seed demo data if database is fresh and unpopulated
+            if (userDao.getCurrentUserSync() != null) {
+                return
+            }
 
             // Seed User
             userDao.insertUser(
@@ -134,7 +230,8 @@ abstract class ServoraDatabase : RoomDatabase() {
                     status = BookingStatus.ON_THE_WAY,
                     professionalId = "pro_rajesh_1",
                     startOtp = "6824",
-                    specialNotes = "Ring bell twice, indoor split unit in master bedroom"
+                    specialNotes = "Ring bell twice, indoor split unit in master bedroom",
+                    acceptedAt = System.currentTimeMillis() - 3600000L
                 )
             )
 
@@ -157,7 +254,8 @@ abstract class ServoraDatabase : RoomDatabase() {
                     isPaid = true,
                     status = BookingStatus.COMPLETED,
                     professionalId = "pro_amit_2",
-                    startOtp = "3194"
+                    startOtp = "3194",
+                    acceptedAt = System.currentTimeMillis() - 86400000L
                 )
             )
 

@@ -23,6 +23,7 @@ data class UserProfile(
 @Entity(tableName = "saved_addresses")
 data class SavedAddress(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val userId: String = "user_priya_1",
     val title: String, // Home, Office, Parents
     val fullAddress: String,
     val locality: String,
@@ -38,7 +39,8 @@ enum class BookingStatus(val label: String, val stepIndex: Int) {
     ON_THE_WAY("Professional on the Way", 3),
     ARRIVED("Arrived at Doorstep", 4),
     STARTED("Service in Progress", 5),
-    COMPLETED("Service Completed", 6),
+    AWAITING_PAYMENT("Awaiting Payment", 6),
+    COMPLETED("Service Completed", 7),
     CANCELLED("Cancelled", -1)
 }
 
@@ -46,6 +48,9 @@ enum class BookingStatus(val label: String, val stepIndex: Int) {
 data class Booking(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val bookingCode: String,
+    val customerId: String = "user_priya_1",
+    val customerName: String = "Priya Sharma",
+    val customerPhone: String = "+91 98765 43210",
     val serviceId: String,
     val serviceName: String,
     val packageName: String,
@@ -59,12 +64,44 @@ data class Booking(
     val promoCode: String = "",
     val paymentMethod: String = "Cash after service", // UPI, Card, Cash
     val isPaid: Boolean = false,
-    val status: BookingStatus = BookingStatus.ASSIGNED,
+    val status: BookingStatus = BookingStatus.CONFIRMED,
     val professionalId: String = "pro_rajesh_1",
     val startOtp: String = "4829",
     val specialNotes: String = "",
+    val paymentReference: String? = null,
+    val paidAt: Long? = null,
+    val cancellationReason: String? = null,
+    val cancellationFeedback: String? = null,
+    val cancelledAt: Long? = null,
+    val cancelledBy: String? = null,
+    val acceptedAt: Long? = null,
+    val pendingSync: Boolean = false,
+    val localUpdatedAt: Long = System.currentTimeMillis(),
     val createdAt: Long = System.currentTimeMillis()
 )
+
+val Booking.isAwaitingPartnerAcceptance: Boolean
+    get() = status == BookingStatus.CONFIRMED || (status == BookingStatus.ASSIGNED && acceptedAt == null)
+
+val Booking.isPartnerAssigned: Boolean
+    get() = !isAwaitingPartnerAcceptance && status != BookingStatus.CANCELLED && status != BookingStatus.PENDING
+
+enum class PartnerCancelReason(val code: String, val label: String) {
+    EMERGENCY("EMERGENCY", "Personal / family emergency"),
+    VEHICLE_ISSUE("VEHICLE_ISSUE", "Vehicle breakdown or travel problem"),
+    RUNNING_LATE("RUNNING_LATE", "Can't reach on time for this slot"),
+    LOCATION_ISSUE("LOCATION_ISSUE", "Location too far or unreachable"),
+    CUSTOMER_UNREACHABLE("CUSTOMER_UNREACHABLE", "Customer not reachable / not responding"),
+    CUSTOMER_REQUEST("CUSTOMER_REQUEST", "Customer asked me to cancel"),
+    TOOLS_UNAVAILABLE("TOOLS_UNAVAILABLE", "Required tools or parts not available"),
+    SAFETY_CONCERN("SAFETY_CONCERN", "Safety concern at the location"),
+    OTHER("OTHER", "Other reason");
+
+    companion object {
+        fun fromCode(code: String): PartnerCancelReason =
+            entries.find { it.code.equals(code, ignoreCase = true) } ?: OTHER
+    }
+}
 
 @Entity(tableName = "reviews")
 data class CustomerReview(
@@ -147,3 +184,29 @@ data class Offer(
     val validUntil: String = "30 Sep 2026",
     val categoryRestriction: String? = null
 )
+
+enum class NotificationType {
+    NEW_BOOKING,
+    BOOKING_ASSIGNED,
+    BOOKING_CANCELLED,
+    STATUS_UPDATE,
+    JOB_STARTED,
+    PAYMENT_COLLECTED,
+    NEW_MESSAGE,
+    PROMO_OFFER,
+    SYSTEM_UPDATE
+}
+
+data class AppNotification(
+    val id: String,
+    val title: String,
+    val message: String,
+    val timestamp: Long = System.currentTimeMillis(),
+    val type: NotificationType,
+    val targetRole: UserRole,
+    val bookingCode: String? = null,
+    val bookingId: Long? = null,
+    val isRead: Boolean = false,
+    val actionUrl: String? = null
+)
+
