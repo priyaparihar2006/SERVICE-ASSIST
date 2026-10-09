@@ -9,7 +9,7 @@
       "destination": "/api/index.js"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|images/|service-images/|favicon\\.ico|favicon\\.svg|sa-logo\\.png|customer-booking\\.jpg|gemini_generated_video_.*\\.mp4|hero-bg-animated\\.mp4|hero-technician-cutout\\.png|prefooter-livingroom\\.jpg|robot-video-poster\\.jpg|.*\\.[\\w]+$).*)",
       "destination": "/index.html"
     }
   ]

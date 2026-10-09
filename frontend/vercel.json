@@ -5,7 +5,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/((?!assets/|favicon\\.ico|robots\\.txt|.*\\.[\\w]+$).*)",
+      "source": "/((?!assets/|images/|service-images/|favicon\\.ico|favicon\\.svg|sa-logo\\.png|customer-booking\\.jpg|hero-bg-animated\\.mp4|hero-technician-cutout\\.png|prefooter-livingroom\\.jpg|robot-video-poster\\.jpg|.*\\.[\\w]+$).*)",
       "destination": "/index.html"
     }
   ]
