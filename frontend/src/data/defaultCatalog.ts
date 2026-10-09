@@ -1097,7 +1097,7 @@ const EXPANDED_CATALOG_SERVICES: Service[] = EXPANDED_SERVICE_GROUPS.flatMap(([c
       categoryName,
       subcategory,
       priceType,
-      serviceType: (categoryId === 'cat-laptop-computer' || categoryId === 'cat-electronics' ? 'PICKUP_OR_HOME_VISIT' : 'HOME_VISIT') as const,
+      serviceType: (categoryId === 'cat-laptop-computer' || categoryId === 'cat-electronics' ? 'PICKUP_OR_HOME_VISIT' : 'HOME_VISIT') as 'PICKUP_OR_HOME_VISIT' | 'HOME_VISIT',
       rating: 4.85,
       reviewsCount: 320,
       startingPrice: basePrice,
@@ -1110,6 +1110,7 @@ const EXPANDED_CATALOG_SERVICES: Service[] = EXPANDED_SERVICE_GROUPS.flatMap(([c
       whatIncluded: isInspection ? ['On-site diagnosis by verified specialist', 'Itemized transparent quote before additional work'] : ['Standard doorstep service execution', 'Scope confirmation & post-work verification'],
       whatExcluded: isInspection ? ['Cost of replacement spare parts or extra hardware'] : ['Parts and optional add-ons'],
       whyChoose: ['Verified professional assignment', 'Upfront pricing with 30-day service warranty', 'Timely doorstep arrival'],
+      steps: ['On-site diagnosis and inspection', 'Upfront pricing confirmation', 'Professional service execution', 'Quality check & post-service verification'],
       faqs: [{ question: 'Are replacement parts included?', answer: isInspection ? 'No, spare parts are provided at genuine MRP with itemized approval before installation.' : 'Items explicitly listed in the package are included.' }],
       variants: [{
         id: `var-catalog-${categoryId.slice(4)}-${slug}`,

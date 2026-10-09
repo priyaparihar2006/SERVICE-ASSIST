@@ -363,9 +363,9 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                       </p>
 
                       {/* Key Features/Highlights */}
-                      {service.highlights && service.highlights.length > 0 && (
+                      {service.whatIncluded && service.whatIncluded.length > 0 && (
                         <div className="mt-3 space-y-1">
-                          {service.highlights.slice(0, 2).map((h, i) => (
+                          {service.whatIncluded.slice(0, 2).map((h, i) => (
                             <div key={i} className="flex items-center gap-1.5 text-[11px] text-gray-600">
                               <CheckCircle2 className="w-3 h-3 text-[var(--color-brand)] shrink-0" />
                               <span className="truncate">{h}</span>

@@ -21,7 +21,8 @@ export interface User {
   role: UserRole;
   avatar?: string;
   addresses: Address[];
-  createdAt: string;
+  createdAt?: string;
+  verified?: boolean;
 }
 
 export interface ServiceVariant {
@@ -116,6 +117,7 @@ export type BookingStatus =
   | 'ON_THE_WAY'
   | 'ARRIVED'
   | 'IN_PROGRESS'
+  | 'PAYMENT_PENDING'
   | 'COMPLETED'
   | 'CANCELLED';
 
@@ -143,6 +145,7 @@ export interface Booking {
   userEmail?: string;
   items?: BookingItem[];
   serviceId?: string;
+  categoryId?: string;
   serviceName?: string;
   serviceSlug?: string;
   serviceImage?: string;
@@ -163,8 +166,8 @@ export interface Booking {
   specialInstructions?: string;
   status: BookingStatus;
   statusHistory?: BookingStatusUpdate[];
-  subtotal: number;
-  discount: number;
+  subtotal?: number;
+  discount?: number;
   couponApplied?: string;
   couponCode?: string;
   taxes?: number;

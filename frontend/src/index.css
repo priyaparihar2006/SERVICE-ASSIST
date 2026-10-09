@@ -26,7 +26,7 @@
     background-color: var(--color-page);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2, h3, h4, h5, h6, .font-display {
     font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     color: var(--color-ink);
   }
@@ -67,4 +67,226 @@ button, input, select, textarea, a {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* 3D Motion Keyframes & Landing Page Animations */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) translateZ(40px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) translateZ(55px) rotate(1.5deg);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translateY(0px) translateZ(35px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(9px) translateZ(50px) rotate(-1.5deg);
+  }
+}
+
+@keyframes floatBadge1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 45px) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-3px, -8px, 60px) rotate(-1deg);
+  }
+}
+
+@keyframes floatBadge2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 50px) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(4px, -10px, 65px) rotate(1.5deg);
+  }
+}
+
+@keyframes floatBadge3 {
+  0%, 100% {
+    transform: translate3d(0, 0, 40px) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-4px, 8px, 55px) rotate(-1.5deg);
+  }
+}
+
+@keyframes floatBadge4 {
+  0%, 100% {
+    transform: translate3d(0, 0, 55px) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(3px, 9px, 70px) rotate(1deg);
+  }
+}
+
+@keyframes floatOrb1 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(30px, -20px, 0) scale(1.1);
+  }
+}
+
+@keyframes floatOrb2 {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-25px, 25px, 0) scale(0.95);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes twinkleStar {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(15deg);
+  }
+}
+
+@keyframes floatHelix {
+  0%, 100% {
+    transform: translateY(0px) rotate(-4deg) scale(1);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-2deg) scale(1.025);
+  }
+}
+
+@keyframes pulseOrbit {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.025) rotate(2deg);
+    opacity: 0.75;
+  }
+}
+
+.animate-pulse-orbit {
+  animation: pulseOrbit 10s ease-in-out infinite;
+}
+
+.animate-float-helix {
+  animation: floatHelix 8s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: floatSlow 4.5s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 5s ease-in-out infinite;
+}
+
+.animate-float-badge-1 {
+  animation: floatBadge1 4.2s ease-in-out infinite;
+}
+
+.animate-float-badge-2 {
+  animation: floatBadge2 4.8s ease-in-out infinite 0.4s;
+}
+
+.animate-float-badge-3 {
+  animation: floatBadge3 5.2s ease-in-out infinite 0.8s;
+}
+
+.animate-float-badge-4 {
+  animation: floatBadge4 4.6s ease-in-out infinite 1.2s;
+}
+
+.animate-orb-1 {
+  animation: floatOrb1 9s ease-in-out infinite;
+}
+
+.animate-orb-2 {
+  animation: floatOrb2 11s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 7s ease-in-out infinite;
+}
+
+.animate-twinkle {
+  animation: twinkleStar 3.5s ease-in-out infinite;
+}
+
+/* 3D Perspective and Card Hover Classes */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.perspective-1400 {
+  perspective: 1400px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.card-3d-interactive {
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  will-change: transform;
+}
+
+.card-3d-interactive:hover {
+  transform: perspective(1000px) translateY(-6px) translateZ(12px) rotateX(1deg);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.08), 0 10px 15px -8px rgba(0, 0, 0, 0.04);
+}
+
+/* Continuous Infinite Marquee Loop */
+@keyframes marqueeLeft {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marqueeRight {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee-left {
+  animation: marqueeLeft 32s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marqueeRight 32s linear infinite;
+}
+
+.pause-on-hover:hover {
+  animation-play-state: paused !important;
 }

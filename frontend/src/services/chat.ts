@@ -17,14 +17,16 @@ function createLocalConversation(bookingId: string): ChatConversation {
   if (!localConversations[convId]) {
     localConversations[convId] = {
       id: convId,
-      bookingId: bookingId,
       status: 'ACTIVE',
       canSend: true,
+      sendBlockedReason: null,
+      blockedByMe: false,
+      myRole: 'CUSTOMER',
+      lastMessageAt: new Date().toISOString(),
+      lastMessage: null,
       unreadCount: 0,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
       counterpart: {
-        id: 'pro-rajesh',
         role: 'PROFESSIONAL',
         displayName: 'Rajesh Sharma',
         avatar: '/images/professionals/ac-technician-1.jpg',
@@ -34,7 +36,10 @@ function createLocalConversation(bookingId: string): ChatConversation {
         id: bookingId,
         reference: bookingId.startsWith('SRV-') ? bookingId : `SRV-${bookingId.slice(0, 5)}`,
         status: 'CONFIRMED',
+        serviceName: 'Deep Cleaning Service',
         categoryName: 'Move-in / Post-Construction Clean',
+        scheduledDate: '28 Sep 2026',
+        scheduledTimeSlot: '11:30 AM',
       },
     };
   }
@@ -126,7 +131,6 @@ export const chatApi = {
 
     if (localConversations[id]) {
       localConversations[id].lastMessage = {
-        id: msg.id,
         preview: content,
         isMine: true,
         deleted: false,

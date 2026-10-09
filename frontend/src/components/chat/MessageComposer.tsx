@@ -3,6 +3,10 @@ import { Lock, Send } from 'lucide-react';
 
 export const MAX_MESSAGE_LENGTH = 2000;
 
+export interface ComposerHandle {
+  focus: () => void;
+}
+
 interface MessageComposerProps {
   value: string;
   onChange: (value: string) => void;

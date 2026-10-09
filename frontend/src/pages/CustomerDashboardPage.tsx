@@ -59,6 +59,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
       scheduledDate: '28 Sep 2026',
       scheduledTimeSlot: '11:30 AM',
       address: {
+        id: 'addr-demo-1',
         type: 'Home',
         house: 'Flat 402, Royal Residency',
         street: 'Taj Nagri Phase 2',
@@ -91,6 +92,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
       scheduledDate: '29 Sep 2026',
       scheduledTimeSlot: '02:00 PM',
       address: {
+        id: 'addr-demo-2',
         type: 'Home',
         house: 'Plot 12, Sanjay Place',
         street: 'Civil Lines',
