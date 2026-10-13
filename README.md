@@ -4,5 +4,5 @@
 
 # Run and deploy your AI Studio app
 
-This contains everything you need
+This contains everything you
 
