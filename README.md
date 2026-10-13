@@ -16,5 +16,5 @@ View your app in AI Studio: https://ai.studio/apps/a7133526-5c0d-4310-b2a1-779c6
 1. Open Android Studio
 2. Select **Open** and choose the directory containing this project
 3. Allow Android Studio to fix any incompatibilities as it imports the project
-4. Create a file named 
+4. Create 
    
