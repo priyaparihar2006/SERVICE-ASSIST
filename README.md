@@ -8,6 +8,6 @@ This contains everything you need to run your app locally.
 
 View your app in AI Studio: https://ai.studio/apps/a7133526-5c0d-4310-b2a1-779c6880f0cf
 
-## Run Locally
+## Run Loca
 
    
