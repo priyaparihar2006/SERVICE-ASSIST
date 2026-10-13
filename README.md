@@ -4,5 +4,5 @@
 
 # Run and deploy your AI Studio app
 
-This contains everythi
+This contains every
 
