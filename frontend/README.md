@@ -1,4 +1,4 @@
-﻿# Service Assist frontend
+# Service Assist frontend
 
 The existing React 19, TypeScript/TSX, Vite, Tailwind and Motion UI is preserved. Routing uses the existing history-based App component. Backend responsibilities have moved entirely to `../backend`.
 
@@ -62,7 +62,7 @@ and output directory `dist`. Redeploy the commit containing these files.
 Set `VITE_API_URL=https://YOUR-API-HOST/api` in the Vercel production environment
 before building. Deploy the Express/PostgreSQL backend separately using the
 [backend guide](../backend/README.md), and include the exact frontend origin
-(for example `https://service-assist-steel.vercel.app`) in its `FRONTEND_ORIGINS`.
+(for example `https://assist-services.vercel.app`) in its `FRONTEND_ORIGINS`.
 Use a backend host that supports the persistent Socket.IO server. These Vercel
 configs deploy the website only; login, catalog, bookings and chat still require
 a working API. Local `backend/.env` values are not uploaded to Vercel automatically.
