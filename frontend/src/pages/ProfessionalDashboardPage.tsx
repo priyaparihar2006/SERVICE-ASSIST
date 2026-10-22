@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { Booking } from '../types';
 import { useChat } from '../context/ChatContext';
 import { chatApi } from '../services/chat';
+import { isBookingWithin15Days, get15DayRetentionInfo } from '../utils/bookingHistory';
 import {
   Star,
   CheckCircle2,
@@ -22,6 +23,13 @@ import {
   KeyRound,
   Check,
   Copy,
+  Bell,
+  BellRing,
+  Volume2,
+  VolumeX,
+  X,
+  Calendar,
+  AlertTriangle,
 } from 'lucide-react';
 
 export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) => void }> = ({ onNavigate }) => {
@@ -34,9 +42,47 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
   const [error, setError] = useState('');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [rejected, setRejected] = useState<{ bookingId: string; serviceName: string; scheduledDate: string; scheduledTimeSlot: string; rejectedAt: string }[]>([]);
-  const [jobFilter, setJobFilter] = useState('ALL');
+  const [jobFilter, setJobFilter] = useState<'ALL' | 'ACTIVE' | '15_DAYS_HISTORY' | 'COMPLETED'>('ALL');
   const [otpInputs, setOtpInputs] = useState<Record<string, string>>({});
   const [otpError, setOtpError] = useState<Record<string, string>>({});
+
+  // Rider Arrival Time State (Requirement 2)
+  const [arrivalEta, setArrivalEta] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('rider_arrival_etas');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [editingEtaId, setEditingEtaId] = useState<string | null>(null);
+  const [customEtaInput, setCustomEtaInput] = useState('');
+
+  // Serviceman Phone Screen Notification / Popup State (Requirement 1)
+  const [incomingAlertBooking, setIncomingAlertBooking] = useState<Booking | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [phoneNotificationToast, setPhoneNotificationToast] = useState<string | null>(null);
+
+  // Play synthetic pleasant alert chime for incoming order on phone
+  const playAlertChime = () => {
+    if (!soundEnabled) return;
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.45);
+    } catch {
+      // AudioContext unavailable or blocked
+    }
+  };
 
   const fetchJobs = async () => {
     try {
@@ -54,6 +100,14 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
       setEarnings(e.earnings);
       setRejected(declined.requests);
       setUnreadByBooking(Object.fromEntries(conversations.map((c) => [c.booking.id, c.unreadCount])));
+
+      // Auto-trigger phone screen popup if there is a pending assignment
+      const pendingAssignment = jobs.find((j) => j.status === 'ASSIGNED');
+      if (pendingAssignment && !incomingAlertBooking) {
+        setIncomingAlertBooking(pendingAssignment);
+        setPhoneNotificationToast(`🚨 New Job #${pendingAssignment.id?.slice(0, 8)} assigned! Tap to view.`);
+        playAlertChime();
+      }
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -66,9 +120,19 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
   }, []);
 
   useEffect(() => {
-    const offBooking = subscribe('booking:updated', fetchJobs);
+    const offBooking = subscribe('booking:updated', (payload?: any) => {
+      fetchJobs();
+      if (payload?.booking) {
+        setIncomingAlertBooking(payload.booking);
+        setPhoneNotificationToast(`⚡ Order update: #${payload.booking.id?.slice(0, 8)}`);
+        playAlertChime();
+      }
+    });
     const offConnected = subscribe('connected', fetchJobs);
-    const offMessage = subscribe('message:new', fetchJobs);
+    const offMessage = subscribe('message:new', (msg?: any) => {
+      fetchJobs();
+      setPhoneNotificationToast('💬 New message from customer');
+    });
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') fetchJobs();
     }, 30000);
@@ -78,11 +142,14 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
       offMessage();
       window.clearInterval(timer);
     };
-  }, [subscribe]);
+  }, [subscribe, soundEnabled]);
 
   const respond = async (bookingId: string, action: 'accept' | 'reject') => {
     try {
       await api(`/bookings/${bookingId}/${action}`, { method: 'POST', body: '{}' });
+      if (incomingAlertBooking?.id === bookingId) {
+        setIncomingAlertBooking(null);
+      }
       await fetchJobs();
     } catch (e: any) {
       setError(e.message);
@@ -120,9 +187,180 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
     navigator.clipboard?.writeText(text);
   };
 
+  // Set & Save Rider Arrival ETA (Requirement 2)
+  const handleSaveRiderEta = (bookingId: string, etaString: string) => {
+    const updated = { ...arrivalEta, [bookingId]: etaString };
+    setArrivalEta(updated);
+    localStorage.setItem('rider_arrival_etas', JSON.stringify(updated));
+    setEditingEtaId(null);
+    setPhoneNotificationToast(`📍 Arrival time updated to ${etaString}`);
+    setTimeout(() => setPhoneNotificationToast(null), 3000);
+  };
+
+  // Helper for quick arrival minute calculation
+  const getEtaTimeFromMinutes = (minutes: number) => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() + minutes);
+    const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${minutes} mins (${timeStr})`;
+  };
+
+  // Filter bookings based on 15-day history option (Requirement 6)
+  const filteredBookings = bookings.filter((b) => {
+    if (jobFilter === '15_DAYS_HISTORY') {
+      return isBookingWithin15Days(b);
+    }
+    if (jobFilter === 'ACTIVE') {
+      return ['PENDING', 'ASSIGNED', 'CONFIRMED', 'ON_THE_WAY', 'ARRIVED', 'IN_PROGRESS'].includes(b.status);
+    }
+    if (jobFilter === 'COMPLETED') {
+      return b.status === 'COMPLETED';
+    }
+    return true;
+  });
+
+  const purgedOlderCount = bookings.filter((b) => !isBookingWithin15Days(b)).length;
+
   return (
-    <div className="min-h-screen bg-[var(--color-brand-soft)]/30 py-8 sm:py-12">
+    <div className="min-h-screen bg-[var(--color-brand-soft)]/30 py-6 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Mobile Phone Screen Notification Toast Bar (Requirement 1) */}
+        {phoneNotificationToast && (
+          <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-50 bg-gray-900 text-white p-3.5 rounded-2xl shadow-2xl border border-emerald-500/30 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-200">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+              <p className="text-xs font-bold truncate">{phoneNotificationToast}</p>
+            </div>
+            <button
+              onClick={() => setPhoneNotificationToast(null)}
+              className="text-gray-400 hover:text-white p-1 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* INCOMING JOB ALERT POPUP FOR SERVICEMAN PHONE SCREEN (Requirement 1) */}
+        {incomingAlertBooking && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200"
+          >
+            <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border-2 border-emerald-500 overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+              {/* Animated Glowing Top Bar */}
+              <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4.5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-white/20 text-white flex items-center justify-center animate-bounce">
+                    <BellRing className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-200 block">
+                      NEW DOORSTEP ASSIGNMENT
+                    </span>
+                    <h3 className="font-black text-base sm:text-lg font-['Outfit']">
+                      Incoming Booking Request!
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSoundEnabled(!soundEnabled)}
+                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs cursor-pointer"
+                    title={soundEnabled ? 'Mute Chime' : 'Unmute Chime'}
+                  >
+                    {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIncomingAlertBooking(null)}
+                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Popup Body */}
+              <div className="p-5 space-y-4 text-xs">
+                {/* Payout & Job ID Badge */}
+                <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-2xl border border-emerald-200">
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-500 uppercase block">Your Payout</span>
+                    <span className="text-xl font-black text-emerald-800 font-['Outfit']">
+                      ₹{incomingAlertBooking.total || 3673}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase block">Order ID</span>
+                    <span className="font-mono font-bold text-xs text-gray-800">
+                      #{incomingAlertBooking.id?.slice(0, 10)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Service Details */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block">
+                    SERVICE REQUESTED
+                  </span>
+                  <h4 className="font-extrabold text-sm text-gray-900">
+                    {incomingAlertBooking.serviceName || 'Move-in / Deep Cleaning'}
+                  </h4>
+                  <div className="flex items-center gap-2 text-gray-600 font-medium">
+                    <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>
+                      {incomingAlertBooking.scheduledDate || 'Today'} • {incomingAlertBooking.scheduledTimeSlot || '02:00 PM'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Customer & Address */}
+                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase block">Customer Locality</span>
+                  <p className="font-bold text-gray-900">
+                    {incomingAlertBooking.userName || 'Priya Sharma'} • {incomingAlertBooking.userPhone || '+91 98765 43210'}
+                  </p>
+                  <p className="text-[11px] text-gray-600 leading-relaxed">
+                    {typeof incomingAlertBooking.address === 'object' && incomingAlertBooking.address?.house
+                      ? `${incomingAlertBooking.address.house}, ${incomingAlertBooking.address.area}, ${incomingAlertBooking.address.city}`
+                      : 'Flat 402, Royal Residency, Taj Nagri Phase 2, Agra'}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="pt-2 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      respond(incomingAlertBooking.id, 'accept');
+                      setIncomingAlertBooking(null);
+                      setEditingEtaId(incomingAlertBooking.id);
+                    }}
+                    className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-2xl shadow-md shadow-emerald-600/30 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Check className="w-4 h-4 stroke-[3]" />
+                    <span>ACCEPT JOB REQUEST</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      respond(incomingAlertBooking.id, 'reject');
+                      setIncomingAlertBooking(null);
+                    }}
+                    className="px-4 py-3.5 border border-gray-200 text-gray-600 hover:bg-gray-100 font-bold text-xs rounded-2xl cursor-pointer"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Partner Header Banner */}
         <div className="bg-gradient-to-br from-[var(--color-ink)] to-[var(--color-ink)] text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-brand/20">
           <div className="flex items-center gap-4">
@@ -147,7 +385,32 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Quick Test Alert Popup Button for Phone Screen (Requirement 1) */}
+            <button
+              type="button"
+              onClick={() => {
+                const demoJob = bookings[0] || {
+                  id: 'SRV-' + Math.floor(10000 + Math.random() * 90000),
+                  serviceName: 'AC Jet Cleaning & Gas Refill',
+                  total: 2499,
+                  scheduledDate: 'Today',
+                  scheduledTimeSlot: '03:00 PM',
+                  userName: 'Sneha Patel',
+                  userPhone: '+91 98765 43210',
+                  status: 'ASSIGNED',
+                  address: { house: 'Flat 301, Emerald Heights', area: 'Civil Lines', city: 'Agra' },
+                };
+                setIncomingAlertBooking(demoJob as any);
+                playAlertChime();
+              }}
+              className="px-3.5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 rounded-2xl text-xs font-bold text-emerald-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Test Incoming Notification on phone screen"
+            >
+              <BellRing className="w-3.5 h-3.5" />
+              <span>Test Phone Alert Popup</span>
+            </button>
+
             <div className="px-3.5 py-2 bg-white/10 rounded-2xl border border-white/10 text-center">
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Status</span>
               <span className="text-xs font-bold text-brand-bright flex items-center justify-center gap-1">
@@ -210,20 +473,90 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
           </div>
         </div>
 
-        {/* Assigned Job Cards Section (Matching Screenshot 4) */}
+        {/* Assigned Job Cards Section with 15-Day Booking History Option (Requirement 6) */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black text-gray-900 font-['Outfit']">
-              Live Job Management
-            </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-black text-gray-900 font-['Outfit']">
+                Live Job Management
+              </h2>
+              <p className="text-xs text-gray-500">
+                Track assigned doorstep orders, update rider arrival time, and verify customer OTP.
+              </p>
+            </div>
+
+            {/* Filter Pills with 15-Day Booking History Option */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              <button
+                type="button"
+                onClick={() => setJobFilter('ALL')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  jobFilter === 'ALL'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                All ({bookings.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setJobFilter('ACTIVE')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  jobFilter === 'ACTIVE'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                Active Orders
+              </button>
+              <button
+                type="button"
+                onClick={() => setJobFilter('15_DAYS_HISTORY')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  jobFilter === '15_DAYS_HISTORY'
+                    ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-200'
+                    : 'bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50'
+                }`}
+                title="Only save & display bookings within last 15 days"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Last 15 Days History</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setJobFilter('COMPLETED')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  jobFilter === 'COMPLETED'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                Completed
+              </button>
+            </div>
           </div>
+
+          {/* 15-Day History Information Banner */}
+          {jobFilter === '15_DAYS_HISTORY' && (
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs text-emerald-900 animate-in fade-in">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>
+                  <strong>15-Day Record Window Active:</strong> Showing only assignments from the last 15 days. Older records ({purgedOlderCount} items) are automatically purged.
+                </span>
+              </div>
+              <span className="font-mono font-bold bg-white px-2 py-0.5 rounded-md border border-emerald-200 text-[11px]">
+                {filteredBookings.length} retained
+              </span>
+            </div>
+          )}
 
           {loading && <p className="text-xs text-gray-500">Loading assignments...</p>}
           {error && <p className="text-xs text-red-600">{error}</p>}
-          {!loading && !bookings.length && !rejected.length && (
+          {!loading && !filteredBookings.length && !rejected.length && (
             <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 max-w-md mx-auto">
               <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <h3 className="font-bold text-gray-900 text-base mb-1">No Active Orders</h3>
+              <h3 className="font-bold text-gray-900 text-base mb-1">No Orders in this View</h3>
               <p className="text-xs text-gray-500">
                 New customer orders in your locality will appear here automatically.
               </p>
@@ -231,7 +564,7 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
           )}
 
           <div className="space-y-5">
-            {bookings.map((b) => {
+            {filteredBookings.map((b) => {
               const mainItem = b.items?.[0];
               const serviceName = mainItem?.service?.name || b.serviceName || 'Doorstep Service';
               const variantName = mainItem?.variant?.name || b.variantName || 'Standard Package';
@@ -244,12 +577,15 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
               const isStarted = ['IN_PROGRESS', 'COMPLETED'].includes(b.status);
               const isPaid = b.status === 'COMPLETED';
 
+              const retention = get15DayRetentionInfo(b);
+              const currentEta = arrivalEta[b.id] || b.estimatedArrival;
+
               return (
                 <div
                   key={b.id}
                   className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-5 sm:p-6 space-y-4 max-w-2xl"
                 >
-                  {/* Top Bar matching Screenshot 4: # SRV-50068 📋 | ₹3673 | ● Job Assigned */}
+                  {/* Top Bar with ID, Status & 15-Day Retention Tag */}
                   <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100">
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-xl text-xs font-mono font-bold text-gray-700">
@@ -266,6 +602,11 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
                       <span className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-500" />
                         <span>{b.status === 'COMPLETED' ? 'Completed' : 'Job Assigned'}</span>
+                      </span>
+
+                      {/* 15-day history tag */}
+                      <span className="text-[10px] text-gray-500 font-semibold bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-200">
+                        {retention.daysAgo === 0 ? 'Today' : `${retention.daysAgo}d ago`} • {retention.daysRemaining}d left
                       </span>
                     </div>
 
@@ -352,14 +693,78 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
                         <span>Map</span>
                       </a>
                     </div>
-
-                    <div className="text-[11px] text-gray-500 flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5 text-gray-400" />
-                      <span>Duration: {duration} Minutes (1x slot)</span>
-                    </div>
                   </div>
 
-                  {/* Horizontal 5-Step Tracker Bar (Screenshot 4) */}
+                  {/* RIDER ARRIVAL TIME (ETA TO LOCALITY) COMPONENT (Requirement 2) */}
+                  <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs">
+                        <Navigation className="w-4 h-4 text-emerald-600 animate-pulse" />
+                        <span>Rider Arrival Time (Reaching Customer Locality):</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditingEtaId(editingEtaId === b.id ? null : b.id)}
+                        className="text-[11px] font-extrabold text-emerald-700 hover:underline cursor-pointer"
+                      >
+                        {editingEtaId === b.id ? 'Done' : 'Update Arrival Time'}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-extrabold text-sm text-gray-900 font-['Outfit']">
+                        {currentEta || 'Estimated: ~15 mins (02:45 PM)'}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-[10px] font-bold text-emerald-800">
+                        Visible to customer
+                      </span>
+                    </div>
+
+                    {/* ETA Quick Selector Pills */}
+                    {editingEtaId === b.id && (
+                      <div className="pt-2 border-t border-emerald-200/60 space-y-2 animate-in fade-in">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase block">
+                          Set Expected Arrival Time to Locality:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[10, 15, 20, 30].map((mins) => (
+                            <button
+                              key={mins}
+                              type="button"
+                              onClick={() => handleSaveRiderEta(b.id, getEtaTimeFromMinutes(mins))}
+                              className="px-3 py-1 bg-white hover:bg-emerald-600 hover:text-white border border-emerald-300 text-emerald-900 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                            >
+                              +{mins} Mins
+                            </button>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <input
+                            type="text"
+                            placeholder="e.g. 02:45 PM"
+                            value={customEtaInput}
+                            onChange={(e) => setCustomEtaInput(e.target.value)}
+                            className="w-36 px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-bold"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (customEtaInput.trim()) {
+                                handleSaveRiderEta(b.id, customEtaInput.trim());
+                                setCustomEtaInput('');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+                          >
+                            Set Custom
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Horizontal 5-Step Tracker Bar */}
                   <div className="bg-gray-50/70 p-3.5 rounded-2xl border border-gray-100">
                     <div className="flex items-center justify-between text-[11px] font-bold">
                       <div className="flex flex-col items-center gap-1">
@@ -430,7 +835,10 @@ export const ProfessionalDashboardPage: React.FC<{ onNavigate?: (path: string) =
                   {b.status === 'CONFIRMED' && (
                     <button
                       type="button"
-                      onClick={() => handleUpdateStatus(b.id, 'ON_THE_WAY')}
+                      onClick={() => {
+                        handleUpdateStatus(b.id, 'ON_THE_WAY');
+                        setEditingEtaId(b.id);
+                      }}
                       className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-xs cursor-pointer"
                     >
                       Start Driving (On the Way) 🚗

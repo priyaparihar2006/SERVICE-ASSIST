@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useOffers } from '../hooks/useOffers';
-import { Sparkles, CheckCircle2, Copy } from 'lucide-react';
+import { Sparkles, CheckCircle2, Copy, Clock, Calendar } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { getCouponValidityInfo } from '../utils/couponUtils';
 
 export const OffersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
   const { offers: COUPONS, error, loading } = useOffers();
@@ -41,6 +42,8 @@ export const OffersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ o
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {COUPONS.map((coupon) => {
             const isApplied = appliedCoupon?.code === coupon.code;
+            const validity = getCouponValidityInfo(coupon.expiry);
+
             return (
               <div
                 key={coupon.code}
@@ -61,9 +64,24 @@ export const OffersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ o
                   </div>
 
                   <h3 className="font-extrabold text-base text-gray-900 mb-2 font-['Outfit']">{coupon.description}</h3>
-                  <p className="text-xs text-gray-500 mb-6 leading-relaxed">
-                    Applicable only to eligible categories and bookings. Check each service for its own warranty terms.
-                  </p>
+                  
+                  {/* Validity Info */}
+                  <div className="space-y-1.5 mb-6">
+                    <p className="text-xs text-gray-600 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-[var(--color-brand)] shrink-0" />
+                      <span>{validity.availableUpToText}</span>
+                    </p>
+                    <div>
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                        validity.isExpiringSoon
+                          ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                          : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      }`}>
+                        <Clock className="w-3 h-3" />
+                        <span>{validity.expiryWithinText}</span>
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="pt-4 border-t border-dashed border-gray-200 flex items-center justify-between">
@@ -98,16 +116,16 @@ export const OffersPage: React.FC<{ onNavigate: (path: string) => void }> = ({ o
         </div>
 
         {/* CTA */}
-        <div className="bg-gradient-to-r from-[var(--color-ink)] to-[var(--color-ink)] text-white rounded-3xl p-8 text-center max-w-3xl mx-auto border border-brand/20">
-          <h3 className="text-2xl font-black mb-2 font-['Outfit']">Ready to book your service?</h3>
-          <p className="text-xs text-brand-light/80 max-w-md mx-auto mb-6">
-            Choose your preferred time slot and enjoy verified home care with 100% satisfaction guarantee.
+        <div className="bg-white rounded-3xl p-8 border border-gray-100 text-center max-w-xl mx-auto shadow-sm">
+          <h2 className="text-xl font-black text-gray-900 mb-2 font-['Outfit']">Need customized bulk booking offers?</h2>
+          <p className="text-xs text-gray-500 mb-6">
+            For apartment societies, office sanitations, and annual maintenance contracts (AMC), our operations team provides tailored volume rates.
           </p>
           <button
             onClick={() => onNavigate('/services')}
-            className="px-6 py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-lg shadow-brand/30 transition-all cursor-pointer"
+            className="px-6 py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
           >
-            Explore All Services Now
+            Explore All Services
           </button>
         </div>
       </div>

@@ -36,10 +36,10 @@ function createLocalConversation(bookingId: string): ChatConversation {
         id: bookingId,
         reference: bookingId.startsWith('SRV-') ? bookingId : `SRV-${bookingId.slice(0, 5)}`,
         status: 'CONFIRMED',
-        serviceName: 'Deep Cleaning Service',
+        serviceName: 'Move-in Deep Cleaning',
         categoryName: 'Move-in / Post-Construction Clean',
-        scheduledDate: '28 Sep 2026',
-        scheduledTimeSlot: '11:30 AM',
+        scheduledDate: new Date().toISOString().split('T')[0],
+        scheduledTimeSlot: '10:00 AM - 12:00 PM',
       },
     };
   }

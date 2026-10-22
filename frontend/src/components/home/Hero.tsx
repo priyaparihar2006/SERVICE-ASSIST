@@ -19,6 +19,7 @@ import { ImageWithFallback } from '../common/ImageWithFallback';
 interface HeroProps {
   onExplore: () => void;
   onBook: () => void;
+  onRequestExpert?: () => void;
   onNavigate?: (path: string) => void;
   onSelectService?: (slug: string) => void;
   onSelectCategory?: (categoryId: string) => void;
@@ -289,6 +290,7 @@ const AUTO_SLIDE_INTERVAL = 5000; // 5 seconds per slide
 export const Hero: React.FC<HeroProps> = ({
   onExplore,
   onBook,
+  onRequestExpert,
   onNavigate,
   onSelectService,
   onSelectCategory,
@@ -425,11 +427,28 @@ export const Hero: React.FC<HeroProps> = ({
               </button>
 
               <button
+                id="hero-request-expert-btn"
+                onClick={() => {
+                  if (onRequestExpert) {
+                    onRequestExpert();
+                  } else {
+                    const el = document.getElementById('meet-experts');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    else onExplore();
+                  }
+                }}
+                className="flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-2xl transition-all shadow-md shadow-emerald-600/20 hover:-translate-y-0.5 cursor-pointer"
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-200" />
+                <span>Request an Expert</span>
+              </button>
+
+              <button
                 id="hero-explore-btn"
                 onClick={onExplore}
-                className="px-6 py-3.5 rounded-2xl border-2 border-[var(--color-brand)] bg-white hover:bg-[var(--color-brand-soft)] text-[var(--color-brand-hover)] hover:text-[var(--color-brand)] font-bold text-sm transition-all shadow-2xs cursor-pointer"
+                className="px-5 py-3.5 rounded-2xl border-2 border-[var(--color-brand)] bg-white hover:bg-[var(--color-brand-soft)] text-[var(--color-brand-hover)] hover:text-[var(--color-brand)] font-bold text-sm transition-all shadow-2xs cursor-pointer"
               >
-                Explore All Services
+                Explore Services
               </button>
             </div>
 

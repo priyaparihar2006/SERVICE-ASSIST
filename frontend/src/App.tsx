@@ -1,3 +1,4 @@
+import { findMatchingCategory } from "./utils/categorySearch";
 import { apiFetch } from './services/api';
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -132,8 +133,16 @@ export function AppContent() {
     if (currentPath === '/services' || currentPath.startsWith('/services?') || currentPath.startsWith('/search')) {
       const queryString = currentPath.includes('?') ? currentPath.substring(currentPath.indexOf('?')) : window.location.search;
       const urlParams = new URLSearchParams(queryString);
-      const categoryParam = urlParams.get('category') || undefined;
+      let categoryParam = urlParams.get('category') || undefined;
       const searchParam = urlParams.get('search') || urlParams.get('q') || undefined;
+
+      // If search query matches a category (like "carpenter", "plumber"), navigate directly to that category
+      if (!categoryParam && searchParam) {
+        const matched = findMatchingCategory(searchParam, categories);
+        if (matched) {
+          categoryParam = matched.id;
+        }
+      }
 
       return (
         <ServicesPage
@@ -148,8 +157,14 @@ export function AppContent() {
       );
     }
 
-    // Customer Dashboard
+    // Customer Dashboard (or redirect to Pro/Admin dashboard if role matches)
     if (currentPath.startsWith('/dashboard')) {
+      if (user?.role === 'PROFESSIONAL') {
+        return <ProfessionalDashboardPage onNavigate={navigate} />;
+      }
+      if (user?.role === 'ADMIN') {
+        return <AdminDashboardPage services={services} professionals={professionals} />;
+      }
       return (
         <CustomerDashboardPage
           services={services}
@@ -184,7 +199,14 @@ export function AppContent() {
       return <SupportPage />;
     }
 
-    // Default: Home Page
+    // Default: Home Page (Separate for Professionals & Admins)
+    if (user?.role === 'PROFESSIONAL') {
+      return <ProfessionalDashboardPage onNavigate={navigate} />;
+    }
+    if (user?.role === 'ADMIN') {
+      return <AdminDashboardPage services={services} professionals={professionals} />;
+    }
+
     return (
       <HomePage
         categories={categories}
@@ -222,12 +244,19 @@ export function AppContent() {
         onClose={() => setIsNotificationsOpen(false)}
         onNavigate={navigate}
       />
-      <CartDrawer onNavigate={navigate} />
-      <CheckoutModal onSuccess={handleBookingSuccess} onNavigate={navigate} />
+      {/* Overlays & Drawers (Only for customers / visitors) */}
+      {user?.role !== 'PROFESSIONAL' && user?.role !== 'ADMIN' && (
+        <>
+          <CartDrawer onNavigate={navigate} />
+          <CheckoutModal onSuccess={handleBookingSuccess} onNavigate={navigate} />
+        </>
+      )}
       <AuthModal />
 
-      {/* AI Assistant Floating Widget (hidden on the chat screen, where it would cover the composer) */}
-      {!isChatRoute && <HomeAIAssistant onNavigate={navigate} />}
+      {/* AI Assistant Floating Widget (only for customers on shopping views) */}
+      {!isChatRoute && user?.role !== 'PROFESSIONAL' && user?.role !== 'ADMIN' && (
+        <HomeAIAssistant onNavigate={navigate} />
+      )}
     </div>
   );
 }

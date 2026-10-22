@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Key,
   MoreVertical,
+  Navigation,
 } from 'lucide-react';
 
 interface LiveBookingTrackerModalProps {
@@ -136,6 +137,37 @@ export const LiveBookingTrackerModal: React.FC<LiveBookingTrackerModalProps> = (
               {booking.verificationOtp ? booking.verificationOtp.split('').join(' ') : '3 9 7 5'}
             </div>
           </div>
+
+          {/* RIDER ARRIVAL TIME (ETA) CARD */}
+          {['ON_THE_WAY', 'ARRIVED', 'CONFIRMED'].includes(booking.status) && (
+            <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-2xl p-4 border border-emerald-200/80 shadow-2xs space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Navigation className="w-4 h-4 animate-pulse" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 block">
+                      Rider Arrival Time (Local Reach)
+                    </span>
+                    <span className="text-sm font-black text-gray-900 font-['Outfit'] block">
+                      {booking.status === 'ARRIVED'
+                        ? 'Arrived at your doorstep!'
+                        : booking.estimatedArrival
+                        ? `Reaching locality by ${booking.estimatedArrival}`
+                        : 'Reaching locality in ~15 mins (02:45 PM)'}
+                    </span>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 bg-white border border-emerald-200 rounded-full text-[10px] font-bold text-emerald-700 shadow-2xs shrink-0">
+                  {booking.status === 'ARRIVED' ? '📍 At Door' : '⚡ Live ETA'}
+                </span>
+              </div>
+              <p className="text-[11px] text-gray-600">
+                Assigned rider is en route to your local address. Live arrival updates are calculated in real-time.
+              </p>
+            </div>
+          )}
 
           {/* 7-Step Vertical Status Tracker */}
           <div>

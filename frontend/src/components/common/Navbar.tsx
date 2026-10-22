@@ -4,6 +4,7 @@ import { useLocation } from '../../context/LocationContext';
 import { useCart } from '../../context/CartContext';
 import { useChat } from '../../context/ChatContext';
 import { BrandLogo } from './BrandLogo';
+import { findMatchingCategory } from '../../utils/categorySearch';
 import {
   MapPin,
   Search,
@@ -13,14 +14,12 @@ import {
   Menu,
   X,
   ChevronDown,
-  Sparkles,
   CalendarCheck,
-  Tag,
-  HelpCircle,
   Briefcase,
   Crown,
   LogOut,
   ArrowRight,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -51,29 +50,50 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      onNavigate(`/services?search=${encodeURIComponent(searchQuery.trim())}`);
-      setIsMobileMenuOpen(false);
+    const q = searchQuery.trim();
+    if (!q) return;
+
+    // Check if query matches category like carpenter, plumber, etc.
+    const matchedCategory = findMatchingCategory(q);
+    if (matchedCategory) {
+      onNavigate(`/services?category=${encodeURIComponent(matchedCategory.id)}`);
+    } else {
+      onNavigate(`/services?search=${encodeURIComponent(q)}`);
     }
+
+    setIsMobileMenuOpen(false);
+    setSearchQuery('');
   };
 
   const totalCartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const navLinks = [
-    { label: 'Home', path: '/' },
-    { label: 'Services', path: '/services' },
-    { label: 'Offers', path: '/offers' },
-    { label: 'How It Works', path: '/how-it-works' },
-    {
-      label: 'For Professionals',
-      path: '/professional/dashboard',
-      action: () => {
-
-        onNavigate('/professional/dashboard');
-      },
-    },
-    { label: 'Help', path: '/support' },
-  ];
+  // Dynamic Navigation Links based on user role (Requirement 3: For professionals don't show same as customers)
+  const navLinks = role === 'PROFESSIONAL'
+    ? [
+        { label: 'Partner Dashboard', path: '/professional/dashboard' },
+        { label: 'My Jobs & Leads', path: '/professional/dashboard' },
+        { label: 'Earnings', path: '/professional/dashboard' },
+        { label: 'Messages', path: '/messages' },
+        { label: 'Partner Support', path: '/support' },
+      ]
+    : role === 'ADMIN'
+    ? [
+        { label: 'Admin Center', path: '/admin' },
+        { label: 'Dispatch Operations', path: '/admin' },
+        { label: 'Support Desk', path: '/support' },
+      ]
+    : [
+        { label: 'Home', path: '/' },
+        { label: 'Services', path: '/services' },
+        { label: 'Offers', path: '/offers' },
+        { label: 'How It Works', path: '/how-it-works' },
+        {
+          label: 'For Professionals',
+          path: '/professional/dashboard',
+          action: () => onNavigate('/professional/dashboard'),
+        },
+        { label: 'Help', path: '/support' },
+      ];
 
   return (
     <>
@@ -88,22 +108,52 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
           {/* Left: Brand Logo & Location */}
           <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
             <button
-              onClick={() => onNavigate('/')}
+              onClick={() => onNavigate(role === 'PROFESSIONAL' ? '/professional/dashboard' : role === 'ADMIN' ? '/admin' : '/')}
               className="text-left cursor-pointer transition-transform hover:opacity-95"
             >
               <BrandLogo size="md" showTagline={false} />
             </button>
 
-            {/* Location Selector */}
-            <button
-              onClick={openLocationModal}
-              className="hidden sm:flex items-center gap-1.5 h-9 px-2.5 sm:px-3 rounded-xl border border-[var(--color-brand-light)] bg-[var(--color-brand-soft)]/70 hover:bg-[var(--color-brand-light)]/60 hover:border-[var(--color-brand)]/40 text-xs font-semibold text-[var(--color-ink)] transition-all cursor-pointer shadow-2xs shrink-0"
-            >
-              <MapPin className="w-3.5 h-3.5 text-[var(--color-brand)]" />
-              <span className="font-semibold text-[var(--color-brand-dark)]">{selectedCity.name}</span>
-              <ChevronDown className="w-3 h-3 text-[var(--color-muted)]" />
-            </button>
+            {/* Role Badge for Pro / Admin */}
+            {role === 'PROFESSIONAL' && (
+              <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                Verified Partner
+              </span>
+            )}
+            {role === 'ADMIN' && (
+              <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold">
+                <Crown className="w-3.5 h-3.5 text-amber-600" />
+                Admin Console
+              </span>
+            )}
+
+            {/* Location Selector (Customer view) */}
+            {role !== 'PROFESSIONAL' && role !== 'ADMIN' && (
+              <button
+                onClick={openLocationModal}
+                className="hidden sm:flex items-center gap-1.5 h-9 px-2.5 sm:px-3 rounded-xl border border-[var(--color-brand-light)] bg-[var(--color-brand-soft)]/70 hover:bg-[var(--color-brand-light)]/60 hover:border-[var(--color-brand)]/40 text-xs font-semibold text-[var(--color-ink)] transition-all cursor-pointer shadow-2xs shrink-0"
+              >
+                <MapPin className="w-3.5 h-3.5 text-[var(--color-brand)]" />
+                <span className="font-semibold text-[var(--color-brand-dark)]">{selectedCity.name}</span>
+                <ChevronDown className="w-3 h-3 text-[var(--color-muted)]" />
+              </button>
+            )}
           </div>
+
+          {/* Desktop Search Bar (Navigates to Category like Carpenter, Plumber, etc.) */}
+          {role !== 'PROFESSIONAL' && role !== 'ADMIN' && (
+            <form onSubmit={handleSearchSubmit} className="hidden lg:flex items-center relative w-48 xl:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search carpenter, plumber..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 bg-[var(--color-brand-soft)]/60 hover:bg-[var(--color-brand-soft)] border border-[var(--color-brand-light)] rounded-xl text-xs text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:bg-white transition-all"
+              />
+            </form>
+          )}
 
           {/* Center: Desktop Navigation Links */}
           <nav className="hidden xl:flex items-center justify-center gap-1 2xl:gap-2 text-[13px] font-medium text-gray-600">
@@ -137,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
               <span className="absolute top-2 right-2 w-2 h-2 bg-[var(--color-brand)] rounded-full ring-2 ring-white" />
             </button>
 
-            {/* Private chat */}
+            {/* Private chat (Customers and Professionals) */}
             {chatEnabled && (
               <button
                 onClick={() => onNavigate('/messages')}
@@ -154,19 +204,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
               </button>
             )}
 
-            {/* Cart Button */}
-            <button
-              onClick={openCartDrawer}
-              className="relative w-9 h-9 flex items-center justify-center text-[var(--color-brand-dark)] hover:text-[var(--color-brand)] hover:bg-[var(--color-brand-light)] rounded-xl transition-all cursor-pointer"
-              aria-label="Shopping Cart"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              {totalCartCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[var(--color-brand)] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-xs">
-                  {totalCartCount}
-                </span>
-              )}
-            </button>
+            {/* Customer Cart Button (HIDDEN for Professionals and Admins) */}
+            {role !== 'PROFESSIONAL' && role !== 'ADMIN' && (
+              <button
+                onClick={openCartDrawer}
+                className="relative w-9 h-9 flex items-center justify-center text-[var(--color-brand-dark)] hover:text-[var(--color-brand)] hover:bg-[var(--color-brand-light)] rounded-xl transition-all cursor-pointer"
+                aria-label="Shopping Cart"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                {totalCartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[var(--color-brand)] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    {totalCartCount}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* User Profile / Role Dropdown */}
             {isAuthenticated ? (
@@ -181,7 +233,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
                       role === 'ADMIN'
                         ? 'bg-amber-100 text-amber-800'
                         : role === 'PROFESSIONAL'
-                        ? 'bg-brand-light text-brand-dark'
+                        ? 'bg-emerald-100 text-emerald-800'
                         : 'bg-[var(--color-brand-light)] text-[var(--color-brand-hover)]'
                     }`}
                   >
@@ -203,7 +255,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
                       <p className="text-[11px] text-[var(--color-muted)] truncate">{user?.email}</p>
                     </div>
 
-                    {/* Navigation Items */}
+                    {/* Navigation Items based on role */}
                     <div className="py-1 space-y-0.5 text-xs text-[var(--color-ink)]">
                       {role === 'CUSTOMER' && (
                         <>
@@ -231,16 +283,28 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
                       )}
 
                       {role === 'PROFESSIONAL' && (
-                        <button
-                          onClick={() => {
-                            onNavigate('/professional/dashboard');
-                            setIsProfileDropdownOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-[var(--color-brand-soft)] text-left font-medium text-[var(--color-brand-dark)] cursor-pointer"
-                        >
-                          <Briefcase className="w-4 h-4 text-[var(--color-brand)]" />
-                          <span>Pro Jobs & Earnings</span>
-                        </button>
+                        <>
+                          <button
+                            onClick={() => {
+                              onNavigate('/professional/dashboard');
+                              setIsProfileDropdownOpen(false);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-emerald-50 text-left font-medium text-emerald-900 cursor-pointer"
+                          >
+                            <Briefcase className="w-4 h-4 text-emerald-600" />
+                            <span>Partner Jobs & Earnings</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              onNavigate('/messages');
+                              setIsProfileDropdownOpen(false);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-emerald-50 text-left font-medium text-emerald-900 cursor-pointer"
+                          >
+                            <MessageSquare className="w-4 h-4 text-emerald-600" />
+                            <span>Customer Chats</span>
+                          </button>
+                        </>
                       )}
 
                       {role === 'ADMIN' && (
@@ -249,9 +313,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
                             onNavigate('/admin');
                             setIsProfileDropdownOpen(false);
                           }}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-[var(--color-brand-soft)] text-left font-medium text-[var(--color-brand-dark)] cursor-pointer"
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-amber-50 text-left font-medium text-amber-900 cursor-pointer"
                         >
-                          <Crown className="w-4 h-4 text-[var(--color-brand)]" />
+                          <Crown className="w-4 h-4 text-amber-600" />
                           <span>Admin Control Center</span>
                         </button>
                       )}
@@ -279,13 +343,31 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
               </button>
             )}
 
-            {/* Primary Book CTA */}
-            <button
-              onClick={() => onNavigate('/services')}
-              className="hidden sm:inline-flex items-center justify-center h-9 px-4 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-[var(--color-brand)]/20 active:scale-95 cursor-pointer whitespace-nowrap"
-            >
-              Book a Service
-            </button>
+            {/* Primary Action CTA (Role Specific) */}
+            {role === 'PROFESSIONAL' ? (
+              <button
+                onClick={() => onNavigate('/professional/dashboard')}
+                className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-600/20 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Partner Portal</span>
+              </button>
+            ) : role === 'ADMIN' ? (
+              <button
+                onClick={() => onNavigate('/admin')}
+                className="hidden sm:inline-flex items-center justify-center gap-1.5 h-9 px-4 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-amber-600/20 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                <span>Admin Center</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => onNavigate('/services')}
+                className="hidden sm:inline-flex items-center justify-center h-9 px-4 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-[var(--color-brand)]/20 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                Book a Service
+              </button>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button
@@ -301,34 +383,38 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
         {/* Mobile Dropdown Menu */}
         {isMobileMenuOpen && (
           <div className="xl:hidden bg-white border-b border-[var(--color-brand-light)] px-4 pt-3 pb-6 space-y-3 animate-in slide-in-from-top-2 duration-150">
-            {/* Mobile Location Picker */}
-            <button
-              onClick={() => {
-                openLocationModal();
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[var(--color-brand-soft)] border border-[var(--color-brand-light)] text-xs font-semibold text-[var(--color-ink)] cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[var(--color-brand)]" />
-                <span>City: {selectedCity.name}</span>
-              </div>
-              <ChevronDown className="w-4 h-4 text-[var(--color-muted)]" />
-            </button>
+            {/* Mobile Location Picker (Customers only) */}
+            {role !== 'PROFESSIONAL' && role !== 'ADMIN' && (
+              <button
+                onClick={() => {
+                  openLocationModal();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[var(--color-brand-soft)] border border-[var(--color-brand-light)] text-xs font-semibold text-[var(--color-ink)] cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[var(--color-brand)]" />
+                  <span>City: {selectedCity.name}</span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-[var(--color-muted)]" />
+              </button>
+            )}
 
             {/* Mobile Search */}
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted)]" />
-              <input
-                type="text"
-                placeholder="Search any service..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-[var(--color-brand-soft)] border border-[var(--color-brand-light)] rounded-xl text-xs text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
-              />
-            </form>
+            {role !== 'PROFESSIONAL' && role !== 'ADMIN' && (
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted)]" />
+                <input
+                  type="text"
+                  placeholder="Search category (e.g. Carpenter, Plumber)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 bg-[var(--color-brand-soft)] border border-[var(--color-brand-light)] rounded-xl text-xs text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]"
+                />
+              </form>
+            )}
 
-            {/* Mobile Navigation Links */}
+            {/* Mobile Auth button */}
             {!isAuthenticated && (
               <button
                 onClick={() => {
@@ -340,6 +426,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
                 Sign In or Register
               </button>
             )}
+
+            {/* Nav links */}
             <div className="grid grid-cols-2 gap-2 pt-1">
               {navLinks.map((link) => (
                 <button
@@ -365,16 +453,40 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate, onOpenN
 
             {/* Mobile CTA */}
             <div className="pt-2">
-              <button
-                onClick={() => {
-                  onNavigate('/services');
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-md shadow-[var(--color-brand)]/20 flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <span>Book a Service Now</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {role === 'PROFESSIONAL' ? (
+                <button
+                  onClick={() => {
+                    onNavigate('/professional/dashboard');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Briefcase className="w-4 h-4" />
+                  <span>Open Partner Dashboard</span>
+                </button>
+              ) : role === 'ADMIN' ? (
+                <button
+                  onClick={() => {
+                    onNavigate('/admin');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Crown className="w-4 h-4" />
+                  <span>Open Admin Operations</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    onNavigate('/services');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-md shadow-[var(--color-brand)]/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>Book a Service Now</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         )}

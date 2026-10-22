@@ -1,7 +1,7 @@
 export type UserRole = 'CUSTOMER' | 'PROFESSIONAL' | 'ADMIN';
 
 export interface Address {
-  id: string;
+  id?: string;
   type: 'Home' | 'Work' | 'Other';
   house: string;
   street: string;
@@ -20,9 +20,10 @@ export interface User {
   phone: string;
   role: UserRole;
   avatar?: string;
+  verified?: boolean;
   addresses: Address[];
   createdAt?: string;
-  verified?: boolean;
+
 }
 
 export interface ServiceVariant {
@@ -72,6 +73,7 @@ export interface Service {
   popular?: boolean;
   trending?: boolean;
   recommendedReason?: string;
+  highlights?: string[];
 }
 
 export interface Category {
@@ -119,6 +121,7 @@ export type BookingStatus =
   | 'IN_PROGRESS'
   | 'PAYMENT_PENDING'
   | 'COMPLETED'
+  | 'PAYMENT_PENDING'
   | 'CANCELLED';
 
 export interface BookingItem {
@@ -145,10 +148,11 @@ export interface Booking {
   userEmail?: string;
   items?: BookingItem[];
   serviceId?: string;
-  categoryId?: string;
   serviceName?: string;
   serviceSlug?: string;
   serviceImage?: string;
+  categoryId?: string;
+  categoryName?: string;
   variantId?: string;
   variantName?: string;
   professionalId?: string;
@@ -257,9 +261,11 @@ export type ChatSendBlockedReason =
 // Chat payloads deliberately carry display data only: no user ids, phone numbers or e-mail addresses.
 export interface ChatConversation {
   id: string;
+  bookingId?: string;
   status: 'ACTIVE' | 'CLOSED';
   createdAt: string;
-  lastMessageAt: string | null;
+  updatedAt?: string;
+  lastMessageAt?: string | null;
   booking: {
     id: string;
     reference: string;
@@ -270,17 +276,18 @@ export interface ChatConversation {
     scheduledTimeSlot: string;
   };
   counterpart: {
+    id?: string;
     displayName: string;
     avatar: string | null;
     role: 'CUSTOMER' | 'PROFESSIONAL';
     online: boolean;
   };
-  myRole: 'CUSTOMER' | 'PROFESSIONAL';
+  myRole?: 'CUSTOMER' | 'PROFESSIONAL';
   canSend: boolean;
-  sendBlockedReason: ChatSendBlockedReason | null;
-  blockedByMe: boolean;
+  sendBlockedReason?: ChatSendBlockedReason | null;
+  blockedByMe?: boolean;
   unreadCount: number;
-  lastMessage: { preview: string | null; deleted: boolean; isMine: boolean; createdAt: string } | null;
+  lastMessage?: { id?: string; preview: string | null; deleted: boolean; isMine: boolean; createdAt: string } | null;
 }
 
 export type ChatMessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';

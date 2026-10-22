@@ -8,15 +8,17 @@ interface MeetProfessionalsProps {
   professionals: Professional[];
   onSelectProfessional: (proId: string) => void;
   onExploreServices: () => void;
+  onRequestExpert?: (pro: Professional) => void;
 }
 
 export const MeetProfessionals: React.FC<MeetProfessionalsProps> = ({
   professionals,
   onSelectProfessional,
   onExploreServices,
+  onRequestExpert,
 }) => {
   return (
-    <section className="py-16 bg-[var(--color-brand-soft)]/30">
+    <section id="meet-experts" className="py-16 bg-[var(--color-brand-soft)]/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>
@@ -28,7 +30,7 @@ export const MeetProfessionals: React.FC<MeetProfessionalsProps> = ({
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-gray-500 max-w-sm">
-            Trained in hygiene, polite conduct, and advanced technical diagnostics for your home.
+            Trained in hygiene, polite conduct, and advanced technical diagnostics for your doorstep home needs.
           </p>
         </div>
 
@@ -87,12 +89,16 @@ export const MeetProfessionals: React.FC<MeetProfessionalsProps> = ({
 
                   <button
                     onClick={() => {
-                      onSelectProfessional(pro.id);
-                      onExploreServices();
+                      if (onRequestExpert) {
+                        onRequestExpert(pro);
+                      } else {
+                        onSelectProfessional(pro.id);
+                        onExploreServices();
+                      }
                     }}
-                    className="w-full py-2.5 rounded-xl bg-[var(--color-brand-soft)] hover:bg-[var(--color-brand)] text-[var(--color-ink)] hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-[var(--color-brand-soft)] hover:bg-[var(--color-brand)] text-[var(--color-ink)] hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:shadow-md"
                   >
-                    <span>Book This Expert</span>
+                    <span>Request This Expert</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

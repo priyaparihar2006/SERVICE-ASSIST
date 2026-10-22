@@ -1,6 +1,7 @@
+import { findMatchingCategory } from "../utils/categorySearch";
 import React, { useState, useMemo, useEffect } from 'react';
 import { Service, Category } from '../types';
-import { Star, Clock, CheckCircle2, Search, SlidersHorizontal, Heart, Sparkles } from 'lucide-react';
+import { Star, Clock, CheckCircle2, Search, SlidersHorizontal, Heart, Sparkles, LayoutGrid, ListFilter } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocation } from '../context/LocationContext';
@@ -25,7 +26,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   onSelectService,
   onNavigate,
 }) => {
-  const { isFavorite, toggleFavorite } = useAuth();
+  const { isFavorite, toggleFavorite, role } = useAuth();
   const { addItem } = useCart();
   const { selectedCity } = useLocation();
 
@@ -35,6 +36,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   const [selectedSubcategory, setSelectedSubcategory] = useState('all');
   const [availableOnly, setAvailableOnly] = useState(true);
   const [showCategoryGrid, setShowCategoryGrid] = useState<boolean>(!initialCategory || initialCategory === 'all');
+  const [serviceViewMode, setServiceViewMode] = useState<'grid' | 'compact'>('grid');
 
   useEffect(() => {
     if (initialCategory) {
@@ -47,8 +49,16 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   useEffect(() => {
     if (initialSearch !== undefined) {
       setSearchQuery(initialSearch);
+      // Auto-detect category from search query (e.g. "carpenter" -> cat-carpenter)
+      if (!initialCategory || initialCategory === 'all') {
+        const matched = findMatchingCategory(initialSearch, categories);
+        if (matched) {
+          setSelectedCategory(matched.id);
+          setShowCategoryGrid(false);
+        }
+      }
     }
-  }, [initialSearch]);
+  }, [initialSearch, initialCategory, categories]);
 
   const subcategories = useMemo(() => {
     return Array.from(
@@ -101,7 +111,6 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   const handleCategoryCardClick = (catId: string) => {
     setSelectedCategory(catId);
     setSelectedSubcategory('all');
-    // Smooth scroll down to service list
     const el = document.getElementById('service-catalog-results');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -111,6 +120,25 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   return (
     <div className="min-h-screen bg-[var(--color-brand-soft)]/30 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Pro Partner Workspace Banner (Requirement 3: For professionals don't show same as customers) */}
+        {role === 'PROFESSIONAL' && (
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-emerald-900 animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <div>
+                <p className="text-xs font-bold">Professional Partner Mode</p>
+                <p className="text-[11px] text-emerald-700">You are browsing platform services in partner reference mode. Customer booking cart is disabled.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => onNavigate?.('/professional/dashboard')}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer"
+            >
+              Go to Partner Dashboard →
+            </button>
+          </div>
+        )}
+
         {/* Page Header */}
         <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
@@ -131,14 +159,14 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               onClick={() => setShowCategoryGrid((prev) => !prev)}
               className="px-3.5 py-2 bg-white rounded-xl border border-brand-light text-xs font-bold text-[var(--color-brand-hover)] hover:border-[var(--color-brand)] transition-colors cursor-pointer shadow-xs"
             >
-              {showCategoryGrid ? 'Hide Category Cards' : 'Browse Category Cards'}
+              {showCategoryGrid ? 'Minimize Category Showcase' : 'Expand Category Showcase'}
             </button>
           </div>
         </div>
 
-        {/* Section: Category Showcase Image Cards (Section 13) */}
+        {/* Section: Category Showcase Image Cards (Collapsible / Minimizable) */}
         {showCategoryGrid && (
-          <div className="mb-12 bg-white rounded-3xl p-5 sm:p-7 border border-brand-light/80 shadow-xs">
+          <div className="mb-8 bg-white rounded-3xl p-5 sm:p-7 border border-brand-light/80 shadow-xs animate-in fade-in duration-200">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-lg sm:text-xl font-black text-[var(--color-ink)] font-['Outfit']">
@@ -159,7 +187,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-5">
-              {categories.map(c => ({ ...c, subtitle: c.description, alt: c.name })).map((cat) => (
+              {categories.map((c) => ({ ...c, subtitle: c.description, alt: c.name })).map((cat) => (
                 <CategoryCard
                   key={cat.id}
                   category={cat}
@@ -171,33 +199,72 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
         )}
 
         {/* Filter & Controls Bar */}
-        <div id="service-catalog-results" className="bg-white rounded-2xl p-4 shadow-xs border border-brand-light/70 mb-8 space-y-4">
+        <div id="service-catalog-results" className="bg-white rounded-2xl p-4 shadow-xs border border-brand-light/70 mb-6 space-y-4">
           <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search services (e.g. AC, Deep cleaning, Salon, Tap repair, Laptop)..."
+                placeholder="Search services or categories (e.g. Carpenter, AC, Tap repair)..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSearchQuery(val);
+                  if (val.trim()) {
+                    const matched = findMatchingCategory(val.trim(), categories);
+                    if (matched && matched.id !== selectedCategory) {
+                      setSelectedCategory(matched.id);
+                      setShowCategoryGrid(false);
+                    }
+                  }
+                }}
                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)]"
               />
             </div>
 
-            {/* Sort Dropdown */}
+            {/* View Mode & Sort Dropdown */}
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-gray-400 shrink-0" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 cursor-pointer"
-              >
-                <option value="popular">Most Booked</option>
-                <option value="rating">Top Rated</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
+              <div className="flex items-center bg-gray-100 p-0.5 rounded-xl border border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setServiceViewMode('grid')}
+                  className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    serviceViewMode === 'grid'
+                      ? 'bg-white text-[var(--color-brand-hover)] shadow-xs'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                  title="Grid View"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setServiceViewMode('compact')}
+                  className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    serviceViewMode === 'compact'
+                      ? 'bg-white text-[var(--color-brand-hover)] shadow-xs'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                  title="Compact / Minimized View"
+                >
+                  <ListFilter className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <SlidersHorizontal className="w-4 h-4 text-gray-400 shrink-0" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 cursor-pointer"
+                >
+                  <option value="popular">Most Booked</option>
+                  <option value="rating">Top Rated</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -231,6 +298,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               );
             })}
           </div>
+
           {subcategories.length > 0 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs" aria-label="Subcategory filters">
               <button
@@ -250,6 +318,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               ))}
             </div>
           )}
+
           <label className="flex items-center gap-2 text-xs font-semibold text-gray-600">
             <input
               type="checkbox"
@@ -262,7 +331,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
         </div>
 
         {/* Results Counter */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-5">
           <p className="text-xs font-semibold text-gray-500">
             Showing <span className="font-bold text-gray-900">{filteredServices.length}</span> services
             {selectedCategory !== 'all' && (
@@ -285,7 +354,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
           )}
         </div>
 
-        {/* Services Grid */}
+        {/* Services List / Grid */}
         {filteredServices.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 max-w-md mx-auto my-8">
             <Search className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -299,12 +368,89 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                 setSelectedSubcategory('all');
                 setSearchQuery('');
               }}
-              className="px-5 py-2.5 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
+              className="px-6 py-2.5 bg-[var(--color-brand)] text-white text-xs font-bold rounded-xl shadow-xs"
             >
-              Reset Search & Filters
+              Reset Filters
             </button>
           </div>
+        ) : serviceViewMode === 'compact' ? (
+          /* Redesigned Compact Services List View */
+          <div className="space-y-3">
+            {filteredServices.map((service) => {
+              const fav = isFavorite(service.id);
+              return (
+                <div
+                  key={service.id}
+                  onClick={() => onSelectService(service.slug)}
+                  className="group bg-white rounded-2xl border border-gray-100 hover:border-[var(--color-brand)] p-3 sm:p-4 shadow-2xs hover:shadow-md transition-all flex items-center justify-between gap-4 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border border-gray-100 bg-gray-50">
+                      <ImageWithFallback
+                        src={service.image}
+                        alt={service.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-2 py-0.5 rounded-md bg-[var(--color-brand-light)] text-[var(--color-brand-hover)] text-[10px] font-bold">
+                          {service.categoryName}
+                        </span>
+                        <div className="flex items-center gap-1 text-[11px] text-amber-500 font-bold">
+                          <Star className="w-3 h-3 fill-amber-400" />
+                          <span>{service.rating}</span>
+                          <span className="text-gray-400 font-normal">({service.reviewsCount || 0})</span>
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-sm sm:text-base text-gray-900 group-hover:text-[var(--color-brand)] truncate font-['Outfit']">
+                        {service.name}
+                      </h3>
+                      <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+                        {service.shortDesc}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-right">
+                      <span className="text-[10px] text-gray-400 block uppercase font-bold">Starts at</span>
+                      <span className="text-base font-black text-[var(--color-brand-dark)] font-['Outfit']">
+                        ₹{service.startingPrice}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(service.id);
+                      }}
+                      className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+                        fav ? 'bg-red-50 text-red-500 border-red-200' : 'bg-gray-50 text-gray-400 border-gray-200 hover:text-red-500'
+                      }`}
+                      title={fav ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      <Heart className="w-4 h-4" fill={fav ? 'currentColor' : 'none'} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectService(service.slug);
+                      }}
+                      className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer hidden sm:block"
+                    >
+                      View Options
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         ) : (
+          /* Standard 3-column Grid View */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredServices.map((service) => {
               const fav = isFavorite(service.id);
@@ -368,7 +514,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                           {service.whatIncluded.slice(0, 2).map((h, i) => (
                             <div key={i} className="flex items-center gap-1.5 text-[11px] text-gray-600">
                               <CheckCircle2 className="w-3 h-3 text-[var(--color-brand)] shrink-0" />
-                              <span className="truncate">{h}</span>
+                              <span className="line-clamp-1">{h}</span>
                             </div>
                           ))}
                         </div>
@@ -376,33 +522,21 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                     </div>
                   </div>
 
-                  {/* Pricing and Actions Footer */}
-                  <div className="p-5 pt-0 mt-auto border-t border-gray-50 flex items-center justify-between gap-3">
-                    <div>
-                      <span className="text-[10px] text-gray-400 block uppercase font-medium">Starting from</span>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-lg font-black text-gray-900 font-['Outfit']">
+                  {/* Card Bottom CTA & Price */}
+                  <div className="p-5 pt-0 mt-auto">
+                    <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Starts at</span>
+                        <span className="text-lg font-black text-[var(--color-brand-dark)] font-['Outfit']">
                           ₹{service.startingPrice}
                         </span>
-                        {service.priceType && (
-                          <span className="text-[10px] text-gray-500">/{service.priceType}</span>
-                        )}
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => onSelectService(service.slug)}
-                        className="px-3 py-2 text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer"
+                        className="px-4 py-2 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-brand/20 cursor-pointer"
                       >
-                        Details
-                      </button>
-
-                      <button
-                        onClick={() => addItem(service)}
-                        className="px-4 py-2 text-xs font-bold text-white bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] rounded-xl shadow-xs transition-all cursor-pointer"
-                      >
-                        Book Now
+                        View Options
                       </button>
                     </div>
                   </div>

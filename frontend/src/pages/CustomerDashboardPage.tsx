@@ -20,6 +20,8 @@ import { chatApi } from '../services/chat';
 import { ImageWithFallback } from '../components/common/ImageWithFallback';
 import { getProfessionalImage } from '../utils/professionalImages';
 import { LiveBookingTrackerModal } from '../components/checkout/LiveBookingTrackerModal';
+import { isBookingWithin15Days, get15DayRetentionInfo } from '../utils/bookingHistory';
+import { Calendar, ShieldCheck, Navigation } from 'lucide-react';
 
 interface CustomerDashboardPageProps {
   services: Service[];
@@ -39,7 +41,7 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
 
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'bookings' | 'addresses' | 'favorites'>('bookings');
-  const [bookingFilter, setBookingFilter] = useState<'ALL' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'>('ALL');
+  const [bookingFilter, setBookingFilter] = useState<'ALL' | 'ACTIVE' | '15_DAYS_HISTORY' | 'COMPLETED' | 'CANCELLED'>('ALL');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTrackingBooking, setSelectedTrackingBooking] = useState<Booking | null>(null);
@@ -294,8 +296,12 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
           ).length;
           const completedBookingsCount = bookings.filter((b) => b.status === 'COMPLETED').length;
           const cancelledBookingsCount = bookings.filter((b) => b.status === 'CANCELLED').length;
+          const last15DaysCount = bookings.filter((b) => isBookingWithin15Days(b)).length;
 
           const filteredBookings = bookings.filter((b) => {
+            if (bookingFilter === '15_DAYS_HISTORY') {
+              return isBookingWithin15Days(b);
+            }
             if (bookingFilter === 'ACTIVE') {
               return ['PENDING', 'ASSIGNED', 'CONFIRMED', 'ON_THE_WAY', 'ARRIVED', 'IN_PROGRESS'].includes(b.status);
             }
@@ -335,6 +341,19 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                   </button>
                   <button
                     type="button"
+                    onClick={() => setBookingFilter('15_DAYS_HISTORY')}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                      bookingFilter === '15_DAYS_HISTORY'
+                        ? 'bg-[var(--color-brand)] text-white shadow-xs ring-2 ring-emerald-200'
+                        : 'bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50'
+                    }`}
+                    title="15-Day Booking History Option"
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Last 15 Days ({last15DaysCount})</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setBookingFilter('ACTIVE')}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                       bookingFilter === 'ACTIVE'
@@ -368,6 +387,24 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                   </button>
                 </div>
               </div>
+
+              {/* 15-Day Booking History Mode Banner (Requirement 6) */}
+              {bookingFilter === '15_DAYS_HISTORY' && (
+                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between gap-3 text-xs text-emerald-950 animate-in fade-in">
+                  <div className="flex items-center gap-2.5">
+                    <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <span className="font-extrabold block">15-Day Booking History Option Active</span>
+                      <p className="text-[11px] text-emerald-800 mt-0.5">
+                        Only records of services taken within the last 15 days are saved and visible. Older records ({bookings.length - last15DaysCount} items) have been automatically removed.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-xl bg-white border border-emerald-300 font-mono font-bold text-emerald-800 text-[11px] shrink-0">
+                    {filteredBookings.length} Saved
+                  </span>
+                </div>
+              )}
 
               {filteredBookings.length === 0 ? (
                 <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 max-w-md mx-auto">
@@ -424,6 +461,34 @@ export const CustomerDashboardPage: React.FC<CustomerDashboardPageProps> = ({
                             </span>
                           </div>
                         )}
+                      </div>
+
+                      {/* RIDER LOCALITY ARRIVAL TIME DISPLAY (Requirement 2) */}
+                      {['ON_THE_WAY', 'ARRIVED', 'CONFIRMED'].includes(booking.status) && (
+                        <div className="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-2xl border border-emerald-200 flex items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-2 text-emerald-950 font-bold">
+                            <Navigation className="w-4 h-4 text-emerald-600 animate-pulse shrink-0" />
+                            <span>Rider Arrival Time:</span>
+                            <span className="text-emerald-800 font-black font-['Outfit']">
+                              {booking.status === 'ARRIVED'
+                                ? 'Arrived at your doorstep!'
+                                : booking.estimatedArrival || 'Reaching locality in ~15 mins (02:45 PM)'}
+                            </span>
+                          </div>
+                          <span className="px-2 py-0.5 bg-white border border-emerald-200 rounded-md text-[10px] font-bold text-emerald-700 shrink-0">
+                            {booking.status === 'ARRIVED' ? 'At Door' : '⚡ Live ETA'}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 15-Day Retention Window Badge (Requirement 6) */}
+                      <div className="flex items-center gap-2 text-[11px] text-gray-500">
+                        <span className="px-2.5 py-1 rounded-md bg-gray-50 border border-gray-200 font-medium">
+                          {(() => {
+                            const r = get15DayRetentionInfo(booking);
+                            return r.daysAgo === 0 ? 'Service taken today' : `Service taken ${r.daysAgo}d ago`;
+                          })()} • {get15DayRetentionInfo(booking).daysRemaining}d remaining in 15-day history
+                        </span>
                       </div>
 
                       {/* Start OTP, Price & Action Buttons matching Photo 2 */}

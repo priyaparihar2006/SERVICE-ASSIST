@@ -68,6 +68,7 @@ interface AuthContextType {
   isFavorite: (id: string) => boolean;
   addAddress: (address: Omit<Address, 'id'>) => Promise<Address>;
   setDefaultAddress: (id: string) => Promise<void>;
+  updateProfile: (data: { name?: string; phone?: string; avatar?: string }) => Promise<void>;
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
@@ -323,6 +324,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateProfile = async (data: { name?: string; phone?: string; avatar?: string }) => {
+    try {
+      await api('/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: data.name,
+          phone: data.phone,
+          profileImage: data.avatar,
+        }),
+      });
+    } catch {
+      // offline / mock fallback
+    }
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = {
+        ...prev,
+        ...data,
+      };
+      localStorage.setItem('service_assist_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -340,6 +365,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isFavorite: (id) => favorites.includes(id),
         addAddress,
         setDefaultAddress,
+        updateProfile,
         isAuthModalOpen,
         openAuthModal: () => setIsAuthModalOpen(true),
         closeAuthModal: () => setIsAuthModalOpen(false),

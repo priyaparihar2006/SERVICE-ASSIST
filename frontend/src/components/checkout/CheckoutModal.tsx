@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLocation } from '../../context/LocationContext';
 import { Booking } from '../../types';
 import { LiveBookingTrackerModal } from './LiveBookingTrackerModal';
+import { ClockTimePicker } from './ClockTimePicker';
 import {
   X,
   Calendar,
@@ -322,25 +323,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ onSuccess, onNavig
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
                   2. Choose 1-Hour Arrival Slot
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {timeSlots.map((slot) => {
-                    const isSelected = bookingTimeSlot === slot;
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        onClick={() => setBookingTimeSlot(slot)}
-                        className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
-                          isSelected
-                            ? 'border-emerald-600 bg-emerald-50 text-emerald-800 font-bold shadow-xs'
-                            : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        {slot}
-                      </button>
-                    );
-                  })}
-                </div>
+                <ClockTimePicker
+                  selectedSlot={bookingTimeSlot}
+                  onSelectSlot={setBookingTimeSlot}
+                  availableSlots={timeSlots}
+                />
               </div>
 
               <div>

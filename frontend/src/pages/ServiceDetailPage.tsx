@@ -75,11 +75,11 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
         {/* Breadcrumb & Navigation */}
         <div className="flex items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <button onClick={onBack} className="hover:text-gray-900 transition-colors cursor-pointer">
+            <button onClick={() => onNavigate('/')} className="hover:text-gray-900 transition-colors cursor-pointer">
               Home
             </button>
             <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-            <button onClick={onBack} className="hover:text-gray-900 transition-colors cursor-pointer">
+            <button onClick={() => onNavigate(`/services?category=${encodeURIComponent(service.categoryId)}`)} className="hover:text-gray-900 transition-colors cursor-pointer">
               {service.categoryName}
             </button>
             <ChevronRight className="w-3.5 h-3.5 text-gray-400" />

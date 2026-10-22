@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useOffers } from '../../hooks/useOffers';
-import { Tag, Sparkles, CheckCircle2, Copy, ArrowRight } from 'lucide-react';
+import { Tag, Sparkles, CheckCircle2, Copy, ArrowRight, Clock, Calendar } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { getCouponValidityInfo } from '../../utils/couponUtils';
 
 export const OffersSection: React.FC = () => {
   const { offers: COUPONS, error, loading } = useOffers();
@@ -43,6 +44,8 @@ export const OffersSection: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {COUPONS.slice(0, 3).map((coupon) => {
             const isApplied = appliedCoupon?.code === coupon.code;
+            const validity = getCouponValidityInfo(coupon.expiry);
+
             return (
               <div
                 key={coupon.code}
@@ -66,9 +69,24 @@ export const OffersSection: React.FC = () => {
                   </div>
 
                   <h3 className="font-bold text-[var(--color-brand-dark)] text-base mb-1.5 font-['Outfit']">{coupon.description}</h3>
-                  <p className="text-xs text-[var(--color-muted)] mb-4">
-                    Valid on all services scheduled through {coupon.expiry}.
-                  </p>
+                  
+                  {/* Coupon Validity Badges */}
+                  <div className="space-y-1 mb-4 pt-1">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-700 font-medium">
+                      <Calendar className="w-3.5 h-3.5 text-[var(--color-brand)] shrink-0" />
+                      <span>{validity.availableUpToText}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                        validity.isExpiringSoon
+                          ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                          : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      }`}>
+                        <Clock className="w-3 h-3" />
+                        <span>{validity.expiryWithinText}</span>
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="pt-4 border-t border-dashed border-[var(--color-brand-light)] flex items-center justify-between gap-3">
